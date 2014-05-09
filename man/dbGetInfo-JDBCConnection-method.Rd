@@ -1,0 +1,18 @@
+\docType{methods}
+\name{dbGetInfo,JDBCConnection-method}
+\alias{dbGetInfo,JDBCConnection-method}
+\title{Get info about the connection.}
+\usage{
+\S4method{dbGetInfo}{JDBCConnection}(dbObj, ...)
+}
+\arguments{
+  \item{dbObj}{an object of class
+  \code{\linkS4class{JDBCConnection}}}
+
+  \item{...}{Ignored. Needed for compatiblity with
+  generic.}
+}
+\description{
+Get info about the connection.
+}
+

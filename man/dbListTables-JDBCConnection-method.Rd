@@ -1,0 +1,21 @@
+\docType{methods}
+\name{dbListTables,JDBCConnection-method}
+\alias{dbListTables,JDBCConnection-method}
+\title{List available JDBC tables.}
+\usage{
+\S4method{dbListTables}{JDBCConnection}(conn, pattern = "\%", ...)
+}
+\arguments{
+  \item{conn}{An existing
+  \code{\linkS4class{JDBCConnection}}}
+
+  \item{...}{Ignored. Included for compatibility with
+  generic.}
+
+  \item{pattern}{the pattern passed to the java method
+  ResultSet.getTables()}
+}
+\description{
+List available JDBC tables.
+}
+

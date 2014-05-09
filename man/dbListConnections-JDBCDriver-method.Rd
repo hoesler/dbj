@@ -1,0 +1,18 @@
+\docType{methods}
+\name{dbListConnections,JDBCDriver-method}
+\alias{dbListConnections,JDBCDriver-method}
+\title{List active connections}
+\usage{
+\S4method{dbListConnections}{JDBCDriver}(drv, ...)
+}
+\arguments{
+  \item{drv}{An object of class
+  \code{\linkS4class{JDBCDriver}}}
+
+  \item{...}{Ignored. Needed for compatibility with
+  generic.}
+}
+\description{
+List active connections
+}
+

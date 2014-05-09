@@ -1,0 +1,21 @@
+\docType{methods}
+\name{dbGetQuery,JDBCConnection,character-method}
+\alias{dbGetQuery,JDBCConnection,character-method}
+\title{Execute a SQL statement on a database connection to fetch data from the database}
+\usage{
+\S4method{dbGetQuery}{JDBCConnection,character}(conn, statement, ...)
+}
+\arguments{
+  \item{conn}{an object of class
+  \code{\linkS4class{JDBCConnection}}}
+
+  \item{statement}{the statement to send}
+
+  \item{...}{Ignored. Needed for compatiblity with
+  generic.}
+}
+\description{
+Execute a SQL statement on a database connection to fetch
+data from the database
+}
+
