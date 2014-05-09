@@ -1,3 +1,4 @@
+#' @import plyr
 #' @include JDBCObject.R
 NULL
 
@@ -7,6 +8,20 @@ NULL
 #' @rdname JDBCResult-class
 #' @exportClass JDBCResult
 setClass("JDBCResult", contains = c("DBIResult", "JDBCObject"), slots=c(jr="jobjRef", md="jobjRef", stat="jobjRef", pull="jobjRef"))
+
+setMethod("initialize", signature(.Object = "JDBCResult"),
+  function(.Object, ...) {
+    .Object <- callNextMethod()
+    if (is.null(.Object@jr)) {
+      stop("Java result is null")
+    }
+    rp <- .jnew("info/urbanek/Rpackage/RJDBC/JDBCResultPull", .jcast(.Object@jr, "java/sql/ResultSet"))
+    .verify.JDBC.result(rp, "cannot instantiate JDBCResultPull hepler class")
+    .Object@pull <- rp
+
+    .Object
+  }
+)
 
 #' Fetch records from a previously executed query
 #'
@@ -19,41 +34,71 @@ setClass("JDBCResult", contains = c("DBIResult", "JDBCObject"), slots=c(jr="jobj
 setMethod("fetch", signature(res="JDBCResult", n="numeric"),
   function(res, n, ...) {
     cols <- .jcall(res@md, "I", "getColumnCount")
-    if (cols < 1L) return(NULL)
-    l <- list()
-    cts <- rep(0L, cols)
-    for (i in 1:cols) {
-      ct <- .jcall(res@md, "I", "getColumnType", i)
+    if (cols < 1L) {
+      return(NULL)
+    }
+       
+    column_info <- as.data.frame(t(sapply(seq(cols), function(column_index) {     
+      ct <- .jcall(res@md, "I", "getColumnType", column_index)
       if (ct == -5 | ct ==-6 | (ct >= 2 & ct <= 8)) {
-        l[[i]] <- numeric()
-        cts[i] <- 1L
-      } else
-        l[[i]] <- character()
-      names(l)[i] <- .jcall(res@md, "S", "getColumnLabel", i)
-    }
-    rp <- res@pull
-    if (is.jnull(rp)) {
-      rp <- .jnew("info/urbanek/Rpackage/RJDBC/JDBCResultPull", .jcast(res@jr, "java/sql/ResultSet"), .jarray(as.integer(cts)))
-      .verify.JDBC.result(rp, "cannot instantiate JDBCResultPull hepler class")
-    }
-    if (n < 0L) { ## infinite pull
-      stride <- 32768L  ## start fairly small to support tiny queries and increase later
-      while ((nrec <- .jcall(rp, "I", "fetch", stride)) > 0L) {
-        for (i in seq.int(cols))
-          l[[i]] <- c(l[[i]], if (cts[i] == 1L) .jcall(rp, "[D", "getDoubles", i) else .jcall(rp, "[Ljava/lang/String;", "getStrings", i))
-        if (nrec < stride) break
-        stride <- 524288L # 512k
+        type <- "numeric"
+      } else {
+        type <- "character"
+      }      
+      label <- .jcall(res@md, "S", "getColumnLabel", column_index)
+      list(label = label, type = type)
+    })))
+
+    infinite_pull <- (n == -1)
+    stride <- if (n == -1) {
+        32768L  ## infinite pull: start fairly small to support tiny queries and increase later
+      } else {
+        n
       }
-    } else {
-      nrec <- .jcall(rp, "I", "fetch", as.integer(n))
-      for (i in seq.int(cols)) l[[i]] <- if (cts[i] == 1L) .jcall(rp, "[D", "getDoubles", i) else .jcall(rp, "[Ljava/lang/String;", "getStrings", i)
+
+    chunks <- list()
+    repeat {    
+      fetched <- fetch_resultpull(res, stride, column_info) 
+      chunks <- c(chunks, list(fetched))
+
+      if (!infinite_pull || nrow(fetched) < stride) {
+        break
+      }
+
+      stride <- 524288L # 512k
     }
-    # as.data.frame is expensive - create it on the fly from the list
-    attr(l, "row.names") <- c(NA_integer_, length(l[[1]]))
-    class(l) <- "data.frame"
-    l
+
+    rbind.fill(chunks)
   }
 )
+
+fetch_resultpull <- function(res, rows, column_info) {
+  java_table <- .jcall(res@pull, "Linfo/urbanek/Rpackage/RJDBC/Table;", "fetch", as.integer(rows))
+  .verify.JDBC.result(java_table, "Table creation failed")
+  column_count <- .jcall(java_table, "I", "columnCount")
+  row_count <- .jcall(java_table, "I", "rowCount")
+
+  column_list <- lapply(seq(column_count), function(column_index) {
+    column <- .jcall(java_table, "Linfo/urbanek/Rpackage/RJDBC/Column;", "getColumn", as.integer(column_index - 1))
+    .jcheck()
+
+    column_data <- c()
+    if (column_info[column_index, "type"] == "numeric") {
+      column_data <- .jcall(column, "[D", "toDoubleArray")
+    } else {
+      column_data <- .jcall(column, "[Ljava/lang/String;", "toStringArray")     
+    }
+    .jcheck()
+    names(column_data) <- column_info[column_index, "label"]
+
+    column_data
+  })
+
+  # as.data.frame is expensive - create it on the fly from the list
+  attr(column_list, "row.names") <- c(NA_integer_, row_count)
+  class(column_list) <- "data.frame"
+  column_list
+}
 
 #' Clear a result set.
 #' 
