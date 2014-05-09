@@ -1,4 +1,4 @@
-#' @import plyr
+#' @import dplyr
 #' @include JDBCObject.R
 NULL
 
@@ -68,7 +68,7 @@ setMethod("fetch", signature(res="JDBCResult", n="numeric"),
       stride <- 524288L # 512k
     }
 
-    rbind.fill(chunks)
+    rbind_all(chunks)
   }
 )
 

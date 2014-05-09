@@ -7,8 +7,8 @@ Depends:
     methods,
     DBI,
     rJava (>= 0.4-15),
-    R (>= 2.4.0),
-    plyr
+    R (>= 3.0),
+    dplyr
 Suggests:
     testthat
 Description: RJDBC is an implementation of R's DBI interface using JDBC as a
