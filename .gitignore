@@ -1,0 +1,4 @@
+man/*.Rd
+inst/java
+*.class
+*.jar
