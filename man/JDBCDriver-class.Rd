@@ -1,37 +1,23 @@
-\name{JDBCDriver-class}
 \docType{class}
+\name{JDBCDriver-class}
+\alias{JDBC}
 \alias{JDBCDriver-class}
+\title{Class JDBCDriver with factory method JDBC.}
+\usage{
+JDBC(driverClass = "", classPath = "", identifier.quote = NA)
+}
+\arguments{
+  \item{driverClass}{the java class name of the JDBC driver
+  to use}
 
-\title{Class "JDBCDriver"}
-\description{A DBI driver that uses any JDBC driver to access databases.}
-\section{Generators}{
-Objects can be created by calls to \code{\link{JDBC}} or \code{\link[DBI]{dbDriver}}.
-}
-\section{Slots}{
-  \describe{
-    \item{\code{identifier.quote}:}{Quote character to use for
-      identifiers in automatically generated SQL statements or \code{NA}
-      if quoted identifiers are not supported by the back-end.}
-    \item{\code{jdrv}:}{Java object reference to an instance of the
-      driver if the driver can be instantiated by a default
-      constructor. This object is only used as a fall-back when the
-      driver manager fails to find a driver.}
-  }
-}
-\section{Extends}{
-Class \code{"\link[DBI]{DBIDriver-class}"}, directly.
-Class \code{"\link[DBI]{DBIObject-class}"}, by class "DBIDriver", distance 2.
-}
-\section{Methods}{
-No methods defined with class "JDBCDriver" in the signature.
-}
-%\references{ ~put references to the literature/web site here ~ }
-%\author{ ~~who you are~~ }
-%\note{ ~~further notes~~ }
+  \item{classPath}{a string of paths seperated by : which
+  shoul get added to the classpath (see
+  \link[rJava]{.jaddClassPath})}
 
-\seealso{
-  \code{\link{JDBC}}
+  \item{identifier.quote}{the quoting character to quote
+  identifiers}
 }
-%\examples{
-%}
-\keyword{classes}
+\description{
+Class JDBCDriver with factory method JDBC.
+}
+
