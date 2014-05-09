@@ -29,7 +29,7 @@ setMethod("fetch", signature(res="JDBCResult", n="numeric"),
         cts[i] <- 1L
       } else
         l[[i]] <- character()
-      names(l)[i] <- .jcall(res@md, "S", "getColumnName", i)
+      names(l)[i] <- .jcall(res@md, "S", "getColumnLabel", i)
     }
     rp <- res@pull
     if (is.jnull(rp)) {
