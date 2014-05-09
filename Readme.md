@@ -7,3 +7,5 @@ At the moment this a just a playgound for myself but might be merged back later 
 
 ## Installation
 This fork can be installed most easily using the [devtools](https://github.com/hadley/devtools) package. After you installed this package just enter `devtools::install_github("hoesler/RJDBC")`.
+
+The source compilation requires that you haven [maven](https://maven.apache.org/) installed.

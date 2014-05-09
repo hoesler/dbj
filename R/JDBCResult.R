@@ -89,7 +89,6 @@ fetch_resultpull <- function(res, rows, column_info) {
       column_data <- .jcall(column, "[Ljava/lang/String;", "toStringArray")     
     }
     .jcheck()
-    names(column_data) <- column_info[column_index, "label"]
 
     column_data
   })
@@ -97,6 +96,7 @@ fetch_resultpull <- function(res, rows, column_info) {
   # as.data.frame is expensive - create it on the fly from the list
   attr(column_list, "row.names") <- c(NA_integer_, row_count)
   class(column_list) <- "data.frame"
+  names(column_list) <- column_info$label
   column_list
 }
 
