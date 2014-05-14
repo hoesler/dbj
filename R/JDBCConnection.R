@@ -14,18 +14,22 @@ setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"), slots = 
 #' @param drv a JDBCConnection object
 #' @param ... Ignored. Included for compatibility with generic.
 #' @export
-setMethod("dbConnect", signature(drv = "JDBCConnection"), function(drv, ...) {
-  stop("Not implemented")
-})
+setMethod("dbConnect", signature(drv = "JDBCConnection"),
+  function(drv, ...) {
+    stop("Not implemented")
+  }
+)
 
 #' Calls a stored procedure.
 #'
 #' @param conn a JDBCConnection object
 #' @param ... Ignored. Included for compatibility with generic.
 #' @export
-setMethod("dbCallProc", signature(conn = "JDBCConnection"), function(conn, ...) {
-  stop("Not implemented")
-})
+setMethod("dbCallProc", signature(conn = "JDBCConnection"),
+  function(conn, ...) {
+    stop("Not implemented")
+  }
+)
 
 #' Disconnect an JDBC connection.
 #' 
@@ -390,6 +394,8 @@ setMethod("dbRollback", signature(conn = "JDBCConnection"),
 )
 
 #' @export
-setMethod("summary", "JDBCConnection", function(object, ...) {
-  stop("Not implemented")
-})
+setMethod("summary", "JDBCConnection", 
+  function(object, ...) {
+    stop("Not implemented")
+  }
+)

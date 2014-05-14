@@ -154,41 +154,65 @@ setMethod("dbColumnInfo", signature(res = "JDBCResult"),
 )
 
 #' @export
-setMethod("dbGetException", signature(conn = "JDBCResult"), function(conn, ...) {
-  stop("Not implemented")
-})
+setMethod("dbGetException", signature(conn = "JDBCResult"),
+  function(conn, ...) {
+    stop("Not implemented")
+  }
+)
 
 #' @export
-setMethod("dbGetRowCount", signature(res = "JDBCResult"), function(res, ...) {
-  stop("Not implemented")
-})
+setMethod("dbGetRowCount", signature(res = "JDBCResult"),
+  function(res, ...) {
+    stop("Not implemented")
+  }
+)
 
 #' @export
-setMethod("dbGetRowsAffected", signature(res = "JDBCResult"), function(res, ...) {
-  stop("Not implemented")
-})
+setMethod("dbGetRowsAffected", signature(res = "JDBCResult"),
+  function(res, ...) {
+    stop("Not implemented")
+  }
+)
 
 #' @export
-setMethod("dbGetStatement", signature(res = "JDBCResult"), function(res, ...) {
-  stop("Not implemented")
-})
+setMethod("dbGetStatement", signature(res = "JDBCResult"),
+  function(res, ...) {
+    stop("Not implemented")
+  }
+)
 
 #' @export
-setMethod("dbHasCompleted", signature(res = "JDBCResult"), function(res, ...) {
-  stop("Not implemented")
-})
+setMethod("dbHasCompleted", signature(res = "JDBCResult"),
+  function(res, ...) {
+    if (.jcall(res@jr, "I", "getRow") > 0) {
+      completed <- .jcall(res@jr, "Z", "isAfterLast")
+    } else {      
+      completed <- .jcall(res@jr, "Z", "isBeforeFirst") == FALSE
+      # true if the cursor is before the first row; false if the cursor is at any other position or the result set contains no rows
+    }
+
+    .jcheck()
+    completed
+  }
+)
 
 #' @export
-setMethod("dbListFields", signature(conn = "JDBCResult", name = "missing"), function(conn, name, ...) {
-  stop("Not implemented")
-})
+setMethod("dbListFields", signature(conn = "JDBCResult", name = "missing"),
+  function(conn, name, ...) {
+    stop("Not implemented")
+  }
+)
 
 #' @export
-setMethod("summary", "JDBCResult", function(object, ...) {
-  stop("Not implemented")
-})
+setMethod("summary", "JDBCResult",
+  function(object, ...) {
+    stop("Not implemented")
+  }
+)
 
 #' @export
-setMethod("coerce", signature(from = "JDBCConnection", to = "JDBCResult"), function(from, to) {
-  stop("Not implemented")
-})
+setMethod("coerce", signature(from = "JDBCConnection", to = "JDBCResult"),
+  function(from, to) {
+    stop("Not implemented")
+  }
+)

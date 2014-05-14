@@ -39,7 +39,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCObject"),
 #' Determine the SQL Data Type of an R object.
 #'
 #' @docType methods
-#' @param dbObj a \code{\linkS4class{JDBCObject}} object,
+#' @param dbObj a \code{\linkS4class{JDBCObject}} object.
 #' @param obj an R object whose SQL type we want to determine.
 #' @param ... Needed for compatibility with generic. Otherwise ignored.
 #' @export
@@ -54,21 +54,29 @@ setMethod("dbDataType", signature(dbObj = "JDBCObject"),
 
 
 #' @export
-setMethod("summary", signature(object = "JDBCObject"), function(object, ...) {
-  stop("Not implemented")
-})
+setMethod("summary", signature(object = "JDBCObject"),
+  function(object, ...) {
+    stop("Not implemented")
+  }
+)
 
 #' @export
-setMethod("isSQLKeyword", signature(dbObj = "JDBCObject"), function(dbObj, ...) {
-  stop("Not implemented")
-})
+setMethod("isSQLKeyword", signature(dbObj = "JDBCObject"),
+  function(dbObj, ...) {
+    stop("Not implemented")
+  }
+)
 
 #' @export
-setMethod("make.db.names", signature(dbObj = "JDBCObject"), function(dbObj, ...) {
-  stop("Not implemented")
-})
+setMethod("make.db.names", signature(dbObj = "JDBCObject"),
+  function(dbObj, ...) {
+    stop("Not implemented")
+  }
+)
 
 #' @export
-setMethod("SQLKeywords", signature(dbObj = "JDBCObject"), function(dbObj, ...) {
-  stop("Not implemented")
-})
+setMethod("SQLKeywords", signature(dbObj = "JDBCObject"),
+  function(dbObj, ...) {
+    stop("Not implemented")
+  }
+)
