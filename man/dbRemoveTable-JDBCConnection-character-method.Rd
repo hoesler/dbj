@@ -1,9 +1,9 @@
 \docType{methods}
-\name{dbRemoveTable,JDBCConnection-method}
-\alias{dbRemoveTable,JDBCConnection-method}
+\name{dbRemoveTable,JDBCConnection,character-method}
+\alias{dbRemoveTable,JDBCConnection,character-method}
 \title{Remove a table from the database.}
 \usage{
-\S4method{dbRemoveTable}{JDBCConnection}(conn, name, ...)
+\S4method{dbRemoveTable}{JDBCConnection,character}(conn, name, ...)
 }
 \arguments{
   \item{conn}{An existing

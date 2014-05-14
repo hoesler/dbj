@@ -86,3 +86,14 @@ setMethod("dbConnect", signature(drv = "JDBCDriver"),
   },
   valueClass="JDBCConnection"
 )
+
+
+#' @export
+setMethod("summary", signature(object = "JDBCDriver"), function(object, ...) {
+  stop("Not implemented")
+})
+
+#' @export
+setMethod("dbGetInfo", signature(dbObj = "JDBCDriver"), function(dbObj, ...) {
+  stop("Not implemented")
+})

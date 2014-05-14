@@ -1,9 +1,9 @@
 \docType{methods}
-\name{dbReadTable,JDBCConnection-method}
-\alias{dbReadTable,JDBCConnection-method}
+\name{dbReadTable,JDBCConnection,character-method}
+\alias{dbReadTable,JDBCConnection,character-method}
 \title{Convenience functions for importing/exporting DBMS tables}
 \usage{
-\S4method{dbReadTable}{JDBCConnection}(conn, name, ...)
+\S4method{dbReadTable}{JDBCConnection,character}(conn, name, ...)
 }
 \arguments{
   \item{conn}{a \code{\linkS4class{JDBCConnection}} object,

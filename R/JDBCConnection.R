@@ -388,3 +388,8 @@ setMethod("dbRollback", signature(conn = "JDBCConnection"),
     TRUE
   }
 )
+
+#' @export
+setMethod("summary", "JDBCConnection", function(object, ...) {
+  stop("Not implemented")
+})

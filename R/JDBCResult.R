@@ -23,6 +23,12 @@ setMethod("initialize", signature(.Object = "JDBCResult"),
   }
 )
 
+setMethod("fetch", signature(res="JDBCResult", n = "missing"),
+  function(res, n, ...) {
+    fetch(res, -1)
+  }
+)
+
 #' Fetch records from a previously executed query
 #'
 #' @param res an \code{\linkS4class{JDBCResult}} object.
@@ -147,34 +153,42 @@ setMethod("dbColumnInfo", signature(res = "JDBCResult"),
   valueClass = "data.frame"
 )
 
+#' @export
 setMethod("dbGetException", signature(conn = "JDBCResult"), function(conn, ...) {
   stop("Not implemented")
 })
 
+#' @export
 setMethod("dbGetRowCount", signature(res = "JDBCResult"), function(res, ...) {
   stop("Not implemented")
 })
 
+#' @export
 setMethod("dbGetRowsAffected", signature(res = "JDBCResult"), function(res, ...) {
   stop("Not implemented")
 })
 
+#' @export
 setMethod("dbGetStatement", signature(res = "JDBCResult"), function(res, ...) {
   stop("Not implemented")
 })
 
+#' @export
 setMethod("dbHasCompleted", signature(res = "JDBCResult"), function(res, ...) {
   stop("Not implemented")
 })
 
-setMethod("dbListFields", signature(res = "JDBCResult"), function(res, ...) {
+#' @export
+setMethod("dbListFields", signature(conn = "JDBCResult", name = "missing"), function(conn, name, ...) {
   stop("Not implemented")
 })
 
-setMethod("summary", signature(object = "JDBCResult"), function(object, ...) {
+#' @export
+setMethod("summary", "JDBCResult", function(object, ...) {
   stop("Not implemented")
 })
 
-setMethod("coerce", signature(from = "JDBCConnection", to = "JDBCResult"), function(from, to, ...) {
+#' @export
+setMethod("coerce", signature(from = "JDBCConnection", to = "JDBCResult"), function(from, to) {
   stop("Not implemented")
 })

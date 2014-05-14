@@ -1,9 +1,10 @@
 \docType{methods}
-\name{dbListFields,JDBCConnection-method}
-\alias{dbListFields,JDBCConnection-method}
+\name{dbListFields,JDBCConnection,character-method}
+\alias{dbListFields,JDBCConnection,character-method}
 \title{Get a description of table columns available in the specified catalog.}
 \usage{
-\S4method{dbListFields}{JDBCConnection}(conn, name, ..., pattern = "\%")
+\S4method{dbListFields}{JDBCConnection,character}(conn, name, ...,
+  pattern = "\%")
 }
 \arguments{
   \item{conn}{An existing

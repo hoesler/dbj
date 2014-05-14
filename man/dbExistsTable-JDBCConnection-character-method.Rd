@@ -1,9 +1,9 @@
 \docType{methods}
-\name{dbExistsTable,JDBCConnection-method}
-\alias{dbExistsTable,JDBCConnection-method}
+\name{dbExistsTable,JDBCConnection,character-method}
+\alias{dbExistsTable,JDBCConnection,character-method}
 \title{Does the table exist?}
 \usage{
-\S4method{dbExistsTable}{JDBCConnection}(conn, name, ...)
+\S4method{dbExistsTable}{JDBCConnection,character}(conn, name, ...)
 }
 \arguments{
   \item{conn}{An existing

@@ -1,10 +1,10 @@
 \docType{methods}
-\name{dbWriteTable,JDBCConnection-method}
-\alias{dbWriteTable,JDBCConnection-method}
+\name{dbWriteTable,JDBCConnection,character,data.frame-method}
+\alias{dbWriteTable,JDBCConnection,character,data.frame-method}
 \title{Write a local data frame or file to the database.}
 \usage{
-\S4method{dbWriteTable}{JDBCConnection}(conn, name, value, overwrite = TRUE,
-  append = FALSE, ...)
+\S4method{dbWriteTable}{JDBCConnection,character,data.frame}(conn, name, value,
+  overwrite = TRUE, append = FALSE, ...)
 }
 \arguments{
   \item{conn}{An existing

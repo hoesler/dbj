@@ -51,3 +51,24 @@ setMethod("dbDataType", signature(dbObj = "JDBCObject"),
   },
   valueClass = "character"
 )
+
+
+#' @export
+setMethod("summary", signature(object = "JDBCObject"), function(object, ...) {
+  stop("Not implemented")
+})
+
+#' @export
+setMethod("isSQLKeyword", signature(dbObj = "JDBCObject"), function(dbObj, ...) {
+  stop("Not implemented")
+})
+
+#' @export
+setMethod("make.db.names", signature(dbObj = "JDBCObject"), function(dbObj, ...) {
+  stop("Not implemented")
+})
+
+#' @export
+setMethod("SQLKeywords", signature(dbObj = "JDBCObject"), function(dbObj, ...) {
+  stop("Not implemented")
+})
