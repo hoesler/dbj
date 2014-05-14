@@ -31,7 +31,7 @@ setMethod("initialize", signature(.Object = "JDBCResult"),
 #'    number of rows as defined in \code{\link{JDBC}}
 #' @param ... Ignored. Needed for compatibility with generic.
 #' @export
-setMethod("fetch", signature(res="JDBCResult", n="numeric"),
+setMethod("fetch", signature(res="JDBCResult", n = "numeric"),
   function(res, n, ...) {
     cols <- .jcall(res@md, "I", "getColumnCount")
     if (cols < 1L) {
@@ -146,3 +146,35 @@ setMethod("dbColumnInfo", signature(res = "JDBCResult"),
   },
   valueClass = "data.frame"
 )
+
+setMethod("dbGetException", signature(conn = "JDBCResult"), function(conn, ...) {
+  stop("Not implemented")
+})
+
+setMethod("dbGetRowCount", signature(res = "JDBCResult"), function(res, ...) {
+  stop("Not implemented")
+})
+
+setMethod("dbGetRowsAffected", signature(res = "JDBCResult"), function(res, ...) {
+  stop("Not implemented")
+})
+
+setMethod("dbGetStatement", signature(res = "JDBCResult"), function(res, ...) {
+  stop("Not implemented")
+})
+
+setMethod("dbHasCompleted", signature(res = "JDBCResult"), function(res, ...) {
+  stop("Not implemented")
+})
+
+setMethod("dbListFields", signature(res = "JDBCResult"), function(res, ...) {
+  stop("Not implemented")
+})
+
+setMethod("summary", signature(object = "JDBCResult"), function(object, ...) {
+  stop("Not implemented")
+})
+
+setMethod("coerce", signature(from = "JDBCConnection", to = "JDBCResult"), function(from, to, ...) {
+  stop("Not implemented")
+})

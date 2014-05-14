@@ -62,6 +62,7 @@ setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
 
 #' Create a JDBC connection.
 #'
+#' @param drv Object created by \code{\link{JDBC}}
 #' @param url the url to connect to
 #' @param user the user to log in
 #' @param password the users password

@@ -9,6 +9,24 @@ NULL
 #' @exportClass JDBCConnection
 setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"), slots = c(jc="jobjRef", identifier.quote="character"))
 
+#' Create a JDBC connection.
+#'
+#' @param drv a JDBCConnection object
+#' @param ... Ignored. Included for compatibility with generic.
+#' @export
+setMethod("dbConnect", signature(drv = "JDBCConnection"), function(drv, ...) {
+  stop("Not implemented")
+})
+
+#' Calls a stored procedure.
+#'
+#' @param conn a JDBCConnection object
+#' @param ... Ignored. Included for compatibility with generic.
+#' @export
+setMethod("dbCallProc", signature(conn = "JDBCConnection"), function(conn, ...) {
+  stop("Not implemented")
+})
+
 #' Disconnect an JDBC connection.
 #' 
 #' @param conn An existing \code{\linkS4class{JDBCConnection}}
@@ -44,7 +62,7 @@ setMethod("dbDisconnect", signature(conn = "JDBCConnection"),
 #' @param ... statment parameters
 #' @param list a list of statment parameters
 #' @export
-setMethod("dbSendQuery", signature(conn="JDBCConnection", statement="character"),
+setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "character"),
   function(conn, statement, ..., list = NULL) {
     statement <- as.character(statement)[1L]
     ## if the statement starts with {call or {?= call then we use CallableStatement 
@@ -81,7 +99,7 @@ setMethod("dbSendQuery", signature(conn="JDBCConnection", statement="character")
 #' @param ... statment parameters
 #' @param list a list of statment parameters
 #' @export
-setMethod("dbSendUpdate",  signature(conn="JDBCConnection", statement="character"),
+setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character"),
   function(conn, statement, ..., list=NULL) {
     statement <- as.character(statement)[1L]
     ## if the statement starts with {call or {?= call then we use CallableStatement 
@@ -117,7 +135,7 @@ setMethod("dbSendUpdate",  signature(conn="JDBCConnection", statement="character
 #' @param statement the statement to send
 #' @param ... Ignored. Needed for compatiblity with generic.
 #' @export
-setMethod("dbGetQuery", signature(conn="JDBCConnection", statement="character"),
+setMethod("dbGetQuery", signature(conn = "JDBCConnection", statement = "character"),
   function(conn, statement, ...) {
     r <- dbSendQuery(conn, statement, ...)
     ## Teradata needs this - closing the statement also closes the result set according to Java docs
@@ -131,7 +149,7 @@ setMethod("dbGetQuery", signature(conn="JDBCConnection", statement="character"),
 #' @param conn an object of class \code{\linkS4class{JDBCConnection}}
 #' @param ... Ignored. Needed for compatiblity with generic.
 #' @export
-setMethod("dbGetException", signature(conn="JDBCConnection"),
+setMethod("dbGetException", signature(conn = "JDBCConnection"),
   function(conn, ...) list(),
   valueClass = "list"
 )
@@ -141,7 +159,7 @@ setMethod("dbGetException", signature(conn="JDBCConnection"),
 #' @param dbObj an object of class \code{\linkS4class{JDBCConnection}}
 #' @param ... Ignored. Needed for compatiblity with generic.
 #' @export
-setMethod("dbGetInfo", signature(dbObj="JDBCConnection"),
+setMethod("dbGetInfo", signature(dbObj = "JDBCConnection"),
   function(dbObj, ...) list()
 )
 
@@ -150,7 +168,7 @@ setMethod("dbGetInfo", signature(dbObj="JDBCConnection"),
 #' @param conn An existing \code{\linkS4class{JDBCConnection}}
 #' @param ... Ignored. Included for compatibility with generic.
 #' @export
-setMethod("dbListResults", signature(conn="JDBCConnection"),
+setMethod("dbListResults", signature(conn = "JDBCConnection"),
   function(conn, ...) {
     warning("JDBC maintains no list of active results")
     NULL
@@ -170,18 +188,20 @@ setMethod("dbListResults", signature(conn="JDBCConnection"),
 #' @param ... Ignored. Included for compatibility with generic.
 #' @param pattern the pattern passed to the java method ResultSet.getTables()
 #' @export
-setMethod("dbListTables", "JDBCConnection", def=function(conn, pattern="%", ...) {
-  md <- .jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData", check=FALSE)
-  .verify.JDBC.result(md, "Unable to retrieve JDBC database metadata")
-  r <- .jcall(md, "Ljava/sql/ResultSet;", "getTables", .jnull("java/lang/String"),
-              .jnull("java/lang/String"), pattern, .jnull("[Ljava/lang/String;"), check=FALSE)
-  .verify.JDBC.result(r, "Unable to retrieve JDBC tables list")
-  on.exit(.jcall(r, "V", "close"))
-  ts <- character()
-  while (.jcall(r, "Z", "next"))
-    ts <- c(ts, .jcall(r, "S", "getString", "TABLE_NAME"))
-  ts
-})
+setMethod("dbListTables", signature(conn = "JDBCConnection"),
+  function(conn, pattern="%", ...) {
+    md <- .jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData", check=FALSE)
+    .verify.JDBC.result(md, "Unable to retrieve JDBC database metadata")
+    r <- .jcall(md, "Ljava/sql/ResultSet;", "getTables", .jnull("java/lang/String"),
+                .jnull("java/lang/String"), pattern, .jnull("[Ljava/lang/String;"), check=FALSE)
+    .verify.JDBC.result(r, "Unable to retrieve JDBC tables list")
+    on.exit(.jcall(r, "V", "close"))
+    ts <- character()
+    while (.jcall(r, "Z", "next"))
+      ts <- c(ts, .jcall(r, "S", "getString", "TABLE_NAME"))
+    ts
+  }
+)
 
 #' Get a description of the tables available in the given catalog. 
 #'
@@ -209,7 +229,7 @@ setMethod("dbGetTables", signature(conn = "JDBCConnection"),
 #' @param name character vector of length 1 giving name of table
 #' @param ... Ignored. Included for compatibility with generic.
 #' @export
-setMethod("dbExistsTable", signature(conn = "JDBCConnection"),
+setMethod("dbExistsTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
     length(dbListTables(conn, name)) > 0
   }
@@ -223,7 +243,7 @@ setMethod("dbExistsTable", signature(conn = "JDBCConnection"),
 #' @param name character vector of length 1 giving name of table to remove
 #' @param ... Ignored. Included for compatibility with generic.
 #' @export
-setMethod("dbRemoveTable", "JDBCConnection",
+setMethod("dbRemoveTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
     dbSendUpdate(conn, paste("DROP TABLE", name)) == 0
   }
@@ -236,7 +256,7 @@ setMethod("dbRemoveTable", "JDBCConnection",
 #' @param ... Ignored. Included for compatibility with generic.
 #' @param pattern the pattern for the columns to list
 #' @export
-setMethod("dbListFields", signature(conn = "JDBCConnection"),
+setMethod("dbListFields", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ..., pattern="%") {
     md <- .jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData", check=FALSE)
     .verify.JDBC.result(md, "Unable to retrieve JDBC database metadata")
@@ -278,7 +298,7 @@ setMethod("dbGetFields", signature(conn = "JDBCConnection"),
 #'   \code{\link[DBI]{dbConnect}}
 #' @param name a character string specifying a table name.
 #' @param ... Ignored. Needed for compatibility with generic.
-setMethod("dbReadTable", signature(conn = "JDBCConnection"),
+setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
     dbGetQuery(conn, paste("SELECT * FROM",.sql.qescape(name,TRUE,conn@identifier.quote)))
   }
@@ -308,7 +328,7 @@ setMethod("dbReadTable", signature(conn = "JDBCConnection"),
 #' @param overwrite a logical value indicating if the table should be overwritten if it exists
 #' @param append a logical value indicating if the data shuld get appended to an existing table
 #' @export
-setMethod("dbWriteTable", "JDBCConnection",
+setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "data.frame"),
   function(conn, name, value, overwrite=TRUE, append=FALSE, ...) {
     ac <- .jcall(conn@jc, "Z", "getAutoCommit")
     overwrite <- isTRUE(as.logical(overwrite))
@@ -350,7 +370,7 @@ setMethod("dbWriteTable", "JDBCConnection",
 #' @param conn An existing \code{\linkS4class{JDBCConnection}}
 #' @param ... Ignored. Included for compatibility with generic.
 #' @export
-setMethod("dbCommit", "JDBCConnection",
+setMethod("dbCommit", signature(conn = "JDBCConnection"),
   function(conn, ...) {
     .jcall(conn@jc, "V", "commit")
     TRUE
@@ -362,7 +382,7 @@ setMethod("dbCommit", "JDBCConnection",
 #' @param conn An existing \code{\linkS4class{JDBCConnection}}
 #' @param ... Ignored. Included for compatibility with generic.
 #' @export
-setMethod("dbRollback", "JDBCConnection", 
+setMethod("dbRollback", signature(conn = "JDBCConnection"), 
   function(conn, ...) {
     .jcall(conn@jc, "V", "rollback")
     TRUE
