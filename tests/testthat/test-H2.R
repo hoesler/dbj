@@ -27,7 +27,7 @@ test_that("a table can be written", {
   data(iris)
   
   # when
-  success <- dbWriteTable(con, "iris", iris, overwrite=TRUE)
+  success <- dbWriteTable(con, "iris", iris, overwrite = TRUE)
   
   # then
   expect_that(success, is_true())
@@ -39,7 +39,7 @@ test_that("a table can be read", {
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
-  dbWriteTable(con, "iris", iris, overwrite=TRUE)
+  dbWriteTable(con, "iris", iris, overwrite = TRUE)
 
   # when
   data <- dbReadTable(con, "iris")
@@ -56,7 +56,7 @@ test_that("column info can be fetched", {
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
-  dbWriteTable(con, "iris", iris, overwrite=TRUE)
+  dbWriteTable(con, "iris", iris, overwrite = TRUE)
 
   # when
   info <- dbColumnInfo(dbSendQuery(con, "SELECT * from iris"))
@@ -71,7 +71,7 @@ test_that("a query can be sent", {
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
-  dbWriteTable(con, "iris", iris, overwrite=TRUE)
+  dbWriteTable(con, "iris", iris, overwrite = TRUE)
 
   # when
   res <- dbSendQuery(con, "SELECT count(*) FROM iris")
@@ -86,7 +86,7 @@ test_that("a prepared query can be sent", {
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
-  dbWriteTable(con, "iris", iris, overwrite=TRUE)
+  dbWriteTable(con, "iris", iris, overwrite = TRUE)
 
   # when
   res <- dbSendQuery(con, "SELECT Species, count(Species) FROM iris WHERE \"Sepal.Width\" > ? GROUP BY Species", 3)
@@ -101,7 +101,7 @@ test_that("data can be fetched", {
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
-  dbWriteTable(con, "iris", iris, overwrite=TRUE)
+  dbWriteTable(con, "iris", iris, overwrite = TRUE)
   res <- dbSendQuery(con, "SELECT count(*) FROM iris")
   
   # when

@@ -1,21 +1,27 @@
 #' @include JDBCObject.R
 NULL
 
+.onLoad <- function(libname, pkgname) {
+  .jpackage(pkgname, lib.loc=libname)
+}
+
 #' Class JDBCDriver with factory method JDBC.
 #'
 #' @name JDBCDriver-class
 #' @docType class
 #' @exportClass JDBCDriver
-setClass("JDBCDriver", contains = c("DBIDriver", "JDBCObject"), slots = c(identifier.quote="character", jdrv="jobjRef"))
+setClass("JDBCDriver",
+  contains = c("DBIDriver", "JDBCObject"),
+  slots = c(
+    identifier.quote = "character",
+    jdrv = "jobjRef"))
 
 #' @param driverClass the java class name of the JDBC driver to use
 #' @param classPath a string of paths seperated by : which shoul get added to the classpath (see \link[rJava]{.jaddClassPath})
 #' @param identifier.quote the quoting character to quote identifiers
 #' @rdname JDBCDriver-class
 #' @export
-JDBC <- function(driverClass = '', classPath = '', identifier.quote = NA) {
-  .jpackage("RJDBC")
-  
+JDBC <- function(driverClass = '', classPath = '', identifier.quote = NA) {  
   ## expand all paths in the classPath
   expanded_paths <- path.expand(unlist(strsplit(classPath, .Platform$path.sep)))
   .jaddClassPath(expanded_paths)
@@ -24,12 +30,7 @@ JDBC <- function(driverClass = '', classPath = '', identifier.quote = NA) {
     stop("Cannot find JDBC driver class ",driverClass)
   }
 
-  jdrv <- .jnew(driverClass, check=FALSE)
-  .jcheck(TRUE)
-  
-  if (is.jnull(jdrv)) {
-    jdrv <- .jnull()
-  }
+  jdrv <- .jnew(driverClass)
 
   new("JDBCDriver", identifier.quote = as.character(identifier.quote), jdrv = jdrv)
 }
@@ -68,36 +69,44 @@ setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
 #' @param password the users password
 #' @export
 setMethod("dbConnect", signature(drv = "JDBCDriver"),
-  function(drv, url, user='', password='', ...) {
-    jc <- .jcall("java/sql/DriverManager","Ljava/sql/Connection;","getConnection", as.character(url)[1], as.character(user)[1], as.character(password)[1], check=FALSE)
+  function(drv, url, user = '', password = '', ...) {
+    jc <- .jcall("java/sql/DriverManager","Ljava/sql/Connection;","getConnection", as.character(url)[1], as.character(user)[1], as.character(password)[1], check = FALSE)
     if (is.jnull(jc) && !is.jnull(drv@jdrv)) {
       # ok one reason for this to fail is its interaction with rJava's
       # class loader. In that case we try to load the driver directly.
       oex <- .jgetEx(TRUE)
       p <- .jnew("java/util/Properties")
-      if (length(user)==1 && nchar(user)) .jcall(p,"Ljava/lang/Object;","setProperty","user",user)
-      if (length(password)==1 && nchar(password)) .jcall(p,"Ljava/lang/Object;","setProperty","password",password)
+      if (length(user) == 1 && nchar(user)) .jcall(p,"Ljava/lang/Object;","setProperty","user",user)
+      if (length(password) == 1 && nchar(password)) .jcall(p,"Ljava/lang/Object;","setProperty","password",password)
       l <- list(...)
       if (length(names(l))) for (n in names(l)) .jcall(p, "Ljava/lang/Object;", "setProperty", n, as.character(l[[n]]))
       jc <- .jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", as.character(url)[1], p)
     }
-    .verify.JDBC.result(jc, "Unable to connect JDBC to ",url)
-    new("JDBCConnection", jc=jc, identifier.quote=drv@identifier.quote)
+    verifyNotNull(jc, "Unable to connect JDBC to ",url)
+    new("JDBCConnection", jc = jc, identifier.quote = drv@identifier.quote)
   },
-  valueClass="JDBCConnection"
+  valueClass = "JDBCConnection"
 )
 
 
 #' @export
 setMethod("summary", signature(object = "JDBCDriver"),
   function(object, ...) {
-    stop("Not implemented")
+    jdbcDescribeDriver(object, ...)
   }
 )
+
+jdbcDescribeDriver <- function(obj, verbose = FALSE, ...) {
+  info <- dbGetInfo(obj)
+  show(obj)
+  cat("  Driver name: ", info$name, "\n")
+  cat("  Driver version: ", info$driver.version, "\n")
+  invisible(NULL)
+}
 
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCDriver"),
   function(dbObj, ...) {
-    stop("Not implemented")
+    callNextMethod()
   }
 )

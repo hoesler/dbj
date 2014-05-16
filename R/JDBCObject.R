@@ -10,15 +10,19 @@ NULL
 #' @exportClass JDBCObject
 setClass("JDBCObject", contains = c("DBIObject", "VIRTUAL"))
 
-.verify.JDBC.result <- function (result, ...) {
-  if (is.jnull(result)) {
-    x <- .jgetEx(TRUE)
-    if (is.jnull(x))
+verifyNotNull <- function(j_object, ...) {
+  if (is.jnull(j_object)) {
+    j_exception <- .jgetEx(clear = TRUE)
+    if (is.jnull(j_exception))
       stop(...)
-    else
-      stop(...," (",.jcall(x, "S", "getMessage"),")")
+    else {
+      exception_message <- .jcall(j_exception, "S", "getMessage")
+      stop(..., " (", exception_message, ")")
+    }
   }
 }
+
+
 
 #' Get metadata about a database object.
 #'
@@ -28,11 +32,11 @@ setClass("JDBCObject", contains = c("DBIObject", "VIRTUAL"))
 setMethod("dbGetInfo", signature(dbObj = "JDBCObject"),
   function(dbObj, ...) {
     list(
-      name="JDBC",
-      driver.version="0.1-1",
-      DBI.version="0.1-1",
-      client.version=NA,
-      max.connections=NA)
+      name = "JDBC",
+      driver.version = "0.1-1",
+      DBI.version = "0.2-7",
+      client.version = NA,
+      max.connections = NA)
   }
 )
 
@@ -56,27 +60,27 @@ setMethod("dbDataType", signature(dbObj = "JDBCObject"),
 #' @export
 setMethod("summary", signature(object = "JDBCObject"),
   function(object, ...) {
-    stop("Not implemented")
+    .NotYetImplemented()
   }
 )
 
 #' @export
 setMethod("isSQLKeyword", signature(dbObj = "JDBCObject"),
   function(dbObj, ...) {
-    stop("Not implemented")
+    .NotYetImplemented()
   }
 )
 
 #' @export
 setMethod("make.db.names", signature(dbObj = "JDBCObject"),
   function(dbObj, ...) {
-    stop("Not implemented")
+    .NotYetImplemented()
   }
 )
 
 #' @export
 setMethod("SQLKeywords", signature(dbObj = "JDBCObject"),
   function(dbObj, ...) {
-    stop("Not implemented")
+    .NotYetImplemented()
   }
 )

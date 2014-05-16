@@ -3,7 +3,7 @@ test_that("dbHasCompleted is false initially", {
   h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
-  dbWriteTable(con, "iris", iris, overwrite=TRUE)
+  dbWriteTable(con, "iris", iris, overwrite = TRUE)
   res <- dbSendQuery(con, "SELECT * FROM iris")
   
   # when
@@ -19,7 +19,7 @@ test_that("dbHasCompleted is false while fetching", {
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
-  dbWriteTable(con, "iris", iris, overwrite=TRUE)
+  dbWriteTable(con, "iris", iris, overwrite = TRUE)
   res <- dbSendQuery(con, "SELECT * FROM iris")
   fetch(res, 1)
 
@@ -35,7 +35,7 @@ test_that("dbHasCompleted is true after fetching", {
   h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
-  dbWriteTable(con, "iris", iris, overwrite=TRUE)
+  dbWriteTable(con, "iris", iris, overwrite = TRUE)
   res <- dbSendQuery(con, "SELECT * FROM iris")
   fetch(res)
 
@@ -51,7 +51,7 @@ test_that("dbHasCompleted is true after fetching", {
 #  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
 #  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
 #  on.exit(dbDisconnect(con))
-#  dbWriteTable(con, "iris", iris, overwrite=TRUE)
+#  dbWriteTable(con, "iris", iris, overwrite = TRUE)
 #  res <- dbSendQuery(con, "SELECT * FROM iris")
 #  data <- fetch(res)
 #
