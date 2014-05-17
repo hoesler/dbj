@@ -6,7 +6,7 @@
 \S4method{dbDataType}{JDBCObject}(dbObj, obj, ...)
 }
 \arguments{
-  \item{dbObj}{a \code{\linkS4class{JDBCObject}} object,}
+  \item{dbObj}{a \code{\linkS4class{JDBCObject}} object.}
 
   \item{obj}{an R object whose SQL type we want to
   determine.}

@@ -1,10 +1,10 @@
 \docType{methods}
 \name{dbListFields,JDBCConnection,character-method}
 \alias{dbListFields,JDBCConnection,character-method}
-\title{Get a description of table columns available in the specified catalog.}
+\title{List field names in specified table.}
 \usage{
-\S4method{dbListFields}{JDBCConnection,character}(conn, name, ...,
-  pattern = "\%")
+\S4method{dbListFields}{JDBCConnection,character}(conn, name, pattern = "\%",
+  ...)
 }
 \arguments{
   \item{conn}{An existing
@@ -13,13 +13,12 @@
   \item{name}{character vector of length 1 giving name of
   the table}
 
-  \item{...}{Ignored. Included for compatibility with
-  generic.}
-
   \item{pattern}{the pattern for the columns to list}
+
+  \item{...}{Ignored. Included for compatibility with
+  generic}
 }
 \description{
-Get a description of table columns available in the
-specified catalog.
+List field names in specified table.
 }
 

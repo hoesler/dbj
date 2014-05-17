@@ -1,5 +1,6 @@
 #' @import dplyr
 #' @include JDBCObject.R
+#' @include JavaUtils.R
 NULL
 
 #' Class JDBCResult
@@ -57,19 +58,19 @@ setMethod("fetch", signature(res = "JDBCResult", n = "missing"),
 #' @export
 setMethod("fetch", signature(res = "JDBCResult", n = "numeric"),
   function(res, n, ...) {
-    cols <- .jcall(res@md, "I", "getColumnCount")
+    cols <- jtry(.jcall(res@md, "I", "getColumnCount", check = FALSE))
     if (cols < 1L) {
       return(NULL)
     }
        
     column_info <- as.data.frame(t(sapply(seq(cols), function(column_index) {     
-      ct <- .jcall(res@md, "I", "getColumnType", column_index)
+      ct <- jtry(.jcall(res@md, "I", "getColumnType", column_index, check = FALSE))
       if (ct == -5 | ct == -6 | (ct >= 2 & ct <= 8)) {
         type <- "numeric"
       } else {
         type <- "character"
       }      
-      label <- .jcall(res@md, "S", "getColumnLabel", column_index)
+      label <- jtry(.jcall(res@md, "S", "getColumnLabel", column_index, check = FALSE))
       list(label = label, type = type)
     })))
 
@@ -97,19 +98,19 @@ setMethod("fetch", signature(res = "JDBCResult", n = "numeric"),
 )
 
 fetch_resultpull <- function(res, rows, column_info) {
-  java_table <- .jcall(res@pull, "Linfo/urbanek/Rpackage/RJDBC/Table;", "fetch", as.integer(rows))
+  java_table <- jtry(.jcall(res@pull, "Linfo/urbanek/Rpackage/RJDBC/Table;", "fetch", as.integer(rows), check = FALSE))
   verifyNotNull(java_table, "Table creation failed")
-  column_count <- .jcall(java_table, "I", "columnCount")
-  row_count <- .jcall(java_table, "I", "rowCount")
+  column_count <- jtry(.jcall(java_table, "I", "columnCount", check = FALSE))
+  row_count <- jtry(.jcall(java_table, "I", "rowCount", check = FALSE))
 
   column_list <- lapply(seq(column_count), function(column_index) {
-    column <- .jcall(java_table, "Linfo/urbanek/Rpackage/RJDBC/Column;", "getColumn", as.integer(column_index - 1))
+    column <- jtry(.jcall(java_table, "Linfo/urbanek/Rpackage/RJDBC/Column;", "getColumn", as.integer(column_index - 1), check = FALSE))
 
     column_data <- c()
     if (column_info[column_index, "type"] == "numeric") {
-      column_data <- .jcall(column, "[D", "toDoubleArray")
+      column_data <- jtry(.jcall(column, "[D", "toDoubleArray", check = FALSE))
     } else {
-      column_data <- .jcall(column, "[Ljava/lang/String;", "toStringArray")     
+      column_data <- jtry(.jcall(column, "[Ljava/lang/String;", "toStringArray", check = FALSE))     
     }
 
     column_data
@@ -129,7 +130,7 @@ fetch_resultpull <- function(res, rows, column_info) {
 #' @export
 setMethod("dbClearResult", signature(res = "JDBCResult"),
   function(res, ...) {
-    .jcall(res@jr, "V", "close");
+    jtry(.jcall(res@jr, "V", "close", check = FALSE))
     TRUE
   },
   valueClass = "logical"
@@ -154,13 +155,13 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCResult"),
 #' @export
 setMethod("dbColumnInfo", signature(res = "JDBCResult"),
   function(res, ...) {
-    cols <- .jcall(res@md, "I", "getColumnCount")
+    cols <- jtry(.jcall(res@md, "I", "getColumnCount", check = FALSE))
     l <- list(field.name = character(), field.type = character(), data.type = character())
     if (cols < 1) return(as.data.frame(l))
     for (i in 1:cols) {
-      l$field.name[i] <- .jcall(res@md, "S", "getColumnLabel", i)
-      l$field.type[i] <- .jcall(res@md, "S", "getColumnTypeName", i)
-      ct <- .jcall(res@md, "I", "getColumnType", i)
+      l$field.name[i] <- jtry(.jcall(res@md, "S", "getColumnLabel", i, check = FALSE))
+      l$field.type[i] <- jtry(.jcall(res@md, "S", "getColumnTypeName", i, check = FALSE))
+      ct <- jtry(.jcall(res@md, "I", "getColumnType", i, check = FALSE))
       l$data.type[i] <- if (ct == -5 | ct == -6 | (ct >= 2 & ct <= 8)) "numeric" else "character"
     }
     as.data.frame(l, row.names = 1:cols)    
@@ -199,10 +200,10 @@ setMethod("dbGetStatement", signature(res = "JDBCResult"),
 #' @export
 setMethod("dbHasCompleted", signature(res = "JDBCResult"),
   function(res, ...) {
-    if (.jcall(res@jr, "I", "getRow") > 0) {
-      completed <- .jcall(res@jr, "Z", "isAfterLast")
+    if (jtry(.jcall(res@jr, "I", "getRow", check = FALSE)) > 0) {
+      completed <- jtry(.jcall(res@jr, "Z", "isAfterLast", check = FALSE))
     } else {      
-      completed <- .jcall(res@jr, "Z", "isBeforeFirst") == FALSE
+      completed <- jtry(.jcall(res@jr, "Z", "isBeforeFirst", check = FALSE)) == FALSE
       # true if the cursor is before the first row; false if the cursor is at any other position or the result set contains no rows
     }
 

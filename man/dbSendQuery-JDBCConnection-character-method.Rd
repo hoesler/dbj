@@ -3,8 +3,8 @@
 \alias{dbSendQuery,JDBCConnection,character-method}
 \title{Execute a SQL statement on a database connection}
 \usage{
-\S4method{dbSendQuery}{JDBCConnection,character}(conn, statement, ...,
-  list = NULL)
+\S4method{dbSendQuery}{JDBCConnection,character}(conn, statement,
+  parameters = list(), ...)
 }
 \arguments{
   \item{conn}{An existing
@@ -13,9 +13,10 @@
   \item{statement}{the statement to send over the
   connection}
 
-  \item{...}{statment parameters}
+  \item{parameters}{a list of statment parameters}
 
-  \item{list}{a list of statment parameters}
+  \item{...}{Ignored. Needed for compatiblity with
+  generic.}
 }
 \description{
 Execute a SQL statement on a database connection

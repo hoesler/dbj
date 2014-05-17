@@ -10,20 +10,6 @@ NULL
 #' @exportClass JDBCObject
 setClass("JDBCObject", contains = c("DBIObject", "VIRTUAL"))
 
-verifyNotNull <- function(j_object, ...) {
-  if (is.jnull(j_object)) {
-    j_exception <- .jgetEx(clear = TRUE)
-    if (is.jnull(j_exception))
-      stop(...)
-    else {
-      exception_message <- .jcall(j_exception, "S", "getMessage")
-      stop(..., " (", exception_message, ")")
-    }
-  }
-}
-
-
-
 #' Get metadata about a database object.
 #'
 #' @param dbObj An object of class \code{\linkS4class{JDBCObject}}
@@ -67,20 +53,13 @@ setMethod("summary", signature(object = "JDBCObject"),
 #' @export
 setMethod("isSQLKeyword", signature(dbObj = "JDBCObject"),
   function(dbObj, ...) {
-    .NotYetImplemented()
+    callNextMethod()
   }
 )
 
 #' @export
 setMethod("make.db.names", signature(dbObj = "JDBCObject"),
   function(dbObj, ...) {
-    .NotYetImplemented()
-  }
-)
-
-#' @export
-setMethod("SQLKeywords", signature(dbObj = "JDBCObject"),
-  function(dbObj, ...) {
-    .NotYetImplemented()
+    callNextMethod()
   }
 )

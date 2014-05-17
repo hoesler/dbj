@@ -2,3 +2,4 @@ inst/java
 *.class
 *.jar
 *.sublime-*
+config.log

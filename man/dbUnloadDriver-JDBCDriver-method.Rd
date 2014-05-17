@@ -6,7 +6,8 @@
 \S4method{dbUnloadDriver}{JDBCDriver}(drv, ...)
 }
 \arguments{
-  \item{drv}{Object created by \code{\link{JDBC}}}
+  \item{drv}{An object of class
+  \code{\linkS4class{JDBCDriver}}}
 
   \item{...}{Ignored. Needed for compatibility with
   generic.}

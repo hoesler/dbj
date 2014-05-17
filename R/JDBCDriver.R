@@ -1,4 +1,5 @@
 #' @include JDBCObject.R
+#' @include JavaUtils.R
 NULL
 
 .onLoad <- function(libname, pkgname) {
@@ -13,6 +14,7 @@ NULL
 setClass("JDBCDriver",
   contains = c("DBIDriver", "JDBCObject"),
   slots = c(
+    driverClass = "character",
     identifier.quote = "character",
     jdrv = "jobjRef"))
 
@@ -32,7 +34,7 @@ JDBC <- function(driverClass = '', classPath = '', identifier.quote = NA) {
 
   jdrv <- .jnew(driverClass)
 
-  new("JDBCDriver", identifier.quote = as.character(identifier.quote), jdrv = jdrv)
+  new("JDBCDriver", driverClass = driverClass, identifier.quote = as.character(identifier.quote), jdrv = jdrv)
 }
 
 #' List active connections
@@ -49,7 +51,7 @@ setMethod("dbListConnections", signature(drv = "JDBCDriver"),
 
 #' Unload JDBCDriver driver.
 #' 
-#' @param drv Object created by \code{\link{JDBC}}
+#' @param drv An object of class \code{\linkS4class{JDBCDriver}}
 #' @param ... Ignored. Needed for compatibility with generic.
 #' @return A logical indicating whether the operation succeeded or not.
 #' @export
@@ -63,7 +65,7 @@ setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
 
 #' Create a JDBC connection.
 #'
-#' @param drv Object created by \code{\link{JDBC}}
+#' @param drv An object of class \code{\linkS4class{JDBCDriver}}
 #' @param url the url to connect to
 #' @param user the user to log in
 #' @param password the users password
@@ -82,13 +84,16 @@ setMethod("dbConnect", signature(drv = "JDBCDriver"),
       if (length(names(l))) for (n in names(l)) .jcall(p, "Ljava/lang/Object;", "setProperty", n, as.character(l[[n]]))
       jc <- .jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", as.character(url)[1], p)
     }
-    verifyNotNull(jc, "Unable to connect JDBC to ",url)
+    verifyNotNull(jc, "Unable to connect JDBC to ", url)
     new("JDBCConnection", jc = jc, identifier.quote = drv@identifier.quote)
   },
   valueClass = "JDBCConnection"
 )
 
-
+#' Print a summary for the driver
+#'
+#' @param object An object of class \code{\linkS4class{JDBCDriver}}
+#' @param ... Ignored. Needed for compatibility with generic.
 #' @export
 setMethod("summary", signature(object = "JDBCDriver"),
   function(object, ...) {
@@ -98,15 +103,23 @@ setMethod("summary", signature(object = "JDBCDriver"),
 
 jdbcDescribeDriver <- function(obj, verbose = FALSE, ...) {
   info <- dbGetInfo(obj)
-  show(obj)
-  cat("  Driver name: ", info$name, "\n")
-  cat("  Driver version: ", info$driver.version, "\n")
+  cat("JDBC Driver")
+  cat("  Driver class: ", obj@driverClass, "\n")
+  cat("  Driver version: ", info$major_version, ".", info$minor_version, "\n")
   invisible(NULL)
 }
 
+#' Get meta information about the driver
+#'
+#' @param dbObj An object of class \code{\linkS4class{JDBCDriver}}
+#' @param ... Ignored. Needed for compatibility with generic.
+#' @return A list with information about the driver
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCDriver"),
   function(dbObj, ...) {
-    callNextMethod()
+    list(
+      minor_version = .jcall(dbObj@jdrv, "I", "getMajorVersion"),
+      major_version = .jcall(dbObj@jdrv, "I", "getMinorVersion")
+    )
   }
 )

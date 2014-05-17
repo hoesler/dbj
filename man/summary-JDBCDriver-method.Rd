@@ -1,0 +1,18 @@
+\docType{methods}
+\name{summary,JDBCDriver-method}
+\alias{summary,JDBCDriver-method}
+\title{Print a summary for the driver}
+\usage{
+\S4method{summary}{JDBCDriver}(object, ...)
+}
+\arguments{
+  \item{object}{An object of class
+  \code{\linkS4class{JDBCDriver}}}
+
+  \item{...}{Ignored. Needed for compatibility with
+  generic.}
+}
+\description{
+Print a summary for the driver
+}
+

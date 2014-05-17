@@ -17,4 +17,5 @@ if (!file.exists(h2_jar_dest)) {
 }
 print(sprintf("H2 jar location: %s", file.path(getwd(), h2_jar_dest)))
 
-test_check("RJDBC")
+test_check("RJDBC", filter = "unit-.*")
+test_check("RJDBC", filter = "integration-.*")

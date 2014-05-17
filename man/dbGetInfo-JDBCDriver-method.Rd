@@ -1,0 +1,21 @@
+\docType{methods}
+\name{dbGetInfo,JDBCDriver-method}
+\alias{dbGetInfo,JDBCDriver-method}
+\title{Get meta information about the driver}
+\usage{
+\S4method{dbGetInfo}{JDBCDriver}(dbObj, ...)
+}
+\arguments{
+  \item{dbObj}{An object of class
+  \code{\linkS4class{JDBCDriver}}}
+
+  \item{...}{Ignored. Needed for compatibility with
+  generic.}
+}
+\value{
+A list with information about the driver
+}
+\description{
+Get meta information about the driver
+}
+

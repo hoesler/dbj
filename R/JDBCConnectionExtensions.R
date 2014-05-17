@@ -3,14 +3,20 @@
 #' @param conn An \code{DBIConnection} object.
 #' @param ... Other arguments used by methods
 #' @export
-setGeneric("dbGetFields", function(conn, ...) standardGeneric("dbGetFields"))
+setGeneric("dbGetFields",
+  function(conn, ...) standardGeneric("dbGetFields"),
+  valueClass = "data.frame"
+)
 
 #' Generics for getting a description of the tables available in the given catalog.
 #' 
 #' @param conn An \code{DBIConnection} object.
 #' @param ... Other arguments used by methods
 #' @export
-setGeneric("dbGetTables", function(conn, ...) standardGeneric("dbGetTables"))
+setGeneric("dbGetTables",
+  function(conn, ...) standardGeneric("dbGetTables"),
+  valueClass = "data.frame"
+)
 
 #' Generics for sending an update query.
 #' 
@@ -18,4 +24,7 @@ setGeneric("dbGetTables", function(conn, ...) standardGeneric("dbGetTables"))
 #' @param statement the stament to send
 #' @param ... Other arguments used by methods
 #' @export
-setGeneric("dbSendUpdate", function(conn, statement, ...) standardGeneric("dbSendUpdate"))
+setGeneric("dbSendUpdate",
+  function(conn, statement, ...) standardGeneric("dbSendUpdate"),
+  valueClass = "logical"
+)

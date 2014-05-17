@@ -1,5 +1,6 @@
 #' @include JDBCObject.R
 #' @include JDBCConnectionExtensions.R
+#' @include JavaUtils.R
 NULL
 
 #' Class JDBCConnection
@@ -39,53 +40,54 @@ setMethod("dbCallProc", signature(conn = "JDBCConnection"),
 #' @export
 setMethod("dbDisconnect", signature(conn = "JDBCConnection"),
   function(conn, ...) {
-    .jcall(conn@jc, "V", "close");
+    jtry(.jcall(conn@jc, "V", "close", check = FALSE))
     TRUE
   },
   valueClass = "logical"
 )
+
+# Get the corresponding int value (java.sql.Types) for the given object type
+as.sqlType <- function(object) {
+  if (is.integer(object)) 4 # INTEGER
+  else if (is.numeric(object)) 8 # DOUBLE
+  else 12 # VARCHAR
+}
 
 insert_parameters <- function(j_statement, parameter_list) {
   if (length(parameter_list) > 0) {
     for (i in seq(length(parameter_list))) {
       parameter <- parameter_list[[i]]
       if (is.na(parameter)) { # map NAs to NULLs (courtesy of Axel Klenk)
-        sqlType <- if (is.integer(parameter)) 4 else if (is.numeric(parameter)) 8 else 12
-        .jcall(j_statement, "V", "setNull", i, as.integer(sqlType))
+        sqlType <- as.sqlType(parameter)
+        jtry(.jcall(j_statement, "V", "setNull", i, as.integer(sqlType)))
       } else if (is.integer(parameter))
-        .jcall(j_statement, "V", "setInt", i, parameter[1])
+        jtry(.jcall(j_statement, "V", "setInt", i, parameter[1]))
       else if (is.numeric(parameter))
-        .jcall(j_statement, "V", "setDouble", i, as.double(parameter)[1])
+        jtry(.jcall(j_statement, "V", "setDouble", i, as.double(parameter)[1]))
       else
-        .jcall(j_statement, "V", "setString", i, as.character(parameter)[1])
+        jtry(.jcall(j_statement, "V", "setString", i, as.character(parameter)[1]))
     }
   }
 }
 
 prepareCall <- function(conn, statement, parameters) {
-  j_statement <- .jcall(conn@jc, "Ljava/sql/PreparedStatement;", "prepareCall", statement, check = FALSE)
-  verifyNotNull(j_statement, "Unable to execute JDBC callable statement ", statement)
+  j_statement <- jtry(.jcall(conn@jc, "Ljava/sql/PreparedStatement;", "prepareCall", statement, check = FALSE))
   insert_parameters(j_statement, parameters)
   j_statement
 }
 
 prepareStatement <- function(conn, statement, parameters) {
-  j_statement <- .jcall(conn@jc, "Ljava/sql/PreparedStatement;", "prepareStatement", statement, check = FALSE)
-  verifyNotNull(j_statement, "Unable to execute JDBC prepared statement ", statement)
+  j_statement <- jtry(.jcall(conn@jc, "Ljava/sql/PreparedStatement;", "prepareStatement", statement, check = FALSE))
   insert_parameters(j_statement, parameters)
   j_statement
 }
 
 executeQuery <- function(j_statement) {
-  j_result_set <- .jcall(j_statement, "Ljava/sql/ResultSet;", "executeQuery", check = FALSE)
-  verifyNotNull(j_result_set, "Unable to retrieve JDBC result set for ", j_statement)
-  j_result_set
+  jtry(.jcall(j_statement, "Ljava/sql/ResultSet;", "executeQuery", check = FALSE))
 }
 
 executeUpdate <- function(j_statement) {
-  affected_rows <- .jcall(j_statement, "I", "executeUpdate", check = FALSE)
-  .jcheck()
-  affected_rows
+  jtry(.jcall(j_statement, "I", "executeUpdate", check = FALSE))
 }
 
 #' Execute a SQL statement on a database connection
@@ -135,11 +137,7 @@ setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "chara
       affected_rows <- executeUpdate(j_statement)
     }
 
-    x <- .jgetEx(TRUE)
-    if (!is.jnull(x)) {
-      stop("execute JDBC update query failed in dbSendUpdate (", .jcall(x, "S", "getMessage"),")")
-    }
-    TRUE
+    invisible(TRUE)
   },
   valueClass = "logical"
 )
@@ -159,7 +157,8 @@ setMethod("dbGetQuery", signature(conn = "JDBCConnection", statement = "characte
       .jcall(j_statement, "V", "close")
     })
     fetch(result, -1)
-  }
+  },
+  valueClass = "data.frame"
 )
 
 #' Get the last exception from the connection.
@@ -195,9 +194,10 @@ setMethod("dbListResults", signature(conn = "JDBCConnection"),
   }
 )
 
-.fetch.result <- function(r) {
-  md <- .jcall(r, "Ljava/sql/ResultSetMetaData;", "getMetaData", check = FALSE)
-  verifyNotNull(md, "Unable to retrieve JDBC result set meta data")
+.fetch.result <- function(r, close = FALSE) {
+  if (close) {
+    on.exit(jtry(.jcall(r, "V", "close")))
+  }
   res <- new("JDBCResult", jr = r)
   fetch(res, -1)
 }
@@ -210,37 +210,30 @@ setMethod("dbListResults", signature(conn = "JDBCConnection"),
 #' @export
 setMethod("dbListTables", signature(conn = "JDBCConnection"),
   function(conn, pattern = "%", ...) {
-    md <- .jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE)
-    verifyNotNull(md, "Unable to retrieve JDBC database metadata")
-    r <- .jcall(md, "Ljava/sql/ResultSet;", "getTables", .jnull("java/lang/String"),
-                .jnull("java/lang/String"), pattern, .jnull("[Ljava/lang/String;"), check = FALSE)
-    verifyNotNull(r, "Unable to retrieve JDBC tables list")
-    on.exit(.jcall(r, "V", "close"))
-    ts <- character()
-    while (.jcall(r, "Z", "next"))
-      ts <- c(ts, .jcall(r, "S", "getString", "TABLE_NAME"))
-    ts
-  }
+    tables <- dbGetTables(conn, pattern, ...)
+    as.character(tables$TABLE_NAME)
+  },
+  valueClass = "character"
 )
 
 #' Get a description of the tables available in the given catalog. 
 #'
 #' @param conn a \code{\linkS4class{JDBCConnection}} object, produced by
 #'   \code{\link[DBI]{dbConnect}}
-#' @param ... Ignored. Needed for compatibility with generic.
 #' @param pattern the pattern for table names
+#' @param ... Ignored. Needed for compatibility with generic.
 #' @export
 setMethod("dbGetTables", signature(conn = "JDBCConnection"),
-  function(conn, ..., pattern = "%") {
-    md <- .jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE)
-    verifyNotNull(md, "Unable to retrieve JDBC database metadata")
+  function(conn, pattern = "%", ...) {
+    md <- jtry(.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE),
+      jstop, "Failed to retrieve JDBC database metadata")
     # getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types)
-    r <- .jcall(md, "Ljava/sql/ResultSet;", "getTables", .jnull("java/lang/String"),
-                .jnull("java/lang/String"), pattern, .jnull("[Ljava/lang/String;"), check = FALSE)
-    verifyNotNull(r, "Unable to retrieve JDBC tables list")
-    on.exit(.jcall(r, "V", "close"))
-    .fetch.result(r)
-  }
+    r <- jtry(.jcall(md, "Ljava/sql/ResultSet;", "getTables", .jnull("java/lang/String"),
+                .jnull("java/lang/String"), pattern, .jnull("[Ljava/lang/String;"), check = FALSE),
+      jstop, "Unable to retrieve JDBC tables list")    
+    .fetch.result(r, close = TRUE)
+  },
+  valueClass = "data.frame"
 )
 
 #' Does the table exist?
@@ -251,8 +244,10 @@ setMethod("dbGetTables", signature(conn = "JDBCConnection"),
 #' @export
 setMethod("dbExistsTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
-    length(dbListTables(conn, name)) > 0
-  }
+    tables <- dbListTables(conn, name, ...)
+    length(tables) > 0
+  },
+  valueClass = "logical"
 )
 
 #' Remove a table from the database.
@@ -266,51 +261,43 @@ setMethod("dbExistsTable", signature(conn = "JDBCConnection", name = "character"
 setMethod("dbRemoveTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
     dbSendUpdate(conn, paste("DROP TABLE", name)) == 0
-  }
+  },
+  valueClass = "logical"
 )
 
-#' Get a description of table columns available in the specified catalog.
+#' List field names in specified table.
 #'
 #' @param conn An existing \code{\linkS4class{JDBCConnection}}
 #' @param name character vector of length 1 giving name of the table
-#' @param ... Ignored. Included for compatibility with generic.
 #' @param pattern the pattern for the columns to list
+#' @param ... Ignored. Included for compatibility with generic
 #' @export
 setMethod("dbListFields", signature(conn = "JDBCConnection", name = "character"),
-  function(conn, name, ..., pattern = "%") {
-    md <- .jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE)
-    verifyNotNull(md, "Unable to retrieve JDBC database metadata")
-    r <- .jcall(md, "Ljava/sql/ResultSet;", "getColumns", .jnull("java/lang/String"),
-                .jnull("java/lang/String"), name, pattern, check = FALSE)
-    verifyNotNull(r, "Unable to retrieve JDBC columns list for ",name)
-    on.exit(.jcall(r, "V", "close"))
-    ts <- character()
-    while (.jcall(r, "Z", "next"))
-      ts <- c(ts, .jcall(r, "S", "getString", "COLUMN_NAME"))
-    .jcall(r, "V", "close")
-    ts
-  }
+  function(conn, name, pattern = "%", ...) {
+    dbGetFields(conn, name, pattern, ...)$COLUMN_NAME
+  },
+  valueClass = "data.frame"
 )
 
 #' Get description of table columns available in the specified catalog.
 #'
 #' @param conn a \code{\linkS4class{JDBCConnection}} object, produced by
 #'   \code{\link[DBI]{dbConnect}}
-#' @param ... Ignored. Needed for compatibility with generic.
 #' @param name the pattern for table names
 #' @param pattern the pattern for column names
+#' @param ... Ignored. Needed for compatibility with generic
 #' @export
 setMethod("dbGetFields", signature(conn = "JDBCConnection"),
-  function(conn, ..., name, pattern = "%") {
-    md <- .jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE)
-    verifyNotNull(md, "Unable to retrieve JDBC database metadata")
+  function(conn, name, pattern = "%", ...) {
+    md <- jtry(.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE),
+      jstop, "Unable to retrieve JDBC database metadata")
     # getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern)
-    r <- .jcall(md, "Ljava/sql/ResultSet;", "getColumns",
-      .jnull("java/lang/String"), .jnull("java/lang/String"), name, pattern, check = FALSE)
-    verifyNotNull(r, "Unable to retrieve JDBC columns list for ",name)
-    on.exit(.jcall(r, "V", "close"))
-    .fetch.result(r)
-  }
+    r <- jtry(.jcall(md, "Ljava/sql/ResultSet;", "getColumns",
+        .jnull("java/lang/String"), .jnull("java/lang/String"), name, pattern, check = FALSE),
+      jstop, "Unable to retrieve JDBC columns list for ", name)
+    .fetch.result(r, close = TRUE)
+  },
+  valueClass = "data.frame"
 )
 
 #' Convenience functions for importing/exporting DBMS tables
@@ -321,7 +308,8 @@ setMethod("dbGetFields", signature(conn = "JDBCConnection"),
 setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
     dbGetQuery(conn, paste("SELECT * FROM",.sql.qescape(name,TRUE,conn@identifier.quote)))
-  }
+  },
+  valueClass = "data.frame"
 )
 
 .sql.qescape <- function(s, identifier = FALSE, quote = "\"") {
@@ -329,7 +317,10 @@ setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
   if (identifier) {
     vid <- grep("^[A-Za-z]+([A-Za-z0-9_]*)$",s)
     if (length(s[-vid])) {
-      if (is.na(quote)) stop("The JDBC connection doesn't support quoted identifiers, but table/column name contains characters that must be quoted (",paste(s[-vid],collapse = ','),")")
+      if (is.na(quote)) {
+        stop("The JDBC connection doesn't support quoted identifiers, 
+          but table/column name contains characters that must be quoted (", paste(s[-vid], collapse = ','), ")")
+      }
       s[-vid] <- .sql.qescape(s[-vid], FALSE, quote)
     }
     return(s)
@@ -350,7 +341,7 @@ setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
 #' @export
 setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "data.frame"),
   function(conn, name, value, overwrite = TRUE, append = FALSE, ...) {
-    ac <- .jcall(conn@jc, "Z", "getAutoCommit")
+    ac <- jtry(.jcall(conn@jc, "Z", "getAutoCommit", check = FALSE))
     overwrite <- isTRUE(as.logical(overwrite))
     append <- if (overwrite) FALSE else isTRUE(as.logical(append))
     if (is.vector(value) && !is.list(value)) value <- data.frame(x = value)
@@ -369,8 +360,8 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     fdef <- paste(.sql.qescape(names(value), TRUE, conn@identifier.quote),fts,collapse = ',')
     qname <- .sql.qescape(name, TRUE, conn@identifier.quote)
     if (ac) {
-      .jcall(conn@jc, "V", "setAutoCommit", FALSE)
-      on.exit(.jcall(conn@jc, "V", "setAutoCommit", ac))
+      jtry(.jcall(conn@jc, "V", "setAutoCommit", FALSE, check = FALSE))
+      on.exit(jtry(.jcall(conn@jc, "V", "setAutoCommit", ac, check = FALSE)))
     }
     if (!append) {
       ct <- paste("CREATE TABLE ",qname," (",fdef,")",sep = '')
@@ -382,7 +373,8 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
         dbSendUpdate(conn, inss, parameters = as.list(value[j,]))
     }
     if (ac) dbCommit(conn)            
-  }
+  },
+  valueClass = "logical"
 )
 
 #' Commit a transaction.
@@ -392,9 +384,10 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
 #' @export
 setMethod("dbCommit", signature(conn = "JDBCConnection"),
   function(conn, ...) {
-    .jcall(conn@jc, "V", "commit")
+    jtry(.jcall(conn@jc, "V", "commit", check = FALSE))
     TRUE
-  }
+  },
+  valueClass = "logical"
 )
 
 #' Roll back a transaction.
@@ -404,9 +397,10 @@ setMethod("dbCommit", signature(conn = "JDBCConnection"),
 #' @export
 setMethod("dbRollback", signature(conn = "JDBCConnection"), 
   function(conn, ...) {
-    .jcall(conn@jc, "V", "rollback")
+    jtry(.jcall(conn@jc, "V", "rollback", check = FALSE))
     TRUE
-  }
+  },
+  valueClass = "logical"
 )
 
 #' @export

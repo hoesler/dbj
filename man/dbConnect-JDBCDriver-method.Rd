@@ -6,7 +6,8 @@
 \S4method{dbConnect}{JDBCDriver}(drv, url, user = "", password = "", ...)
 }
 \arguments{
-  \item{drv}{Object created by \code{\link{JDBC}}}
+  \item{drv}{An object of class
+  \code{\linkS4class{JDBCDriver}}}
 
   \item{url}{the url to connect to}
 

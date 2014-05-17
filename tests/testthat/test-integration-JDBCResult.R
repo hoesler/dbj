@@ -1,3 +1,37 @@
+context("JDBCDriver integration tests")
+
+test_that("column info can be fetched", {
+  # given
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
+  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
+  on.exit(dbDisconnect(con))
+  data(iris)
+  dbWriteTable(con, "iris", iris, overwrite = TRUE)
+  res <- dbSendQuery(con, "SELECT * from iris")
+
+  # when
+  info <- dbColumnInfo(res)
+  
+  # then
+  expect_that(info, is_a("data.frame"))
+})
+
+test_that("data can be fetched", {
+  # given
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
+  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
+  on.exit(dbDisconnect(con))
+  data(iris)
+  dbWriteTable(con, "iris", iris, overwrite = TRUE)
+  res <- dbSendQuery(con, "SELECT count(*) FROM iris")
+  
+  # when
+  data <- fetch(res, -1)
+  
+  # then
+  expect_that(data, is_a("data.frame"))
+})
+
 test_that("dbHasCompleted is false initially", {
   # given
   h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
