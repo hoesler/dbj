@@ -1,4 +1,5 @@
 #' @import dplyr
+#' @import testthat
 #' @include JDBCObject.R
 #' @include JavaUtils.R
 NULL
@@ -19,9 +20,7 @@ setMethod("initialize", signature(.Object = "JDBCResult"),
   function(.Object, ...) {
     .Object <- callNextMethod()
     
-    if (is.null(.Object@jr)) {
-      stop("Java result is null")
-    }
+    verifyNotNull(.Object@jr)
 
     .Object@md <- getMetaData(.Object@jr)
     .Object@pull <- getResultPull(.Object@jr)
@@ -31,12 +30,14 @@ setMethod("initialize", signature(.Object = "JDBCResult"),
 )
 
 getMetaData <- function(j_result_set) {
-  j_meta_data <- .jcall(j_result_set, "Ljava/sql/ResultSetMetaData;", "getMetaData", check = FALSE)
+  verifyNotNull(j_result_set)
+  j_meta_data <- jtry(.jcall(j_result_set, "Ljava/sql/ResultSetMetaData;", "getMetaData", check = FALSE))
   verifyNotNull(j_meta_data, "Unable to retrieve JDBC result set meta data for ", j_result_set, " in dbSendQuery")
   j_meta_data
 }
 
 getResultPull <- function(j_result_set) {
+  verifyNotNull(j_result_set)
   rp <- .jnew("info/urbanek/Rpackage/RJDBC/JDBCResultPull", .jcast(j_result_set, "java/sql/ResultSet"), check = FALSE)
   verifyNotNull(rp, "Failed to instantiate JDBCResultPull hepler object")
   rp
