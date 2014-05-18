@@ -1,8 +1,8 @@
 \docType{class}
 \name{JDBCResult-class}
 \alias{JDBCResult-class}
-\title{Class JDBCResult}
+\title{Class JDBCResult with factory method JDBCResult.}
 \description{
-Class JDBCResult
+Class JDBCResult with factory method JDBCResult.
 }
 

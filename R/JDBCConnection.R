@@ -4,10 +4,8 @@
 NULL
 
 #' Class JDBCConnection
-#'
-#' @docType class
-#' @name JDBCConnection-class
-#' @exportClass JDBCConnection
+#' 
+#' @export
 setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"),
   slots = c(jc = "jobjRef", identifier.quote = "character"))
 
@@ -110,9 +108,7 @@ setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "charact
       j_result_set <- executeQuery(j_statement)
     } 
     
-    new("JDBCResult",
-      jr = j_result_set
-    )
+    JDBCResult(j_result_set)
   },
   valueClass = "JDBCResult"
 )
@@ -198,7 +194,7 @@ setMethod("dbListResults", signature(conn = "JDBCConnection"),
   if (close) {
     on.exit(jtry(.jcall(r, "V", "close")))
   }
-  res <- new("JDBCResult", jr = r)
+  res <- JDBCResult(r)
   fetch(res, -1)
 }
 

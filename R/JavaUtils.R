@@ -1,27 +1,46 @@
-#' @import rJava
-#' @import assertthat
-NULL
-
+#' Verify that the given \code{j_object} is an object of type \code{jobjRef} but not \code{.jnull()}.
+#' An error is thrown if the verification fails, otherwise \code{NULL} is returned.
+#' 
+#' @param  j_object an object of type \code{\linkS4class{jobjRef}}
+#' @return NULL if the verification succeded
 verifyNotNull <- function(j_object, ...) {
   assert_that(is(j_object, "jobjRef"))
   if (is.jnull(j_object)) {
     stop(deparse(substitute(j_object)), " is null", ...)
   }
+  invisible(NULL)
 }
 
-checkException <- function(...) {
+#' Check for any pending java exception. An error is thrown if one is found, otherwise \code{NULL} is returned.
+#' 
+#' @return NULL if no exception was found
+checkException <- function() {
   j_exception <- .jgetEx(clear = TRUE)
   if (!is.null(j_exception)) {
     jstop(j_exception)
   }
+  invisible(NULL)
 }
 
+#' Throw an error with the given \code{j_exception} as the cause.
+#' 
+#' @param  j_exception a java Throwable which is converted to a part of the message
+#' @param  ... any further message parts passed to \code{stop}
 jstop <- function(j_exception, ...) {
-  assert_that(is(j_object, "jobjRef"))
+  assert_that(is(j_object, "jobjRef"), j_exception %instanceof% "java.lang.Throwable")
   exception_message <- .jcall(j_exception, "S", "toString")
   stop(..., "Caused by: ", exception_message, call. = FALSE)
 }
 
+#' Execute the given \code{expression} and check for a Java exception afterwards.
+#' If an exception was found throw an error.
+#' Make sure that the expression, which is usually a .jcall or a .jnew function, is called with the check = FALSE option.
+#' Otherwise the exception is cleared before jtry checks for its existance.
+#' 
+#' @param  expression a valid R expression, usually containing a .jcall
+#' @param  onError the callback which will be called if a java exception was thrown with the exception as the first argument
+#' @param  ... any further arguments to the \code{onError} function
+#' @return the result of the \code{expression}
 jtry <- function(expression, onError = jstop, ...) {
   assert_that(is.function(onError))
   .jcheck()

@@ -1,8 +1,3 @@
-#' @import DBI
-#' @import methods
-#' @import rJava
-NULL
-
 #' Class JDBCObject
 #'
 #' @name JDBCObject-class

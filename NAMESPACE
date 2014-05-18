@@ -1,4 +1,5 @@
 export(JDBC)
+export(JDBCResult)
 export(dbGetFields)
 export(dbGetTables)
 export(dbSendUpdate)

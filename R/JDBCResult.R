@@ -1,33 +1,38 @@
-#' @import dplyr
-#' @import testthat
 #' @include JDBCObject.R
 #' @include JavaUtils.R
 NULL
 
-#' Class JDBCResult
+#' Class JDBCResult with factory method JDBCResult.
 #'
 #' @name JDBCResult-class
+#' @docType class
 #' @rdname JDBCResult-class
-#' @exportClass JDBCResult
+#' @export
 setClass("JDBCResult",
   contains = c("DBIResult", "JDBCObject"),
   slots = c(
     jr = "jobjRef",
     md = "jobjRef",
-    pull = "jobjRef"))
-
-setMethod("initialize", signature(.Object = "JDBCResult"),
-  function(.Object, ...) {
-    .Object <- callNextMethod()
-    
-    verifyNotNull(.Object@jr)
-
-    .Object@md <- getMetaData(.Object@jr)
-    .Object@pull <- getResultPull(.Object@jr)
-
-    .Object
+    pull = "jobjRef"),
+  validity = function(object) {
+    if (is.jnull(object@jr)) return("jr is null")
+    if (is.jnull(object@md)) return("md is null")
+    if (is.jnull(object@pull)) return("pull is null")
+    TRUE
   }
 )
+
+#' @param j_result_set a \code{\linkS4class{jobjRef}} object which holds a reference to a \code{java/sql/ResultSet} Java object.
+#' @return a new JDBCResult object
+#' @rdname JDBCDriver-class
+#' @export
+JDBCResult <- function(j_result_set) {
+  assert_that(is(j_result_set, "jobjRef"), j_result_set@jclass %instanceof% "java.sql.ResultSet")
+
+  md <- getMetaData(j_result_set)
+  pull <- getResultPull(j_result_set)
+  new("JDBCResult", jr = j_result_set, md = md, pull = pull)
+}
 
 getMetaData <- function(j_result_set) {
   verifyNotNull(j_result_set)

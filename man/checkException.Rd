@@ -1,0 +1,14 @@
+\name{checkException}
+\alias{checkException}
+\title{Check for any pending java exception. An error is thrown if one is found, otherwise \code{NULL} is returned.}
+\usage{
+checkException()
+}
+\value{
+NULL if no exception was found
+}
+\description{
+Check for any pending java exception. An error is thrown if
+one is found, otherwise \code{NULL} is returned.
+}
+

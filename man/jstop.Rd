@@ -1,0 +1,18 @@
+\name{jstop}
+\alias{jstop}
+\title{Throw an error with the given \code{j_exception} as the cause.}
+\usage{
+jstop(j_exception, ...)
+}
+\arguments{
+  \item{j_exception}{a java Throwable which is converted to
+  a part of the message}
+
+  \item{...}{any further message parts passed to
+  \code{stop}}
+}
+\description{
+Throw an error with the given \code{j_exception} as the
+cause.
+}
+
