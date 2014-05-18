@@ -27,7 +27,7 @@ setClass("JDBCResult",
 #' @rdname JDBCDriver-class
 #' @export
 JDBCResult <- function(j_result_set) {
-  assert_that(is(j_result_set, "jobjRef"), j_result_set@jclass %instanceof% "java.sql.ResultSet")
+  assert_that(is(j_result_set, "jobjRef"), j_result_set %instanceof% "java.sql.ResultSet")
 
   md <- getMetaData(j_result_set)
   pull <- getResultPull(j_result_set)
