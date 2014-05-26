@@ -52,3 +52,4 @@ jtry <- function(expression, onError = jstop, ...) {
   }
   return(eval_result)
 }
+
