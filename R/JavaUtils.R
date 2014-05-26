@@ -2,6 +2,7 @@
 #' An error is thrown if the verification fails, otherwise \code{NULL} is returned.
 #' 
 #' @param  j_object an object of type \code{\linkS4class{jobjRef}}
+#' @param  ... any further message parts passed to \code{stop}
 #' @return NULL if the verification succeded
 verifyNotNull <- function(j_object, ...) {
   assert_that(is(j_object, "jobjRef"))
@@ -27,7 +28,7 @@ checkException <- function() {
 #' @param  j_exception a java Throwable which is converted to a part of the message
 #' @param  ... any further message parts passed to \code{stop}
 jstop <- function(j_exception, ...) {
-  assert_that(is(j_object, "jobjRef"), j_exception %instanceof% "java.lang.Throwable")
+  assert_that(is(j_exception, "jobjRef"), j_exception %instanceof% "java.lang.Throwable")
   exception_message <- .jcall(j_exception, "S", "toString")
   stop(..., "Caused by: ", exception_message, call. = FALSE)
 }

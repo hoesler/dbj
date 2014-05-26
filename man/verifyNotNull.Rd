@@ -8,6 +8,9 @@ verifyNotNull(j_object, ...)
 \arguments{
   \item{j_object}{an object of type
   \code{\linkS4class{jobjRef}}}
+
+  \item{...}{any further message parts passed to
+  \code{stop}}
 }
 \value{
 NULL if the verification succeded

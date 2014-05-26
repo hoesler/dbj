@@ -2,10 +2,6 @@
 #' @include JavaUtils.R
 NULL
 
-.onLoad <- function(libname, pkgname) {
-  .jpackage(pkgname, lib.loc=libname)
-}
-
 #' Class JDBCDriver with factory method JDBC.
 #'
 #' @name JDBCDriver-class

@@ -3,3 +3,4 @@ inst/java
 *.jar
 *.sublime-*
 config.log
+.Rproj.user
