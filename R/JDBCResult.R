@@ -27,53 +27,15 @@ setClass("JDBCResult",
 #' @rdname JDBCDriver-class
 #' @export
 JDBCResult <- function(j_result_set) {
-  assert_that(is(j_result_set, "jobjRef"), j_result_set %instanceof% "java.sql.ResultSet")
+  assert_that(j_result_set %instanceof% "java.sql.ResultSet")
 
   md <- get_meta_data(j_result_set)
   pull <- create_result_pull(j_result_set)
   new("JDBCResult", jr = j_result_set, md = md, pull = pull)
 }
 
-get_meta_data <- function(j_result_set) {
-  verifyNotNull(j_result_set)
-  j_meta_data <- jtry(.jcall(j_result_set, "Ljava/sql/ResultSetMetaData;", "getMetaData", check = FALSE))
-  verifyNotNull(j_meta_data, "Unable to retrieve JDBC result set meta data for ", j_result_set, " in dbSendQuery")
-  j_meta_data
-}
-
-create_result_pull <- function(j_result_set) {
-  verifyNotNull(j_result_set)
-  rp <- .jnew("info/urbanek/Rpackage/RJDBC/JDBCResultPull", .jcast(j_result_set, "java/sql/ResultSet"), check = FALSE)
-  verifyNotNull(rp, "Failed to instantiate JDBCResultPull hepler object")
-  rp
-}
-
-fetch_resultpull <- function(res, rows, column_info) {
-  java_table <- jtry(.jcall(res@pull, "Linfo/urbanek/Rpackage/RJDBC/Table;", "fetch", as.integer(rows), check = FALSE))
-  verifyNotNull(java_table, "Table creation failed")
-  column_count <- jtry(.jcall(java_table, "I", "columnCount", check = FALSE))
-  row_count <- jtry(.jcall(java_table, "I", "rowCount", check = FALSE))
-
-  column_list <- lapply(seq(column_count), function(column_index) {
-    column <- jtry(.jcall(java_table, "Linfo/urbanek/Rpackage/RJDBC/Column;", "getColumn", as.integer(column_index - 1), check = FALSE))
-
-    column_data <- c()
-    if (column_info[column_index, "type"] == "numeric") {
-      column_data <- jtry(.jcall(column, "[D", "toDoubleArray", check = FALSE))
-    } else {
-      column_data <- jtry(.jcall(column, "[Ljava/lang/String;", "toStringArray", check = FALSE))     
-    }
-
-    column_data
-  })
-
-  # as.data.frame is expensive - create it on the fly from the list
-  attr(column_list, "row.names") <- c(NA_integer_, row_count)
-  class(column_list) <- "data.frame"
-  names(column_list) <- column_info$label
-  column_list
-}
-
+#' @rdname fetch-JDBCResult-numeric-method
+#' @export
 setMethod("fetch", signature(res = "JDBCResult", n = "missing"),
   function(res, n, ...) {
     fetch(res, -1)
@@ -83,7 +45,7 @@ setMethod("fetch", signature(res = "JDBCResult", n = "missing"),
 #' Fetch records from a previously executed query
 #'
 #' @param res an \code{\linkS4class{JDBCResult}} object.
-#' @param n maximum number of records to retrieve per fetch. Use \code{-1} to 
+#' @param n optional maximum number of records to retrieve per fetch. Use \code{-1} to 
 #'    retrieve all pending records; use \code{0} for to fetch the default 
 #'    number of rows as defined in \code{\link{JDBC}}
 #' @param ... Ignored. Needed for compatibility with generic.
@@ -115,7 +77,7 @@ setMethod("fetch", signature(res = "JDBCResult", n = "numeric"),
 
     chunks <- list()
     repeat {    
-      fetched <- fetch_resultpull(res, stride, column_info) 
+      fetched <- fetch_resultpull(res@pull, stride, column_info) 
       chunks <- c(chunks, list(fetched))
 
       if (!infinite_pull || nrow(fetched) < stride) {
@@ -137,7 +99,7 @@ setMethod("fetch", signature(res = "JDBCResult", n = "numeric"),
 setMethod("dbClearResult", signature(res = "JDBCResult"),
   function(res, ...) {
     jtry(.jcall(res@jr, "V", "close", check = FALSE))
-    TRUE
+    invisible(TRUE)
   },
   valueClass = "logical"
 )
@@ -217,11 +179,25 @@ setMethod("dbHasCompleted", signature(res = "JDBCResult"),
   }
 )
 
+#' Get the names or labels for the columns of the result set.
+#' 
+#' @param conn an \code{\linkS4class{JDBCResult}} object.
+#' @param  name Ignored. Needed for compatiblity with generic.
+#' @param  use_labels if the the method should return the labels or the names of the columns
+#' @param  ... Ignored. Needed for compatiblity with generic.
 #' @export
 setMethod("dbListFields", signature(conn = "JDBCResult", name = "missing"),
-  function(conn, name, ...) {
-    .NotYetImplemented()
-  }
+  function(conn, name, use_labels = TRUE, ...) {
+    cols <- jtry(.jcall(conn@md, "I", "getColumnCount", check = FALSE))
+    if (cols < 1L) {
+      return(character())
+    }
+    method_name <- if (use_labels) "getColumnLabel" else "getColumnName"
+    sapply(seq(cols), function(column_index) {
+      jtry(.jcall(conn@md, "S", method_name, column_index, check = FALSE))
+    })
+  },
+  valueClass = "character"
 )
 
 #' @export

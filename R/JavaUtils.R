@@ -28,7 +28,7 @@ checkException <- function() {
 #' @param  j_exception a java Throwable which is converted to a part of the message
 #' @param  ... any further message parts passed to \code{stop}
 jstop <- function(j_exception, ...) {
-  assert_that(is(j_exception, "jobjRef"), j_exception %instanceof% "java.lang.Throwable")
+  assert_that(j_exception %instanceof% "java.lang.Throwable")
   exception_message <- .jcall(j_exception, "S", "toString")
   stop(..., "Caused by: ", exception_message, call. = FALSE)
 }

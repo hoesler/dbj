@@ -4,14 +4,15 @@ Title: Provides access to databases through the JDBC interface
 Author: Simon Urbanek <Simon.Urbanek@r-project.org>
 Maintainer: Simon Urbanek <Simon.Urbanek@r-project.org>
 Depends:
-    methods,
-    DBI,
-    rJava (>= 0.4-15),
+    DBI (>= 0.2-7),
     R (>= 3.0),
-    dplyr,
-    assertthat
+Imports:
+    methods (>= 3.0.3),
+    dplyr (>= 0.2),
+    assertthat (>= 0.1),
+    rJava (>= 0.4-15)
 Suggests:
-    testthat
+    testthat (>= 0.8.1)
 Description: RJDBC is an implementation of R's DBI interface using JDBC as a
     back-end. This allows R to connect to any DBMS that has a JDBC driver.
 License: GPL-2
@@ -26,3 +27,4 @@ Collate:
     'JDBCDriver.R'
     'JDBCResult.R'
     'RJDBC.R'
+    'ResultPull.R'

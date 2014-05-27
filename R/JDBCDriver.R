@@ -54,7 +54,7 @@ setMethod("dbListConnections", signature(drv = "JDBCDriver"),
 setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
   function(drv, ...) {
     warning("Unloading a JDBCDriver has no effect")
-    TRUE
+    invisible(TRUE)
   },
   valueClass = "logical"
 )
@@ -93,17 +93,13 @@ setMethod("dbConnect", signature(drv = "JDBCDriver"),
 #' @export
 setMethod("summary", signature(object = "JDBCDriver"),
   function(object, ...) {
-    jdbcDescribeDriver(object, ...)
+    info <- dbGetInfo(object)
+    print("JDBC Driver\n")
+    print(sprintf("  Driver class: %s\n", object@driverClass))
+    print(sprintf("  Driver version: %s.%s\n", info$major_version, info$minor_version))
+    invisible(NULL)
   }
 )
-
-jdbcDescribeDriver <- function(obj, verbose = FALSE, ...) {
-  info <- dbGetInfo(obj)
-  print("JDBC Driver\n")
-  print(sprintf("  Driver class: %s\n", obj@driverClass))
-  print(sprintf("  Driver version: %s.%s\n", info$major_version, info$minor_version))
-  invisible(NULL)
-}
 
 #' Get meta information about the driver
 #'

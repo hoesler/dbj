@@ -6,8 +6,8 @@ test_that("column info can be fetched", {
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
-  dbWriteTable(con, "iris", iris, overwrite = TRUE)
-  res <- dbSendQuery(con, "SELECT * from iris")
+  dbWriteTable(con, "iris", iris)
+  res <- dbSendQuery(con, "SELECT * FROM \"iris\"")
 
   # when
   info <- dbColumnInfo(res)
@@ -22,8 +22,8 @@ test_that("data can be fetched", {
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
-  dbWriteTable(con, "iris", iris, overwrite = TRUE)
-  res <- dbSendQuery(con, "SELECT count(*) FROM iris")
+  dbWriteTable(con, "iris", iris)
+  res <- dbSendQuery(con, "SELECT count(*) FROM \"iris\"")
   
   # when
   data <- fetch(res, -1)
@@ -37,8 +37,8 @@ test_that("dbHasCompleted is false initially", {
   h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
-  dbWriteTable(con, "iris", iris, overwrite = TRUE)
-  res <- dbSendQuery(con, "SELECT * FROM iris")
+  dbWriteTable(con, "iris", iris)
+  res <- dbSendQuery(con, "SELECT * FROM \"iris\"")
   
   # when
   completed <- dbHasCompleted(res)
@@ -53,8 +53,8 @@ test_that("dbHasCompleted is false while fetching", {
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
-  dbWriteTable(con, "iris", iris, overwrite = TRUE)
-  res <- dbSendQuery(con, "SELECT * FROM iris")
+  dbWriteTable(con, "iris", iris)
+  res <- dbSendQuery(con, "SELECT * FROM \"iris\"")
   fetch(res, 1)
 
   # when
@@ -69,8 +69,9 @@ test_that("dbHasCompleted is true after fetching", {
   h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
-  dbWriteTable(con, "iris", iris, overwrite = TRUE)
-  res <- dbSendQuery(con, "SELECT * FROM iris")
+  data(iris)
+  dbWriteTable(con, "iris", iris)
+  res <- dbSendQuery(con, "SELECT * FROM \"iris\"")
   fetch(res)
 
   # when
@@ -80,13 +81,29 @@ test_that("dbHasCompleted is true after fetching", {
   expect_that(completed, is_true())
 })
 
+test_that("dbListFields returns the column labels", {
+  # given
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
+  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
+  on.exit(dbDisconnect(con))
+  data(iris)
+  dbWriteTable(con, "iris", iris)
+  res <- dbSendQuery(con, "SELECT * FROM \"iris\"")
+
+  # when
+  fields <- dbListFields(res)
+
+  # then
+  expect_that(fields, equals(names(iris)))
+})
+
 #test_that("dbGetRowCount returns the correct number", {
 #  # given
 #  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
 #  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
 #  on.exit(dbDisconnect(con))
-#  dbWriteTable(con, "iris", iris, overwrite = TRUE)
-#  res <- dbSendQuery(con, "SELECT * FROM iris")
+#  dbWriteTable(con, "iris", iris)
+#  res <- dbSendQuery(con, "SELECT * FROM \"iris\"")
 #  data <- fetch(res)
 #
 #  # when

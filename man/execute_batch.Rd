@@ -1,0 +1,18 @@
+\name{execute_batch}
+\alias{execute_batch}
+\title{Execute a batch statement}
+\usage{
+execute_batch(j_statement)
+}
+\arguments{
+  \item{j_statement}{a jobjRef object to a
+  java.sql.PreparedStatement object}
+}
+\value{
+integer vector with update counts containing one element
+for each command in the batch
+}
+\description{
+Execute a batch statement
+}
+

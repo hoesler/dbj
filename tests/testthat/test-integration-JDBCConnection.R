@@ -53,7 +53,7 @@ test_that("a query can be sent", {
   dbWriteTable(con, "iris", iris)
 
   # when
-  res <- dbSendQuery(con, "SELECT count(*) FROM iris")
+  res <- dbSendQuery(con, "SELECT count(*) FROM \"iris\"")
   
   # then
   expect_that(res, is_a("JDBCResult"))
@@ -68,7 +68,7 @@ test_that("a prepared query can be sent", {
   dbWriteTable(con, "iris", iris)
 
   # when
-  res <- dbSendQuery(con, "SELECT Species, count(Species) FROM iris WHERE \"Sepal.Width\" > ? GROUP BY Species", 3)
+  res <- dbSendQuery(con, "SELECT \"Species\", count(\"Species\") FROM \"iris\" WHERE \"Sepal.Width\" > ? GROUP BY \"Species\"", 3)
   
   # then
   expect_that(res, is_a("JDBCResult"))
@@ -81,7 +81,7 @@ test_that("an update query can be sent", {
   on.exit(dbDisconnect(con))
   
   # when
-  success <- dbSendUpdate(con, "CREATE TABLE foo (alpha VARCHAR(32), beta INT)")
+  success <- dbSendUpdate(con, "CREATE TABLE \"foo\" (alpha VARCHAR(32), beta INT)")
   
   # then
   expect_that(success, is_true())

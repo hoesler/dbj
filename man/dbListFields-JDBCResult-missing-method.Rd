@@ -1,0 +1,24 @@
+\docType{methods}
+\name{dbListFields,JDBCResult,missing-method}
+\alias{dbListFields,JDBCResult,missing-method}
+\title{Get the names or labels for the columns of the result set.}
+\usage{
+\S4method{dbListFields}{JDBCResult,missing}(conn, name, use_labels = TRUE,
+  ...)
+}
+\arguments{
+  \item{conn}{an \code{\linkS4class{JDBCResult}} object.}
+
+  \item{name}{Ignored. Needed for compatiblity with
+  generic.}
+
+  \item{use_labels}{if the the method should return the
+  labels or the names of the columns}
+
+  \item{...}{Ignored. Needed for compatiblity with
+  generic.}
+}
+\description{
+Get the names or labels for the columns of the result set.
+}
+

@@ -50,5 +50,5 @@ test_that("jstop stops at Throwable", {
 })
 
 test_that("jstop stops at non java object", {
-  expect_that(jstop(NULL), throws_error(".*is not TRUE"))
+  expect_that(jstop(NULL), throws_error(".*is not a java object"))
 })

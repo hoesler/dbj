@@ -1,4 +1,4 @@
-#' Generics for getting description of table columns available in the specified catalog.
+#' Generics for getting a description of table columns available in the specified catalog.
 #' 
 #' @param conn An \code{DBIConnection} object.
 #' @param ... Other arguments used by methods
@@ -21,10 +21,12 @@ setGeneric("dbGetTables",
 #' Generics for sending an update query.
 #' 
 #' @param conn An \code{DBIConnection} object.
-#' @param statement the stament to send
+#' @param statement the statement to send
+#' @param parameters Optional. Either a named list or a data.frame of statment parameters.
+#'   A data.frame will produce a batch update for each row.
 #' @param ... Other arguments used by methods
 #' @export
 setGeneric("dbSendUpdate",
-  function(conn, statement, ...) standardGeneric("dbSendUpdate"),
+  function(conn, statement, parameters, ...) standardGeneric("dbSendUpdate"),
   valueClass = "logical"
 )

@@ -20,6 +20,7 @@ sql_escape <- function(string, identifier = FALSE, quote = "\"") {
       }
       string[-vid] <- sql_escape(string[-vid], FALSE, quote)
     }
+    string[vid] <- paste(quote, string[vid], quote, sep = '')
     return(string)
   }
 

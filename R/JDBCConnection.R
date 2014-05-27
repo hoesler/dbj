@@ -41,7 +41,7 @@ setMethod("dbCallProc", signature(conn = "JDBCConnection"),
 setMethod("dbDisconnect", signature(conn = "JDBCConnection"),
   function(conn, ...) {
     jtry(.jcall(conn@jc, "V", "close", check = FALSE))
-    TRUE
+    invisible(TRUE)
   },
   valueClass = "logical"
 )
@@ -57,41 +57,48 @@ setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "charact
   function(conn, statement, parameters = list(), ...) {
     statement <- as.character(statement)[1L]
     
-    ## if the statement starts with {call or {? = call then we use CallableStatement 
-    if (any(grepl("^\\{(call|\\? = *call)", statement))) {
-      j_statement <- prepareCall(conn, statement, parameters)
-      j_result_set <- executeQuery(j_statement)
-    } else {
-      j_statement <- prepareStatement(conn, statement, parameters)
-      j_result_set <- executeQuery(j_statement)
-    } 
+    j_statement <- create_prepared_statement(conn, statement)
+    insert_parameters(j_statement, parameters)
+    j_result_set <- execute_query(j_statement)
     
     JDBCResult(j_result_set)
   },
   valueClass = "JDBCResult"
 )
 
-#' Execute a SQL statement on a database connection to update the database
-#'
-#' @param conn An existing \code{\linkS4class{JDBCConnection}}
-#' @param statement the statement to send over the connection
-#' @param parameters a list of statment parameters
-#' @param ... Ignored. Needed for compatiblity with generic.
-#' @export
-setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character"),
-  function(conn, statement, parameters = list(), ...) {
-    statement <- as.character(statement)[1L]
-
-    ## if the statement starts with {call or {? = call then we use CallableStatement 
-    if (any(grepl("^\\{(call|\\? = *call)", statement))) {
-      j_statement <- prepareCall(conn, statement, parameters)
-      j_result_set <- executeQuery(j_statement)
-    } else {
-      j_statement <- prepareStatement(conn, statement, parameters)
-      affected_rows <- executeUpdate(j_statement)
-    }
-
+setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "missing"),
+  function(conn, statement, parameters, ...) {
+    j_statement <- create_prepared_statement(conn, statement)
+    execute_update(j_statement)
     invisible(TRUE)
+  },
+  valueClass = "logical"
+)
+
+setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "list"),
+  function(conn, statement, parameters, ...) {
+    expect_that(names(parameters), not(is_null()), "parameters must be a named list")
+    dbSendUpdate(conn, statement, as.data.frame(parameters))
+  },
+  valueClass = "logical"
+)
+
+setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "data.frame"),
+  function(conn, statement, parameters, ...) {
+    expect_that(names(parameters), not(is_null()))
+    expect_that(!any(is.na(names(parameters))), is_true())
+    expect_that(length(statement), equals(1))
+    expect_that(nrow(parameters), is_more_than(0))
+
+    j_statement <- create_prepared_statement(conn, statement)
+
+    apply(parameters, 1, function(row) {
+      insert_parameters(j_statement, as.list(row))
+      add_batch(j_statement)
+    })
+
+    updates <- execute_batch(j_statement)
+    invisible(as.logical(updates))
   },
   valueClass = "logical"
 )
@@ -170,13 +177,8 @@ setMethod("dbListTables", signature(conn = "JDBCConnection"),
   valueClass = "character"
 )
 
-#' Get a description of the tables available in the given catalog. 
-#'
-#' @param conn a \code{\linkS4class{JDBCConnection}} object, produced by
-#'   \code{\link[DBI]{dbConnect}}
 #' @param pattern the pattern for table names
-#' @param ... Ignored. Needed for compatibility with generic.
-#' @export
+#' @rdname dbGetTables
 setMethod("dbGetTables", signature(conn = "JDBCConnection"),
   function(conn, pattern = "%", ...) {
     md <- jtry(.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE),
@@ -233,14 +235,9 @@ setMethod("dbListFields", signature(conn = "JDBCConnection", name = "character")
   valueClass = "data.frame"
 )
 
-#' Get description of table columns available in the specified catalog.
-#'
-#' @param conn a \code{\linkS4class{JDBCConnection}} object, produced by
-#'   \code{\link[DBI]{dbConnect}}
 #' @param name the pattern for table names
 #' @param pattern the pattern for column names
-#' @param ... Ignored. Needed for compatibility with generic
-#' @export
+#' @rdname dbGetFields
 setMethod("dbGetFields", signature(conn = "JDBCConnection"),
   function(conn, name, pattern = "%", ...) {
     md <- jtry(.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE),
@@ -259,6 +256,7 @@ setMethod("dbGetFields", signature(conn = "JDBCConnection"),
 #'   \code{\link[DBI]{dbConnect}}
 #' @param name a character string specifying a table name.
 #' @param ... Ignored. Needed for compatibility with generic.
+#' @export
 setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
     dbGetQuery(conn, paste("SELECT * FROM", sql_escape(name,TRUE,conn@identifier.quote)))
@@ -310,7 +308,10 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
       data_types <- sapply(value, dbDataType, dbObj = conn)
       field_definitions <- paste(sql_escape(names(value), TRUE, conn@identifier.quote), data_types, collapse = ', ')
       statement <- sprintf("CREATE TABLE %s (%s)", escaped_table_name, field_definitions)
-      dbSendUpdate(conn, statement)
+      table_was_created <- dbSendUpdate(conn, statement)
+      if (!table_was_created) {
+        stop("Table could not be created")
+      }
     }
     
     if (nrow(value) > 0) {
@@ -319,16 +320,14 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
         paste(sql_escape(names(value), TRUE, conn@identifier.quote), collapse = ', '),
         paste(rep("?", length(value)), collapse = ', '))
       
-      apply(value, 1, function(row) {
-        dbSendUpdate(conn, statement, parameters = as.list(row))
-      })
+      dbSendUpdate(conn, statement, parameters = value)
     }
     
     if (commit_automatically) {
       dbCommit(conn) 
     }
 
-    TRUE           
+    invisible(TRUE)           
   },
   valueClass = "logical"
 )
@@ -341,7 +340,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
 setMethod("dbCommit", signature(conn = "JDBCConnection"),
   function(conn, ...) {
     jtry(.jcall(conn@jc, "V", "commit", check = FALSE))
-    TRUE
+    invisible(TRUE)
   },
   valueClass = "logical"
 )
@@ -354,7 +353,7 @@ setMethod("dbCommit", signature(conn = "JDBCConnection"),
 setMethod("dbRollback", signature(conn = "JDBCConnection"), 
   function(conn, ...) {
     jtry(.jcall(conn@jc, "V", "rollback", check = FALSE))
-    TRUE
+    invisible(TRUE)
   },
   valueClass = "logical"
 )
