@@ -100,7 +100,7 @@ setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "charact
     statement <- as.character(statement)[1L]
     
     ## if the statement starts with {call or {? = call then we use CallableStatement 
-    if (isTRUE(as.logical(grepl("^\\{(call|\\? = *call)", statement)))) {
+    if (any(grepl("^\\{(call|\\? = *call)", statement))) {
       j_statement <- prepareCall(conn, statement, parameters)
       j_result_set <- executeQuery(j_statement)
     } else {
@@ -125,7 +125,7 @@ setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "chara
     statement <- as.character(statement)[1L]
 
     ## if the statement starts with {call or {? = call then we use CallableStatement 
-    if (isTRUE(as.logical(grepl("^\\{(call|\\? = *call)", statement)))) {
+    if (any(grepl("^\\{(call|\\? = *call)", statement))) {
       j_statement <- prepareCall(conn, statement, parameters)
       j_result_set <- executeQuery(j_statement)
     } else {
@@ -303,7 +303,7 @@ setMethod("dbGetFields", signature(conn = "JDBCConnection"),
 #' @param ... Ignored. Needed for compatibility with generic.
 setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
-    dbGetQuery(conn, paste("SELECT * FROM",.sql.qescape(name,TRUE,conn@identifier.quote)))
+    dbGetQuery(conn, paste("SELECT * FROM", .sql.qescape(name,TRUE,conn@identifier.quote)))
   },
   valueClass = "data.frame"
 )
@@ -311,7 +311,7 @@ setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
 .sql.qescape <- function(s, identifier = FALSE, quote = "\"") {
   s <- as.character(s)
   if (identifier) {
-    vid <- grep("^[A-Za-z]+([A-Za-z0-9_]*)$",s)
+    vid <- grep("^[A-Za-z]+([A-Za-z0-9_]*)$", s)
     if (length(s[-vid])) {
       if (is.na(quote)) {
         stop("The JDBC connection doesn't support quoted identifiers, 
