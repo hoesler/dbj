@@ -331,44 +331,81 @@ setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
 #' 
 #' @param conn An existing \code{\linkS4class{JDBCConnection}}
 #' @param name character vector of length 1 giving name of table to write to
-#' @param value the date frame to write to the table
+#' @param value an object which is coercible to data.frame
 #' @param overwrite a logical value indicating if the table should be overwritten if it exists
 #' @param append a logical value indicating if the data shuld get appended to an existing table
 #' @export
+setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "ANY"),
+  function(conn, name, value, overwrite = TRUE, append = FALSE, ...) {
+    expect_that(canCoerce(value, "data.frame"), is_true())
+    dbWriteTable(conn, name, as.data.frame(value), value, overwrite, append, ...)
+  },
+  valueClass = "logical"
+)
+
+#' Write a local data frame or file to the database.
+#' 
+#' @param conn An existing \code{\linkS4class{JDBCConnection}}
+#' @param name character vector of length 1 giving name of table to write to
+#' @param value the date frame to write to the table
+#' @param overwrite a logical value indicating if the table should be overwritten if it exists
+#' @param append a logical value indicating if the data should get appended to an existing table
+#' @export
 setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "data.frame"),
   function(conn, name, value, overwrite = TRUE, append = FALSE, ...) {
-    ac <- jtry(.jcall(conn@jc, "Z", "getAutoCommit", check = FALSE))
-    overwrite <- isTRUE(as.logical(overwrite))
-    append <- if (overwrite) FALSE else isTRUE(as.logical(append))
-    if (is.vector(value) && !is.list(value)) value <- data.frame(x = value)
-    if (length(value)<1) stop("value must have at least one column")
-    if (is.null(names(value))) names(value) <- paste("V",1:length(value),sep = '')
-    if (length(value[[1]])>0) {
-      if (!is.data.frame(value)) value <- as.data.frame(value, row.names = 1:length(value[[1]]))
-    } else {
-      if (!is.data.frame(value)) value <- as.data.frame(value)
+    expect_that(overwrite, is_a("logical"))
+    expect_that(append, is_a("logical"))    
+    expect_that(!all(overwrite, append), is_true(), "Cannot overwrite and append simultaneously")
+    expect_that(ncol(value), is_more_than(0), "value must have at least one column")
+    expect_that(names(value), not(is_null()))
+    expect_that(any(is.na(names(value))), is_false())
+
+    table_exists <- dbExistsTable(conn, name)
+    if (append && !table_exists) {
+      stop("Cannot append to a non-existing table `", name, "'")
     }
-    fts <- sapply(value, dbDataType, dbObj = conn)
-    if (dbExistsTable(conn, name)) {
-      if (overwrite) dbRemoveTable(conn, name)
-      else if (!append) stop("Table `",name,"' already exists")
-    } else if (append) stop("Cannot append to a non-existing table `",name,"'")
-    fdef <- paste(.sql.qescape(names(value), TRUE, conn@identifier.quote),fts,collapse = ',')
-    qname <- .sql.qescape(name, TRUE, conn@identifier.quote)
-    if (ac) {
+    if (table_exists && !(overwrite || append)) {
+      stop("Table `", name, "' exists and neither overwrite nor append is TRUE")
+    }
+
+    if (overwrite && table_exists) {
+      removed <- dbRemoveTable(conn, name)
+      if (!removed) {
+        stop("Failed to remove table `", name, "'")
+      }
+    }    
+    
+    commit_automatically <- jtry(.jcall(conn@jc, "Z", "getAutoCommit", check = FALSE))
+    if (commit_automatically) {
       jtry(.jcall(conn@jc, "V", "setAutoCommit", FALSE, check = FALSE))
-      on.exit(jtry(.jcall(conn@jc, "V", "setAutoCommit", ac, check = FALSE)))
+      on.exit(jtry(.jcall(conn@jc, "V", "setAutoCommit", commit_automatically, check = FALSE)))
     }
+    
+    escaped_table_name <- .sql.qescape(name, TRUE, conn@identifier.quote)
+
     if (!append) {
-      ct <- paste("CREATE TABLE ",qname," (",fdef,")",sep = '')
-      dbSendUpdate(conn, ct)
+      data_types <- sapply(value, dbDataType, dbObj = conn)
+      field_definitions <- paste(.sql.qescape(names(value), TRUE, conn@identifier.quote), data_types, collapse = ', ')
+      statement <- sprintf("CREATE TABLE %s (%s)", escaped_table_name, field_definitions)
+      dbSendUpdate(conn, statement)
     }
-    if (length(value[[1]])) {
-      inss <- paste("INSERT INTO ",qname," VALUES(", paste(rep("?",length(value)),collapse = ','),")",sep = '')
-      for (j in 1:length(value[[1]]))
-        dbSendUpdate(conn, inss, parameters = as.list(value[j,]))
+    
+    if (nrow(value) > 0) {
+      statement <- sprintf("INSERT INTO %s(%s) VALUES(%s)",
+        escaped_table_name,
+        paste(.sql.qescape(names(value), TRUE, conn@identifier.quote), collapse = ', '),
+        paste(rep("?", length(value)), collapse = ', '))
+      
+      apply(value, 1, function(row) {
+        dbSendUpdate(conn, statement, parameters = as.list(row))
+      })
     }
-    if (ac) dbCommit(conn)            
+    
+    if (commit_automatically) {
+      dbCommit(conn) 
+    }
+
+    TRUE           
   },
   valueClass = "logical"
 )

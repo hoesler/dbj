@@ -1,9 +1,9 @@
 \docType{methods}
-\name{dbWriteTable,JDBCConnection,character,data.frame-method}
-\alias{dbWriteTable,JDBCConnection,character,data.frame-method}
+\name{dbWriteTable,JDBCConnection,character,ANY-method}
+\alias{dbWriteTable,JDBCConnection,character,ANY-method}
 \title{Write a local data frame or file to the database.}
 \usage{
-\S4method{dbWriteTable}{JDBCConnection,character,data.frame}(conn, name, value,
+\S4method{dbWriteTable}{JDBCConnection,character,ANY}(conn, name, value,
   overwrite = TRUE, append = FALSE, ...)
 }
 \arguments{
@@ -13,13 +13,13 @@
   \item{name}{character vector of length 1 giving name of
   table to write to}
 
-  \item{value}{the date frame to write to the table}
+  \item{value}{an object which is coercible to data.frame}
 
   \item{overwrite}{a logical value indicating if the table
   should be overwritten if it exists}
 
   \item{append}{a logical value indicating if the data
-  should get appended to an existing table}
+  shuld get appended to an existing table}
 
   \item{...}{ any optional arguments that the underlying
   database driver supports, e.g.  \describe{

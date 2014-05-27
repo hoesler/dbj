@@ -13,7 +13,7 @@ test_that("dbListTables returns all table names", {
   expect_that(length(tables), equals(29))
 })
 
-test_that("a table can be written", {
+test_that("dbWriteTable will write a data.frame", {
   # given
   h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
@@ -22,6 +22,20 @@ test_that("a table can be written", {
   
   # when
   success <- dbWriteTable(con, "iris", iris, overwrite = TRUE)
+  
+  # then
+  expect_that(success, is_true())
+})
+
+test_that("dbWriteTable will write an object coercible to data.frame", {
+  # given
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
+  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
+  on.exit(dbDisconnect(con))
+  vec <- seq(10)
+
+  # when
+  success <- dbWriteTable(con, "iris", vec, overwrite = TRUE)
   
   # then
   expect_that(success, is_true())
