@@ -99,9 +99,9 @@ setMethod("summary", signature(object = "JDBCDriver"),
 
 jdbcDescribeDriver <- function(obj, verbose = FALSE, ...) {
   info <- dbGetInfo(obj)
-  cat("JDBC Driver")
-  cat("  Driver class: ", obj@driverClass, "\n")
-  cat("  Driver version: ", info$major_version, ".", info$minor_version, "\n")
+  print("JDBC Driver\n")
+  print(sprintf("  Driver class: %s\n", obj@driverClass))
+  print(sprintf("  Driver version: %s.%s\n", info$major_version, info$minor_version))
   invisible(NULL)
 }
 
