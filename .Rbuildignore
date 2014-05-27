@@ -1,3 +1,4 @@
 Readme.md
 ^.*\.Rproj$
 ^\.Rproj\.user$
+RJDBC.sublime-*

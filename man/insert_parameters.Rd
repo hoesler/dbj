@@ -1,0 +1,17 @@
+\name{insert_parameters}
+\alias{insert_parameters}
+\title{Set the values of prepared statment.}
+\usage{
+insert_parameters(j_statement, parameter_list)
+}
+\arguments{
+  \item{j_statement}{a java reference object to a
+  java.sql.PreparedStatement}
+
+  \item{parameter_list}{a list of parameter values to fill
+  the statement with}
+}
+\description{
+Set the values of prepared statment.
+}
+

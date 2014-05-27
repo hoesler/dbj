@@ -1,6 +1,8 @@
 #' @include JDBCObject.R
 #' @include JDBCConnectionExtensions.R
 #' @include JavaUtils.R
+#' @include SQLUtils.R
+#' @include JDBCUtils.R
 NULL
 
 #' Class JDBCConnection
@@ -43,50 +45,6 @@ setMethod("dbDisconnect", signature(conn = "JDBCConnection"),
   },
   valueClass = "logical"
 )
-
-# Get the corresponding int value (java.sql.Types) for the given object type
-as.sqlType <- function(object) {
-  if (is.integer(object)) 4 # INTEGER
-  else if (is.numeric(object)) 8 # DOUBLE
-  else 12 # VARCHAR
-}
-
-insert_parameters <- function(j_statement, parameter_list) {
-  if (length(parameter_list) > 0) {
-    for (i in seq(length(parameter_list))) {
-      parameter <- parameter_list[[i]]
-      if (is.na(parameter)) { # map NAs to NULLs (courtesy of Axel Klenk)
-        sqlType <- as.sqlType(parameter)
-        jtry(.jcall(j_statement, "V", "setNull", i, as.integer(sqlType)))
-      } else if (is.integer(parameter))
-        jtry(.jcall(j_statement, "V", "setInt", i, parameter[1]))
-      else if (is.numeric(parameter))
-        jtry(.jcall(j_statement, "V", "setDouble", i, as.double(parameter)[1]))
-      else
-        jtry(.jcall(j_statement, "V", "setString", i, as.character(parameter)[1]))
-    }
-  }
-}
-
-prepareCall <- function(conn, statement, parameters) {
-  j_statement <- jtry(.jcall(conn@jc, "Ljava/sql/PreparedStatement;", "prepareCall", statement, check = FALSE))
-  insert_parameters(j_statement, parameters)
-  j_statement
-}
-
-prepareStatement <- function(conn, statement, parameters) {
-  j_statement <- jtry(.jcall(conn@jc, "Ljava/sql/PreparedStatement;", "prepareStatement", statement, check = FALSE))
-  insert_parameters(j_statement, parameters)
-  j_statement
-}
-
-executeQuery <- function(j_statement) {
-  jtry(.jcall(j_statement, "Ljava/sql/ResultSet;", "executeQuery", check = FALSE))
-}
-
-executeUpdate <- function(j_statement) {
-  jtry(.jcall(j_statement, "I", "executeUpdate", check = FALSE))
-}
 
 #' Execute a SQL statement on a database connection
 #'
@@ -190,11 +148,11 @@ setMethod("dbListResults", signature(conn = "JDBCConnection"),
   }
 )
 
-.fetch.result <- function(r, close = FALSE) {
+fetch_all <- function(j_result_set, close = TRUE) {  
+  res <- JDBCResult(j_result_set)
   if (close) {
-    on.exit(jtry(.jcall(r, "V", "close")))
+    on.exit(dbClearResult(res))
   }
-  res <- JDBCResult(r)
   fetch(res, -1)
 }
 
@@ -224,10 +182,10 @@ setMethod("dbGetTables", signature(conn = "JDBCConnection"),
     md <- jtry(.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE),
       jstop, "Failed to retrieve JDBC database metadata")
     # getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types)
-    r <- jtry(.jcall(md, "Ljava/sql/ResultSet;", "getTables", .jnull("java/lang/String"),
+    j_result_set <- jtry(.jcall(md, "Ljava/sql/ResultSet;", "getTables", .jnull("java/lang/String"),
                 .jnull("java/lang/String"), pattern, .jnull("[Ljava/lang/String;"), check = FALSE),
       jstop, "Unable to retrieve JDBC tables list")    
-    .fetch.result(r, close = TRUE)
+    fetch_all(j_result_set)
   },
   valueClass = "data.frame"
 )
@@ -288,10 +246,10 @@ setMethod("dbGetFields", signature(conn = "JDBCConnection"),
     md <- jtry(.jcall(conn@jc, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE),
       jstop, "Unable to retrieve JDBC database metadata")
     # getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern)
-    r <- jtry(.jcall(md, "Ljava/sql/ResultSet;", "getColumns",
+    j_result_set <- jtry(.jcall(md, "Ljava/sql/ResultSet;", "getColumns",
         .jnull("java/lang/String"), .jnull("java/lang/String"), name, pattern, check = FALSE),
       jstop, "Unable to retrieve JDBC columns list for ", name)
-    .fetch.result(r, close = TRUE)
+    fetch_all(j_result_set)
   },
   valueClass = "data.frame"
 )
@@ -303,44 +261,9 @@ setMethod("dbGetFields", signature(conn = "JDBCConnection"),
 #' @param ... Ignored. Needed for compatibility with generic.
 setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
-    dbGetQuery(conn, paste("SELECT * FROM", .sql.qescape(name,TRUE,conn@identifier.quote)))
+    dbGetQuery(conn, paste("SELECT * FROM", sql_escape(name,TRUE,conn@identifier.quote)))
   },
   valueClass = "data.frame"
-)
-
-.sql.qescape <- function(s, identifier = FALSE, quote = "\"") {
-  s <- as.character(s)
-  if (identifier) {
-    vid <- grep("^[A-Za-z]+([A-Za-z0-9_]*)$", s)
-    if (length(s[-vid])) {
-      if (is.na(quote)) {
-        stop("The JDBC connection doesn't support quoted identifiers, 
-          but table/column name contains characters that must be quoted (", paste(s[-vid], collapse = ','), ")")
-      }
-      s[-vid] <- .sql.qescape(s[-vid], FALSE, quote)
-    }
-    return(s)
-  }
-  if (is.na(quote)) quote <- ''
-  s <- gsub("\\\\","\\\\\\\\",s)
-  if (nchar(quote)) s <- gsub(paste("\\",quote,sep = ''),paste("\\\\\\",quote,sep = ''),s,perl = TRUE)
-  paste(quote,s,quote,sep = '')
-}
-
-#' Write a local data frame or file to the database.
-#' 
-#' @param conn An existing \code{\linkS4class{JDBCConnection}}
-#' @param name character vector of length 1 giving name of table to write to
-#' @param value an object which is coercible to data.frame
-#' @param overwrite a logical value indicating if the table should be overwritten if it exists
-#' @param append a logical value indicating if the data shuld get appended to an existing table
-#' @export
-setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "ANY"),
-  function(conn, name, value, overwrite = TRUE, append = FALSE, ...) {
-    expect_that(canCoerce(value, "data.frame"), is_true())
-    dbWriteTable(conn, name, as.data.frame(value), value, overwrite, append, ...)
-  },
-  valueClass = "logical"
 )
 
 #' Write a local data frame or file to the database.
@@ -381,11 +304,11 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
       on.exit(jtry(.jcall(conn@jc, "V", "setAutoCommit", commit_automatically, check = FALSE)))
     }
     
-    escaped_table_name <- .sql.qescape(name, TRUE, conn@identifier.quote)
+    escaped_table_name <- sql_escape(name, TRUE, conn@identifier.quote)
 
     if (!append) {
       data_types <- sapply(value, dbDataType, dbObj = conn)
-      field_definitions <- paste(.sql.qescape(names(value), TRUE, conn@identifier.quote), data_types, collapse = ', ')
+      field_definitions <- paste(sql_escape(names(value), TRUE, conn@identifier.quote), data_types, collapse = ', ')
       statement <- sprintf("CREATE TABLE %s (%s)", escaped_table_name, field_definitions)
       dbSendUpdate(conn, statement)
     }
@@ -393,7 +316,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     if (nrow(value) > 0) {
       statement <- sprintf("INSERT INTO %s(%s) VALUES(%s)",
         escaped_table_name,
-        paste(.sql.qescape(names(value), TRUE, conn@identifier.quote), collapse = ', '),
+        paste(sql_escape(names(value), TRUE, conn@identifier.quote), collapse = ', '),
         paste(rep("?", length(value)), collapse = ', '))
       
       apply(value, 1, function(row) {

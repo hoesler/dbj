@@ -21,21 +21,7 @@ test_that("dbWriteTable will write a data.frame", {
   data(iris)
   
   # when
-  success <- dbWriteTable(con, "iris", iris, overwrite = TRUE)
-  
-  # then
-  expect_that(success, is_true())
-})
-
-test_that("dbWriteTable will write an object coercible to data.frame", {
-  # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
-  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
-  on.exit(dbDisconnect(con))
-  vec <- seq(10)
-
-  # when
-  success <- dbWriteTable(con, "iris", vec, overwrite = TRUE)
+  success <- dbWriteTable(con, "iris", iris)
   
   # then
   expect_that(success, is_true())
@@ -47,7 +33,7 @@ test_that("a table can be read", {
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
-  dbWriteTable(con, "iris", iris, overwrite = TRUE)
+  dbWriteTable(con, "iris", iris)
 
   # when
   data <- dbReadTable(con, "iris")
@@ -64,7 +50,7 @@ test_that("a query can be sent", {
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
-  dbWriteTable(con, "iris", iris, overwrite = TRUE)
+  dbWriteTable(con, "iris", iris)
 
   # when
   res <- dbSendQuery(con, "SELECT count(*) FROM iris")
@@ -79,7 +65,7 @@ test_that("a prepared query can be sent", {
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
-  dbWriteTable(con, "iris", iris, overwrite = TRUE)
+  dbWriteTable(con, "iris", iris)
 
   # when
   res <- dbSendQuery(con, "SELECT Species, count(Species) FROM iris WHERE \"Sepal.Width\" > ? GROUP BY Species", 3)

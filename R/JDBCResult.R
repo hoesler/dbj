@@ -29,23 +29,49 @@ setClass("JDBCResult",
 JDBCResult <- function(j_result_set) {
   assert_that(is(j_result_set, "jobjRef"), j_result_set %instanceof% "java.sql.ResultSet")
 
-  md <- getMetaData(j_result_set)
-  pull <- getResultPull(j_result_set)
+  md <- get_meta_data(j_result_set)
+  pull <- create_result_pull(j_result_set)
   new("JDBCResult", jr = j_result_set, md = md, pull = pull)
 }
 
-getMetaData <- function(j_result_set) {
+get_meta_data <- function(j_result_set) {
   verifyNotNull(j_result_set)
   j_meta_data <- jtry(.jcall(j_result_set, "Ljava/sql/ResultSetMetaData;", "getMetaData", check = FALSE))
   verifyNotNull(j_meta_data, "Unable to retrieve JDBC result set meta data for ", j_result_set, " in dbSendQuery")
   j_meta_data
 }
 
-getResultPull <- function(j_result_set) {
+create_result_pull <- function(j_result_set) {
   verifyNotNull(j_result_set)
   rp <- .jnew("info/urbanek/Rpackage/RJDBC/JDBCResultPull", .jcast(j_result_set, "java/sql/ResultSet"), check = FALSE)
   verifyNotNull(rp, "Failed to instantiate JDBCResultPull hepler object")
   rp
+}
+
+fetch_resultpull <- function(res, rows, column_info) {
+  java_table <- jtry(.jcall(res@pull, "Linfo/urbanek/Rpackage/RJDBC/Table;", "fetch", as.integer(rows), check = FALSE))
+  verifyNotNull(java_table, "Table creation failed")
+  column_count <- jtry(.jcall(java_table, "I", "columnCount", check = FALSE))
+  row_count <- jtry(.jcall(java_table, "I", "rowCount", check = FALSE))
+
+  column_list <- lapply(seq(column_count), function(column_index) {
+    column <- jtry(.jcall(java_table, "Linfo/urbanek/Rpackage/RJDBC/Column;", "getColumn", as.integer(column_index - 1), check = FALSE))
+
+    column_data <- c()
+    if (column_info[column_index, "type"] == "numeric") {
+      column_data <- jtry(.jcall(column, "[D", "toDoubleArray", check = FALSE))
+    } else {
+      column_data <- jtry(.jcall(column, "[Ljava/lang/String;", "toStringArray", check = FALSE))     
+    }
+
+    column_data
+  })
+
+  # as.data.frame is expensive - create it on the fly from the list
+  attr(column_list, "row.names") <- c(NA_integer_, row_count)
+  class(column_list) <- "data.frame"
+  names(column_list) <- column_info$label
+  column_list
 }
 
 setMethod("fetch", signature(res = "JDBCResult", n = "missing"),
@@ -102,32 +128,6 @@ setMethod("fetch", signature(res = "JDBCResult", n = "numeric"),
     rbind_all(chunks)
   }
 )
-
-fetch_resultpull <- function(res, rows, column_info) {
-  java_table <- jtry(.jcall(res@pull, "Linfo/urbanek/Rpackage/RJDBC/Table;", "fetch", as.integer(rows), check = FALSE))
-  verifyNotNull(java_table, "Table creation failed")
-  column_count <- jtry(.jcall(java_table, "I", "columnCount", check = FALSE))
-  row_count <- jtry(.jcall(java_table, "I", "rowCount", check = FALSE))
-
-  column_list <- lapply(seq(column_count), function(column_index) {
-    column <- jtry(.jcall(java_table, "Linfo/urbanek/Rpackage/RJDBC/Column;", "getColumn", as.integer(column_index - 1), check = FALSE))
-
-    column_data <- c()
-    if (column_info[column_index, "type"] == "numeric") {
-      column_data <- jtry(.jcall(column, "[D", "toDoubleArray", check = FALSE))
-    } else {
-      column_data <- jtry(.jcall(column, "[Ljava/lang/String;", "toStringArray", check = FALSE))     
-    }
-
-    column_data
-  })
-
-  # as.data.frame is expensive - create it on the fly from the list
-  attr(column_list, "row.names") <- c(NA_integer_, row_count)
-  class(column_list) <- "data.frame"
-  names(column_list) <- column_info$label
-  column_list
-}
 
 #' Clear a result set.
 #' 

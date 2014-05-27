@@ -17,7 +17,9 @@ Description: RJDBC is an implementation of R's DBI interface using JDBC as a
 License: GPL-2
 URL: http://www.rforge.net/RJDBC/
 Collate:
+    'SQLUtils.R'
     'JavaUtils.R'
+    'JDBCUtils.R'
     'JDBCObject.R'
     'JDBCConnectionExtensions.R'
     'JDBCConnection.R'
