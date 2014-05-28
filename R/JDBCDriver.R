@@ -2,24 +2,26 @@
 #' @include JavaUtils.R
 NULL
 
-#' Class JDBCDriver with factory method JDBC.
+#' Class JDBCDriver with factory methods.
 #'
-#' @name JDBCDriver-class
-#' @docType class
-#' @exportClass JDBCDriver
+#' @export
 setClass("JDBCDriver",
   contains = c("DBIDriver", "JDBCObject"),
   slots = c(
     driverClass = "character",
-    identifier.quote = "character",
     jdrv = "jobjRef"))
 
 #' @param driverClass the java class name of the JDBC driver to use
 #' @param classPath a string of paths seperated by : which shoul get added to the classpath (see \link[rJava]{.jaddClassPath})
-#' @param identifier.quote the quoting character to quote identifiers
 #' @rdname JDBCDriver-class
 #' @export
-JDBC <- function(driverClass = '', classPath = '', identifier.quote = NA) {  
+JDBC <- function(driverClass = '', classPath = '') {  
+  JDBCDriver(driverClass, classPath)
+}
+
+#' @rdname JDBCDriver-class
+#' @export
+JDBCDriver <- function(driverClass = '', classPath = '') {
   ## expand all paths in the classPath
   expanded_paths <- path.expand(unlist(strsplit(classPath, .Platform$path.sep)))
   .jaddClassPath(expanded_paths)
@@ -30,7 +32,7 @@ JDBC <- function(driverClass = '', classPath = '', identifier.quote = NA) {
 
   jdrv <- .jnew(driverClass)
 
-  new("JDBCDriver", driverClass = driverClass, identifier.quote = as.character(identifier.quote), jdrv = jdrv)
+  new("JDBCDriver", driverClass = driverClass, jdrv = jdrv)
 }
 
 #' List active connections
@@ -45,7 +47,7 @@ setMethod("dbListConnections", signature(drv = "JDBCDriver"),
   }
 )
 
-#' Unload JDBCDriver driver.
+#' Unload \code{\linkS4class{JDBCDriver}} driver.
 #' 
 #' @param drv An object of class \code{\linkS4class{JDBCDriver}}
 #' @param ... Ignored. Needed for compatibility with generic.
@@ -81,7 +83,7 @@ setMethod("dbConnect", signature(drv = "JDBCDriver"),
       jc <- .jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", as.character(url)[1], p)
     }
     verifyNotNull(jc, "Unable to connect JDBC to ", url)
-    new("JDBCConnection", jc = jc, identifier.quote = drv@identifier.quote)
+    JDBCConnection(jc)
   },
   valueClass = "JDBCConnection"
 )
@@ -94,9 +96,9 @@ setMethod("dbConnect", signature(drv = "JDBCDriver"),
 setMethod("summary", signature(object = "JDBCDriver"),
   function(object, ...) {
     info <- dbGetInfo(object)
-    print("JDBC Driver\n")
-    print(sprintf("  Driver class: %s\n", object@driverClass))
-    print(sprintf("  Driver version: %s.%s\n", info$major_version, info$minor_version))
+    cat("JDBC Driver\n")
+    cat(sprintf("  Driver class: %s\n", object@driverClass))
+    cat(sprintf("  Driver version: %s.%s\n", info$major_version, info$minor_version))
     invisible(NULL)
   }
 )
@@ -110,8 +112,8 @@ setMethod("summary", signature(object = "JDBCDriver"),
 setMethod("dbGetInfo", signature(dbObj = "JDBCDriver"),
   function(dbObj, ...) {
     list(
-      minor_version = .jcall(dbObj@jdrv, "I", "getMajorVersion"),
-      major_version = .jcall(dbObj@jdrv, "I", "getMinorVersion")
+      minor_version = jtry(.jcall(dbObj@jdrv, "I", "getMajorVersion", check = FALSE)),
+      major_version = jtry(.jcall(dbObj@jdrv, "I", "getMinorVersion", check = FALSE))
     )
   }
 )

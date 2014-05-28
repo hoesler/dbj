@@ -41,11 +41,11 @@ create_prepared_statement <- function(conn, statement) {
 }
 
 prepare_call <- function(conn, statement) {
-  jtry(.jcall(conn@jc, "Ljava/sql/PreparedStatement;", "prepareCall", statement, check = FALSE))
+  jtry(.jcall(conn@j_connection, "Ljava/sql/CallableStatement;", "prepareCall", statement, check = FALSE))
 }
 
 prepare_statement <- function(conn, statement) {
-  jtry(.jcall(conn@jc, "Ljava/sql/PreparedStatement;", "prepareStatement", statement, check = FALSE))
+  jtry(.jcall(conn@j_connection, "Ljava/sql/PreparedStatement;", "prepareStatement", statement, check = FALSE))
 }
 
 execute_query <- function(j_statement) {
@@ -78,4 +78,14 @@ get_meta_data <- function(j_result_set) {
   j_meta_data <- jtry(.jcall(j_result_set, "Ljava/sql/ResultSetMetaData;", "getMetaData", check = FALSE))
   verifyNotNull(j_meta_data, "Unable to retrieve JDBC result set meta data for ", j_result_set, " in dbSendQuery")
   j_meta_data
+}
+
+close_statement <- function(j_statement) {
+  assert_that(j_statement %instanceof% "java.sql.Statement")
+  jtry(.jcall(j_statement, "V", "close"))
+}
+
+close_result_set <- function(j_result_set) {
+  assert_that(j_result_set %instanceof% "java.sql.ResultSet")
+  jtry(.jcall(j_result_set, "V", "close"))
 }

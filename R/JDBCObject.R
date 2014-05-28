@@ -37,7 +37,6 @@ setMethod("dbDataType", signature(dbObj = "JDBCObject"),
   valueClass = "character"
 )
 
-
 #' @export
 setMethod("summary", signature(object = "JDBCObject"),
   function(object, ...) {
@@ -48,6 +47,14 @@ setMethod("summary", signature(object = "JDBCObject"),
 #' @export
 setMethod("isSQLKeyword", signature(dbObj = "JDBCObject"),
   function(dbObj, ...) {
+    callNextMethod()
+  }
+)
+
+#' @export
+setMethod("SQLKeywords", signature(dbObj = "JDBCObject"),
+  function(dbObj, ...) {
+    warning("The full list of SQL keywords cannot be fetched from this object. Use a JDBCConnection object instead.")
     callNextMethod()
   }
 )

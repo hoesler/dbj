@@ -36,3 +36,13 @@ sql_escape <- function(string, identifier = FALSE, quote = "\"") {
 
   paste(quote,string,quote,sep = '')
 }
+
+#' @rdname sql_escape
+sql_escape_identifier <- function(string, quote = "\"") {
+  sql_escape(string, quote = quote, identifier = TRUE)
+}
+
+#' @rdname sql_escape
+sql_escape_value <- function(string, quote = "\"") {
+  sql_escape(string, quote = quote, identifier = FALSE)
+}

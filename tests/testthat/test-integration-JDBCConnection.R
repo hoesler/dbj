@@ -2,7 +2,7 @@ context("JDBCConnection integration tests")
 
 test_that("dbListTables returns all table names", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
 
@@ -15,7 +15,7 @@ test_that("dbListTables returns all table names", {
 
 test_that("dbWriteTable will write a data.frame", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
@@ -29,7 +29,7 @@ test_that("dbWriteTable will write a data.frame", {
 
 test_that("a table can be read", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
@@ -40,13 +40,14 @@ test_that("a table can be read", {
   
   # then
   expect_that(data, is_a("data.frame"))
+  expect_that(names(data), equals(names(iris)))
   expect_that(ncol(data), equals(ncol(iris)))
   expect_that(nrow(data), equals(nrow(iris)))
 })
 
 test_that("a query can be sent", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
@@ -61,7 +62,7 @@ test_that("a query can be sent", {
 
 test_that("a prepared query can be sent", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
@@ -76,7 +77,7 @@ test_that("a prepared query can be sent", {
 
 test_that("an update query can be sent", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', '"')
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   
@@ -85,4 +86,61 @@ test_that("an update query can be sent", {
   
   # then
   expect_that(success, is_true())
+})
+
+test_that("SQLKeywords() returns a character vector of keywords", {
+  # given
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
+  on.exit(dbDisconnect(con))
+  
+  # when
+  keywords <- SQLKeywords(con)
+  
+  # then
+  expect_that(keywords, is_a("character"))
+  # H2 keywords (see http://h2database.com/javadoc/org/h2/jdbc/JdbcDatabaseMetaData.html#getSQLKeywords)
+  expect_that(all(c("LIMIT","MINUS","ROWNUM","SYSDATE","SYSTIME","SYSTIMESTAMP","TODAY") %in% keywords), is_true())
+  expect_that(all(.SQL92Keywords %in% keywords), is_true())
+})
+
+test_that("summary() prints something", {
+  # given
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
+  on.exit(dbDisconnect(con))
+
+  # then
+  expect_that(summary(con), prints_text(".*"))
+})
+
+test_that("dbCallProc() works", {
+  # given
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
+  on.exit(dbDisconnect(con))
+  dbSendUpdate(con, 'CREATE ALIAS NEXT_PRIME AS $$
+String nextPrime(String value) {
+    return new BigInteger(value).nextProbablePrime().toString();
+}
+$$;')
+
+  # when
+  res <- dbCallProc(con, "NEXT_PRIME", list("12"))
+  
+  # then
+  expect_that(res, is_true())
+})
+
+test_that("dbConnect() works", {
+  # given
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
+  on.exit(dbDisconnect(con))
+
+  # when
+  con2 <- dbConnect(con)
+
+  # then
+  expect_that(con2, is_a("JDBCConnection"))
 })
