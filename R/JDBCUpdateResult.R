@@ -53,7 +53,8 @@ setMethod("fetch", signature(res = "JDBCUpdateResult", n = "numeric"),
 #' @export
 setMethod("dbClearResult", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
-    stop("This is an update result")
+    warning("This is an update result")
+    TRUE
   },
   valueClass = "logical"
 )
