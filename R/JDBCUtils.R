@@ -50,7 +50,7 @@ prepare_statement <- function(conn, statement) {
 
 execute_query <- function(j_statement) {
   assert_that(j_statement %instanceof% "java.sql.Statement")
-  jtry(.jcall(j_statement, "Ljava/sql/ResultSet;", "executeQuery", check = FALSE))
+  jtry(.jcall(j_statement, "Z", "execute", check = FALSE))
 }
 
 execute_update <- function(j_statement) {

@@ -96,9 +96,16 @@ setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "charact
     
     j_statement <- create_prepared_statement(conn, statement)
     insert_parameters(j_statement, parameters)
-    j_result_set <- execute_query(j_statement)
+    hasResult <- execute_query(j_statement)
     
-    JDBCResult(j_result_set, statement)
+    if (hasResult) {
+      j_result_set <- jtry(.jcall(j_statement, "Ljava/sql/ResultSet;", "getResultSet", check = FALSE))
+      JDBCResult(j_result_set, statement)
+    } else {
+      update_count <- jtry(.jcall(j_statement, "I", "getUpdateCount", check = FALSE))
+      JDBCUpdateResult(update_count, statement)
+    }
+    
   },
   valueClass = "JDBCResult"
 )

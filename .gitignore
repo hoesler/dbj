@@ -4,3 +4,4 @@ inst/java
 *.sublime-*
 config.log
 .Rproj.user
+RJDBC.Rproj

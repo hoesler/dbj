@@ -26,5 +26,6 @@ Collate:
     'JDBCConnection.R'
     'JDBCDriver.R'
     'JDBCResult.R'
+    'JDBCUpdateResult.R'
     'RJDBC.R'
     'ResultPull.R'
