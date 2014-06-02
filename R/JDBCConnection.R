@@ -55,9 +55,9 @@ setMethod("dbConnect", signature(drv = "JDBCConnection"),
 #' @export
 setMethod("dbCallProc", signature(conn = "JDBCConnection"),
   function(conn, name, parameters = list(), ...) {
-    expect_that(name, is_a("character"))
-    expect_that(length(name), equals(1))
-    expect_that(parameters, is_a("list"))
+    assert_that(is(name, "character"))
+    assert_that(length(name) == 1)
+    assert_that(is(parameters, "list"))
 
     j_prepared_statement <- prepare_call(conn, sprintf("{call %s(%s)}",
       sql_escape_identifier(name),
@@ -122,7 +122,7 @@ setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "chara
 
 setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "list"),
   function(conn, statement, parameters, ...) {
-    expect_that(names(parameters), not(is_null()), "parameters must be a named list")
+    assert_that(!is.null(names(parameters)))
     dbSendUpdate(conn, statement, as.data.frame(parameters))
   },
   valueClass = "logical"
@@ -130,10 +130,10 @@ setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "chara
 
 setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "data.frame"),
   function(conn, statement, parameters, ...) {
-    expect_that(names(parameters), not(is_null()))
-    expect_that(!any(is.na(names(parameters))), is_true())
-    expect_that(length(statement), equals(1))
-    expect_that(nrow(parameters), is_more_than(0))
+    assert_that(!is.null(names(parameters)))
+    assert_that(!any(is.na(names(parameters))))
+    assert_that(length(statement) == 1)
+    assert_that(nrow(parameters) > 0)
 
     j_statement <- create_prepared_statement(conn, statement)
     on.exit(close_statement(j_statement))
@@ -284,12 +284,12 @@ setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
 #' @export
 setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "data.frame"),
   function(conn, name, value, overwrite = TRUE, append = FALSE, ...) {
-    expect_that(overwrite, is_a("logical"))
-    expect_that(append, is_a("logical"))    
-    expect_that(!all(overwrite, append), is_true(), "Cannot overwrite and append simultaneously")
-    expect_that(ncol(value), is_more_than(0), "value must have at least one column")
-    expect_that(names(value), not(is_null()))
-    expect_that(any(is.na(names(value))), is_false())
+    assert_that(is(overwrite, "logical"))
+    assert_that(is(append, "logical"))    
+    assert_that(!all(overwrite, append))
+    assert_that(ncol(value) > 0)
+    assert_that(!is.null(names(value)))
+    assert_that(!any(is.na(names(value))))
 
     table_exists <- dbExistsTable(conn, name)
     if (append && !table_exists) {

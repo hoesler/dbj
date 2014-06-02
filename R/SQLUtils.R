@@ -7,9 +7,9 @@ NULL
 #' @param  quote the quoting character
 #' @export
 sql_escape <- function(string, identifier = FALSE, quote = "\"") {
-  expect_that(string, is_a("character"))
-  expect_that(identifier, is_a("logical"))
-  expect_that(quote, is_a("character"))
+  assert_that(is(string, "character"))
+  assert_that(is(identifier, "logical"))
+  assert_that(is(quote, "character"))
 
   if (identifier) {
     vid <- grep("^[A-Za-z]+([A-Za-z0-9_]*)$", string)
