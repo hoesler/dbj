@@ -4,7 +4,7 @@
 \alias{JDBC}
 \alias{JDBCDriver}
 \alias{JDBCDriver-class}
-\alias{JDBCResult}
+\alias{JDBCQueryResult}
 \alias{JDBCUpdateResult}
 \title{Class JDBCDriver with factory methods.}
 \usage{
@@ -12,7 +12,7 @@ JDBC(driverClass = "", classPath = "")
 
 JDBCDriver(driverClass = "", classPath = "")
 
-JDBCResult(j_result_set, statement = "")
+JDBCQueryResult(j_result_set, statement = "")
 
 JDBCUpdateResult(update_count, statement = "")
 }
@@ -30,7 +30,7 @@ JDBCUpdateResult(update_count, statement = "")
 \item{statement}{the stament that was used to create the j_result_set}
 }
 \value{
-a new JDBCResult object
+a new JDBCQueryResult object
 
 a new JDBCUpdateResult object
 }

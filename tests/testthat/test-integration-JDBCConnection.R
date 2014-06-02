@@ -57,7 +57,7 @@ test_that("a query can be sent", {
   res <- dbSendQuery(con, "SELECT count(*) FROM \"iris\"")
   
   # then
-  expect_that(res, is_a("JDBCResult"))
+  expect_that(res, is_a("JDBCQueryResult"))
 })
 
 test_that("a prepared query can be sent", {
@@ -72,7 +72,7 @@ test_that("a prepared query can be sent", {
   res <- dbSendQuery(con, "SELECT \"Species\", count(\"Species\") FROM \"iris\" WHERE \"Sepal.Width\" > ? GROUP BY \"Species\"", 3)
   
   # then
-  expect_that(res, is_a("JDBCResult"))
+  expect_that(res, is_a("JDBCQueryResult"))
 })
 
 test_that("an update query can be sent", {

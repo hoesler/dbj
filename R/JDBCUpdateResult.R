@@ -1,4 +1,4 @@
-#' @include JDBCObject.R
+#' @include JDBCResult.R
 #' @include JavaUtils.R
 NULL
 
@@ -9,7 +9,7 @@ NULL
 #' @rdname JDBCUpdateResult-class
 #' @export
 setClass("JDBCUpdateResult",
-  contains = c("DBIResult", "JDBCObject"),
+  contains = c("JDBCResult"),
   slots = c(
     update_count = "numeric")
 )

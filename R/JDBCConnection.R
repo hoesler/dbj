@@ -100,7 +100,7 @@ setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "charact
     
     if (hasResult) {
       j_result_set <- jtry(.jcall(j_statement, "Ljava/sql/ResultSet;", "getResultSet", check = FALSE))
-      JDBCResult(j_result_set, statement)
+      JDBCQueryResult(j_result_set, statement)
     } else {
       update_count <- jtry(.jcall(j_statement, "I", "getUpdateCount", check = FALSE))
       JDBCUpdateResult(update_count, statement)
@@ -166,7 +166,7 @@ setMethod("dbGetQuery", signature(conn = "JDBCConnection", statement = "characte
 )
 
 fetch_all <- function(j_result_set, close = TRUE) {  
-  res <- JDBCResult(j_result_set)
+  res <- JDBCQueryResult(j_result_set)
   if (close) {
     on.exit(dbClearResult(res))
   }
