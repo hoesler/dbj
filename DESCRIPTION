@@ -5,7 +5,7 @@ Author: Simon Urbanek <Simon.Urbanek@r-project.org>
 Maintainer: Simon Urbanek <Simon.Urbanek@r-project.org>
 Depends:
     DBI (>= 0.2-7),
-    R (>= 3.0),
+    R (>= 3.0)
 Imports:
     methods (>= 3.0.3),
     dplyr (>= 0.2),
