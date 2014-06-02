@@ -20,7 +20,7 @@ setClass("JDBCUpdateResult",
 #' @rdname JDBCDriver-class
 #' @export
 JDBCUpdateResult <- function(update_count, statement = "") {
-  assert_that(update_count, is_a("numeric"))
+  assert_that(is(update_count, "numeric"))
   new("JDBCUpdateResult", update_count = update_count)
 }
 
