@@ -9,7 +9,7 @@ create_jar:
 
 inst: create_jar
 	mkdir -p $(PACKAGE_ROOT)/inst/java
-	cp java/target/*.jar $(PACKAGE_ROOT)/inst/java
+	cp java/target/RJDBC*SNAPSHOT.jar $(PACKAGE_ROOT)/inst/java
 
 clean: clean_src clean_inst
 

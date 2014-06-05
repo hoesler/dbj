@@ -19,11 +19,26 @@ fetch_resultpull <- function(j_result_pull, rows, column_info) {
     column <- jtry(.jcall(java_table, "Linfo/urbanek/Rpackage/RJDBC/Column;", "getColumn", as.integer(column_index - 1), check = FALSE))
 
     column_data <- c()
-    if (column_info[column_index, "type"] == "numeric") {
+    if (column_info[column_index, "type"] == "logical") {
+      column_data <- jtry(.jcall(column, "[Z", "toBooleanArray", check = FALSE))
+    } else if (column_info[column_index, "type"] == "integer") {
+      column_data <- jtry(.jcall(column, "[I", "toIntegerArray", check = FALSE))
+    } else if (column_info[column_index, "type"] == "numeric") {
       column_data <- jtry(.jcall(column, "[D", "toDoubleArray", check = FALSE))
+    } else if (column_info[column_index, "type"] == "Date") {
+      column_data <- jtry(.jcall(column, "[I", "toDays", check = FALSE))
+      column_data <- as.Date(column_data, origin = "1970-01-01")
+    } else if (column_info[column_index, "type"] == "POSIXct") {
+      column_data <- jtry(.jcall(column, "[I", "toSeconds", check = FALSE))
+      column_data <- as.POSIXct(column_data)
+    } else if (column_info[column_index, "type"] == "character"){
+      column_data <- jtry(.jcall(column, "[Ljava/lang/String;", "toStringArray", check = FALSE))    
     } else {
-      column_data <- jtry(.jcall(column, "[Ljava/lang/String;", "toStringArray", check = FALSE))     
+      stop("Unexpeted type")
     }
+
+    na <- jtry(.jcall(column, "[Z", "getNA", check = FALSE))
+    column_data <- replace(column_data, na, NA)
 
     column_data
   })

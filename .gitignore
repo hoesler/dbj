@@ -5,3 +5,5 @@ inst/java
 config.log
 .Rproj.user
 RJDBC.Rproj
+.idea
+.RData

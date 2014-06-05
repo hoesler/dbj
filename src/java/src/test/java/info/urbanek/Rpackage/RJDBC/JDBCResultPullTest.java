@@ -17,7 +17,11 @@ public class JDBCResultPullTest {
         Class.forName("org.h2.Driver");
         final String url = "jdbc:h2:mem:";
         final Connection connection = DriverManager.getConnection(url, "sa", "");
-        final ResultSet resultSet = connection.createStatement().executeQuery("SELECT 1 + 1, 'hello world'");
+        connection.createStatement().execute(
+                "CREATE TABLE \"test_table\" (\"a\" DOUBLE, \"b\" VARCHAR(255), \"c\" INTEGER, \"d\" DATE, \"e\" TIMESTAMP)");
+        connection.createStatement().execute(
+                "INSERT INTO \"test_table\" (\"a\", \"b\", \"c\", \"d\", \"e\") VALUES (42.0, 'test', 33, '2014-06-03', '2014-06-03 19:04:00')");
+        final ResultSet resultSet = connection.createStatement().executeQuery("SELECT * FROM \"test_table\"");
         final JDBCResultPull pull = new JDBCResultPull(resultSet);
 
         // when
@@ -25,11 +29,12 @@ public class JDBCResultPullTest {
 
         // then
         assertThat(table, is(notNullValue()));
-        assertThat(table.columnCount(), is(2));
+        assertThat(table.columnCount(), is(5));
         assertThat(table.rowCount(), is(1));
         assertThat(table.getColumn(0), is(instanceOf(DoubleColumn.class)));
-        assertThat(table.getColumn(0).toObjectArray(), is(Matchers.<Object>arrayContaining(2.0)));
         assertThat(table.getColumn(1), is(instanceOf(StringColumn.class)));
-        assertThat(table.getColumn(1).toObjectArray(), is(Matchers.<Object>arrayContaining("hello world")));
+        assertThat(table.getColumn(2), is(instanceOf(IntegerColumn.class)));
+        assertThat(table.getColumn(3), is(instanceOf(DateColumn.class)));
+        assertThat(table.getColumn(4), is(instanceOf(TimestampColumn.class)));
     }
 }

@@ -65,11 +65,19 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
        
     column_info <- as.data.frame(t(sapply(seq(cols), function(column_index) {     
       ct <- jtry(.jcall(res@j_result_set_meta, "I", "getColumnType", column_index, check = FALSE))
-      if (ct == -5 | ct == -6 | (ct >= 2 & ct <= 8)) {
+      if (ct == -7) {
+        type == "logical"
+      } else if (ct %in% c(-6, 5, 4, -5)) {
+        type <- "integer"
+      } else if (ct %in% c(6, 7, 8, 2, 3)) {
         type <- "numeric"
+      } else if (ct == 91) {
+        type <- "Date"
+      } else if (ct == 93) {
+        type <- "POSIXct"
       } else {
         type <- "character"
-      }      
+      }    
       label <- jtry(.jcall(res@j_result_set_meta, "S", "getColumnLabel", column_index, check = FALSE))
       list(label = label, type = type)
     })))

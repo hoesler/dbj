@@ -32,6 +32,8 @@ setMethod("dbDataType", signature(dbObj = "JDBCObject"),
   function(dbObj, obj, ...) {
     if (is.integer(obj)) "INTEGER"
     else if (is.numeric(obj)) "DOUBLE PRECISION"
+    else if (is(obj, "Date")) "DATE"
+    else if (is(obj, "POSIXt")) "TIMESTAMP"
     else "VARCHAR(255)"
   },
   valueClass = "character"

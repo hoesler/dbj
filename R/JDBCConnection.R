@@ -60,7 +60,7 @@ setMethod("dbCallProc", signature(conn = "JDBCConnection"),
     assert_that(is(parameters, "list"))
 
     j_prepared_statement <- prepare_call(conn, sprintf("{call %s(%s)}",
-      sql_escape_identifier(name),
+      sql_escape_identifier(name, quote_string(conn)),
       paste0(rep('?', length(parameters)), collapse = ", ")
     ))
     insert_parameters(j_prepared_statement, parameters)
@@ -92,6 +92,7 @@ setMethod("dbDisconnect", signature(conn = "JDBCConnection"),
 #' @export
 setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "character"),
   function(conn, statement, parameters = list(), ...) {
+    assert_that(is.list(parameters))
     statement <- as.character(statement)[1L]
     
     j_statement <- create_prepared_statement(conn, statement)
@@ -138,10 +139,8 @@ setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "chara
     j_statement <- create_prepared_statement(conn, statement)
     on.exit(close_statement(j_statement))
 
-    apply(parameters, 1, function(row) {
-      insert_parameters(j_statement, as.list(row))
-      add_batch(j_statement)
-    })
+    # TODO it might be better to to insert in strides
+    batch_insert(j_statement, parameters)
 
     updates <- execute_batch(j_statement)
     invisible(as.logical(updates))
@@ -226,7 +225,7 @@ setMethod("dbExistsTable", signature(conn = "JDBCConnection", name = "character"
 #' @export
 setMethod("dbRemoveTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
-    dbSendUpdate(conn, paste("DROP TABLE", name)) == 0
+    dbSendUpdate(conn, paste("DROP TABLE", sql_escape_identifier(name, quote_string(conn))))
   },
   valueClass = "logical"
 )

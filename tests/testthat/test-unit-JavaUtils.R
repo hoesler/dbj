@@ -17,7 +17,7 @@ test_that("jtry returns the evaluation result", {
 test_that("jtry calls the onError if an exception was thrown", {
   # given
   callback_counter <- 0
-  error_callback <- function(e) { callback_counter <<- callback_counter + 1 }
+  error_callback <- function(...) { callback_counter <<- callback_counter + 1 }
 
   # when
   result <- jtry(.jthrow(.jnew("java/lang/NullPointerException")), error_callback)

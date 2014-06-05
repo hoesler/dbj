@@ -6,4 +6,8 @@ public interface Table {
     int columnCount();
 
     Column<?> getColumn(int index);
+
+    Iterable<Column<?>> columns();
+
+    Iterable<Row> rows();
 }

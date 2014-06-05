@@ -49,9 +49,16 @@ public final class JDBCResultPull {
         for (int i = 0; i < metaData.getColumnCount(); i++) {
             final Column<?> column;
             final int columnType = metaData.getColumnType(i + 1);
-            if (columnType == Types.BIGINT || columnType == Types.TINYINT
-                    || (columnType >= Types.NUMERIC && columnType <= Types.DOUBLE)) {
+            if (columnType == Types.TINYINT || columnType == Types.SMALLINT
+                    || columnType == Types.INTEGER || columnType == Types.BIGINT) {
+                column = new IntegerColumn();
+            } else if (columnType == Types.FLOAT || columnType == Types.REAL || columnType == Types.NUMERIC
+                    || columnType == Types.DOUBLE || columnType == Types.DECIMAL) {
                 column = new DoubleColumn();
+            } else if (columnType == Types.DATE) {
+                column = new DateColumn();
+            } else if (columnType == Types.TIMESTAMP) {
+                column = new TimestampColumn();
             } else {
                 column = new StringColumn();
             }

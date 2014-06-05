@@ -13,7 +13,7 @@ test_that("dbListTables returns all table names", {
   expect_that(length(tables), equals(29))
 })
 
-test_that("dbWriteTable will write a data.frame", {
+test_that("dbWriteTable will write iris data.frame", {
   # given
   h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
@@ -22,6 +22,20 @@ test_that("dbWriteTable will write a data.frame", {
   
   # when
   success <- dbWriteTable(con, "iris", iris)
+  
+  # then
+  expect_that(success, is_true())
+})
+
+test_that("dbWriteTable will write Batting data.frame", {
+  # given
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
+  on.exit(dbDisconnect(con))
+  library(Lahman)
+  
+  # when
+  success <- dbWriteTable(con, "Master", Master)
   
   # then
   expect_that(success, is_true())
@@ -69,7 +83,7 @@ test_that("a prepared query can be sent", {
   dbWriteTable(con, "iris", iris)
 
   # when
-  res <- dbSendQuery(con, "SELECT \"Species\", count(\"Species\") FROM \"iris\" WHERE \"Sepal.Width\" > ? GROUP BY \"Species\"", 3)
+  res <- dbSendQuery(con, "SELECT \"Species\", count(\"Species\") FROM \"iris\" WHERE \"Sepal.Width\" > ? GROUP BY \"Species\"", list(3))
   
   # then
   expect_that(res, is_a("JDBCQueryResult"))

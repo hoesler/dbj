@@ -8,7 +8,10 @@ enum ColumnType {
     /**
      * column type: numeric (retrieved as doubles).
      */
-    NUMERIC(1);
+    NUMERIC(1),
+    INTEGER(2),
+    DATE(3),
+    TIMESTAMP(4);
 
 
     private final int numericValue;
