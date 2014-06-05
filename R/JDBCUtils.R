@@ -57,9 +57,16 @@ add_batch <- function(j_statement) {
   jtry(.jcall(j_statement, "V", "addBatch", check = FALSE))
 }
 
+#' Transform a data frame into a java reference to a info/urbanek/Rpackage/RJDBC/Table
+##' @param data a data.frame
 create_table <- function(data) {
+  assert_that(is.data.frame(data))
+  
   j_columns <- unlist(lapply(data, function(column) {
-    if (is.integer(column)) {
+    if (is.logical(column)) {
+      jtry(.jcall("info/urbanek/Rpackage/RJDBC/BooleanColumn", "Linfo/urbanek/Rpackage/RJDBC/BooleanColumn;",
+        "create", .jarray(column), .jarray(is.na(column)), check = FALSE))
+    } else if (is.integer(column)) {
       jtry(.jcall("info/urbanek/Rpackage/RJDBC/IntegerColumn", "Linfo/urbanek/Rpackage/RJDBC/IntegerColumn;",
         "create", .jarray(column), .jarray(is.na(column)), check = FALSE))
     } else if (is.numeric(column)) {

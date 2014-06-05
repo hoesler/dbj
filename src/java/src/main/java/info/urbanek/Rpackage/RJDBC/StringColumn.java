@@ -2,10 +2,14 @@ package info.urbanek.Rpackage.RJDBC;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Booleans;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +36,13 @@ public final class StringColumn extends AbstractList<String> implements Column<S
     }
 
     public String[] toStringArray() {
-        return toArray(new String[size()]);
+        return FluentIterable.from(data)
+                .transform(new Function<Optional<String>, String>() {
+                    @Override
+                    public String apply(final Optional<String> stringOptional) {
+                        return stringOptional.or(NA);
+                    }
+                }).toArray(String.class);
     }
 
     public void addFromResultSet(final ResultSet resultSet, final int i) throws SQLException {
