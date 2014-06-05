@@ -41,11 +41,11 @@ public final class BooleanColumn extends AbstractList<Boolean> implements Column
     }
 
     public ColumnType getColumnType() {
-        return ColumnType.NUMERIC;
+        return ColumnType.BOOLEAN;
     }
 
-    public Boolean[] toBooleanArray() {
-        final Boolean[] booleans = new Boolean[size()];
+    public boolean[] toBooleanArray() {
+        final boolean[] booleans = new boolean[size()];
         for (int i = 0; i < data.size(); i++) {
             booleans[i] = data.get(i).or(NA);
         }
@@ -65,7 +65,7 @@ public final class BooleanColumn extends AbstractList<Boolean> implements Column
     public void update(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
         final Optional<Boolean> aBoolean = data.get(columnIndex);
         if (!aBoolean.isPresent()) {
-            statement.setNull(statementIndex, Types.BIT);
+            statement.setNull(statementIndex, Types.BOOLEAN);
         } else {
             statement.setBoolean(statementIndex, aBoolean.get());
         }

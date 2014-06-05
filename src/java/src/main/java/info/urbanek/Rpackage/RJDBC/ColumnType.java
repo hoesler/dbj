@@ -11,7 +11,8 @@ enum ColumnType {
     NUMERIC(1),
     INTEGER(2),
     DATE(3),
-    TIMESTAMP(4);
+    TIMESTAMP(4),
+    BOOLEAN(5);
 
 
     private final int numericValue;

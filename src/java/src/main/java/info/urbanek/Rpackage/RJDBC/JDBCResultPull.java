@@ -49,7 +49,9 @@ public final class JDBCResultPull {
         for (int i = 0; i < metaData.getColumnCount(); i++) {
             final Column<?> column;
             final int columnType = metaData.getColumnType(i + 1);
-            if (columnType == Types.TINYINT || columnType == Types.SMALLINT
+            if (columnType == Types.BIT || columnType == Types.BOOLEAN) {
+                column = new BooleanColumn();
+            } else if (columnType == Types.TINYINT || columnType == Types.SMALLINT
                     || columnType == Types.INTEGER || columnType == Types.BIGINT) {
                 column = new IntegerColumn();
             } else if (columnType == Types.FLOAT || columnType == Types.REAL || columnType == Types.NUMERIC
@@ -59,7 +61,11 @@ public final class JDBCResultPull {
                 column = new DateColumn();
             } else if (columnType == Types.TIMESTAMP) {
                 column = new TimestampColumn();
+            } else if (columnType == Types.VARCHAR || columnType == Types.CHAR || columnType == Types.LONGVARCHAR
+                    || columnType == Types.NVARCHAR|| columnType == Types.NCHAR || columnType == Types.LONGNVARCHAR) {
+                column = new StringColumn();
             } else {
+                System.err.println("Trying to StingColumn for type " + columnType);
                 column = new StringColumn();
             }
             columns.add(column);

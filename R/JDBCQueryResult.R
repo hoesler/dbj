@@ -65,19 +65,7 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
        
     column_info <- as.data.frame(t(sapply(seq(cols), function(column_index) {     
       ct <- jtry(.jcall(res@j_result_set_meta, "I", "getColumnType", column_index, check = FALSE))
-      if (ct == -7) {
-        type == "logical"
-      } else if (ct %in% c(-6, 5, 4, -5)) {
-        type <- "integer"
-      } else if (ct %in% c(6, 7, 8, 2, 3)) {
-        type <- "numeric"
-      } else if (ct == 91) {
-        type <- "Date"
-      } else if (ct == 93) {
-        type <- "POSIXct"
-      } else {
-        type <- "character"
-      }    
+      type <- to_r_type(ct)   
       label <- jtry(.jcall(res@j_result_set_meta, "S", "getColumnLabel", column_index, check = FALSE))
       list(label = label, type = type)
     })))
@@ -130,16 +118,18 @@ setMethod("dbClearResult", signature(res = "JDBCQueryResult"),
 #' @export
 setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
   function(res, ...) {
-    cols <- jtry(.jcall(res@j_result_set_meta, "I", "getColumnCount", check = FALSE))
-    l <- list(field.name = character(), field.type = character(), data.type = character())
-    if (cols < 1) return(as.data.frame(l))
-    for (i in 1:cols) {
-      l$field.name[i] <- jtry(.jcall(res@j_result_set_meta, "S", "getColumnLabel", i, check = FALSE))
-      l$field.type[i] <- jtry(.jcall(res@j_result_set_meta, "S", "getColumnTypeName", i, check = FALSE))
-      ct <- jtry(.jcall(res@j_result_set_meta, "I", "getColumnType", i, check = FALSE))
-      l$data.type[i] <- if (ct == -5 | ct == -6 | (ct >= 2 & ct <= 8)) "numeric" else "character"
+    column_count <- jtry(.jcall(res@j_result_set_meta, "I", "getColumnCount", check = FALSE))
+    column_info <- list(field.name = character(), field.type = character(), data.type = character())
+    if (column_count < 1) {
+      return(as.data.frame(column_info)) 
     }
-    as.data.frame(l, row.names = 1:cols)    
+    for (i in seq(column_count)) {
+      column_info$field.name[i] <- jtry(.jcall(res@j_result_set_meta, "S", "getColumnLabel", i, check = FALSE))
+      column_info$field.type[i] <- jtry(.jcall(res@j_result_set_meta, "S", "getColumnTypeName", i, check = FALSE))
+      ct <- jtry(.jcall(res@j_result_set_meta, "I", "getColumnType", i, check = FALSE))
+      column_info$data.type[i] <- to_r_type(ct)
+    }
+    as.data.frame(column_info, row.names = seq(column_count))   
   },
   valueClass = "data.frame"
 )

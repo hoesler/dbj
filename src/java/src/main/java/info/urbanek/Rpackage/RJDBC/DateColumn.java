@@ -52,7 +52,7 @@ public final class DateColumn extends AbstractList<Date> implements Column<Date>
         final int size = size();
         final int[] days = new int[size];
         for (int i = 0; i < size; i++) {
-            final Date date = data.get(i).get();
+            final Date date = data.get(i).or(NA);
             days[i] = (int) (date.getTime() / 24 / 60 / 60 / 1000);
         }
         return days;

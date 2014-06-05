@@ -18,19 +18,12 @@ insert_parameters <- function(j_statement, parameter_list) {
   invisible(NULL)
 }
 
-# Get the corresponding int value (java.sql.Types) for the given object type
-as.sql_type <- function(object) {
-  if (is.integer(object)) 4 # INTEGER
-  else if (is.numeric(object)) 8 # DOUBLE
-  else 12 # VARCHAR
-}
-
 create_prepared_statement <- function(conn, statement) {
   ## if the statement starts with {call or {? = call then we use CallableStatement 
   if (any(grepl("^\\{(call|\\? = *call)", statement))) {
-    prepare_call(conn, statement)
+    return(prepare_call(conn, statement))
   } else {
-    prepare_statement(conn, statement)
+    return(prepare_statement(conn, statement))
   } 
 }
 
@@ -61,7 +54,7 @@ add_batch <- function(j_statement) {
 ##' @param data a data.frame
 create_table <- function(data) {
   assert_that(is.data.frame(data))
-  
+
   j_columns <- unlist(lapply(data, function(column) {
     if (is.logical(column)) {
       jtry(.jcall("info/urbanek/Rpackage/RJDBC/BooleanColumn", "Linfo/urbanek/Rpackage/RJDBC/BooleanColumn;",
@@ -85,7 +78,7 @@ create_table <- function(data) {
     }
   }))
 
-  j_table <- jtry(.jcall("info/urbanek/Rpackage/RJDBC/ArrayListTable", "Linfo/urbanek/Rpackage/RJDBC/ArrayListTable;",
+  jtry(.jcall("info/urbanek/Rpackage/RJDBC/ArrayListTable", "Linfo/urbanek/Rpackage/RJDBC/ArrayListTable;",
     "create", .jarray(j_columns, contents.class = "info/urbanek/Rpackage/RJDBC/Column"), check = FALSE))
 }
 
@@ -113,7 +106,7 @@ get_meta_data <- function(j_result_set) {
 
   j_meta_data <- jtry(.jcall(j_result_set, "Ljava/sql/ResultSetMetaData;", "getMetaData", check = FALSE))
   verifyNotNull(j_meta_data, "Unable to retrieve JDBC result set meta data for ", j_result_set, " in dbSendQuery")
-  j_meta_data
+  return(j_meta_data)
 }
 
 close_statement <- function(j_statement) {
@@ -125,3 +118,61 @@ close_result_set <- function(j_result_set) {
   #assert_that(j_result_set %instanceof% "java.sql.ResultSet")
   jtry(.jcall(j_result_set, "V", "close"))
 }
+
+to_r_type <- function(sql_type) {
+  with(JDBC_SQL_TYPES, {
+    if (sql_type %in% c(BIT, BOOLEAN)) {
+      return("logical")
+    } else if (sql_type %in% c(TINYINT, SMALLINT, INTEGER, BIGINT)) {
+      return("integer")
+    } else if (sql_type %in% c(FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL)) {
+      return("numeric")
+    } else if (sql_type == DATE) {
+      return("Date")
+    } else if (sql_type == TIMESTAMP) {
+      return("POSIXct")
+    } else {
+      return("character")
+    }
+  })
+}
+
+JDBC_SQL_TYPES <- list(
+  BIT = -7,
+  TINYINT = -6,
+  SMALLINT = 5,
+  INTEGER = 4,
+  BIGINT = -5,
+  FLOAT = 6,
+  REAL = 7,
+  DOUBLE = 8,
+  NUMERIC = 2,
+  DECIMAL = 3,
+  CHAR = 1,
+  VARCHAR = 12,
+  LONGVARCHAR = -1,
+  DATE = 91,
+  TIME = 92,
+  TIMESTAMP = 93,
+  BINARY = -2,
+  VARBINARY = -3,
+  LONGVARBINARY = -4,
+  NULL_ = 0,
+  OTHER = 1111,
+  JAVA_OBJECT = 2000,
+  DISTINCT = 2001,
+  STRUCT = 2002,
+  ARRAY = 2003,
+  BLOB = 2004,
+  CLOB = 2005,
+  REF = 2006,
+  DATALINK = 70,
+  BOOLEAN = 16,
+  # JDBC 4.0
+  ROWID = -8,
+  NCHAR = -15,
+  NVARCHAR = -9,
+  LONGNVARCHAR = -16,
+  NCLOB = 2011,
+  SQLXML = 2009
+)
