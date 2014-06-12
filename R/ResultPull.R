@@ -1,4 +1,5 @@
 #' @include JavaUtils.R
+#' @include JDBCMapping.R
 NULL
 
 create_result_pull <- function(j_result_set) {
@@ -9,36 +10,43 @@ create_result_pull <- function(j_result_set) {
   rp
 }
 
-fetch_resultpull <- function(j_result_pull, rows, column_info) {
+fetch_resultpull <- function(j_result_pull, rows, column_info, mapping) {
+  assert_that(is.data.frame(column_info))
   java_table <- jtry(.jcall(j_result_pull, "Linfo/urbanek/Rpackage/RJDBC/Table;", "fetch", as.integer(rows), check = FALSE))
   verifyNotNull(java_table, "Table creation failed")
+  
   column_count <- jtry(.jcall(java_table, "I", "columnCount", check = FALSE))
   row_count <- jtry(.jcall(java_table, "I", "rowCount", check = FALSE))
 
   column_list <- lapply(seq(column_count), function(column_index) {
-    column <- jtry(.jcall(java_table, "Linfo/urbanek/Rpackage/RJDBC/Column;", "getColumn", as.integer(column_index - 1), check = FALSE))
+    j_column <- jtry(.jcall(java_table, "Linfo/urbanek/Rpackage/RJDBC/Column;", "getColumn", as.integer(column_index - 1), check = FALSE))
+    column_class_name <- jtry(.jcall(j_column, "S", "getSimpleClassName", check = FALSE))
 
     column_data <- c()
-    if (column_info[column_index, "type"] == "logical") {
-      column_data <- jtry(.jcall(column, "[Z", "toBooleanArray", check = FALSE))
-    } else if (column_info[column_index, "type"] == "integer") {
-      column_data <- jtry(.jcall(column, "[I", "toIntegerArray", check = FALSE))
-    } else if (column_info[column_index, "type"] == "numeric") {
-      column_data <- jtry(.jcall(column, "[D", "toDoubleArray", check = FALSE))
-    } else if (column_info[column_index, "type"] == "Date") {
-      column_data <- jtry(.jcall(column, "[I", "toDays", check = FALSE))
-      column_data <- as.Date(column_data, origin = "1970-01-01")
-    } else if (column_info[column_index, "type"] == "POSIXct") {
-      column_data <- jtry(.jcall(column, "[I", "toSeconds", check = FALSE))
-      column_data <- as.POSIXct(column_data)
-    } else if (column_info[column_index, "type"] == "character"){
-      column_data <- jtry(.jcall(column, "[Ljava/lang/String;", "toStringArray", check = FALSE))    
+    if (column_class_name == "UnsupportedTypeColumn") {
+      column_data <- rep(NA, row_count)
+    } else if (column_class_name == "BooleanColumn") {
+      column_data <- jtry(.jcall(j_column, "[Z", "toBooleans", check = FALSE))
+    } else if (column_class_name == "IntegerColumn") {
+      column_data <- jtry(.jcall(j_column, "[I", "toInts", check = FALSE))
+    } else if (column_class_name == "LongColumn") {
+      column_data <- jtry(.jcall(j_column, "[J", "toLongs", check = FALSE))
+    } else if (column_class_name == "DoubleColumn") {
+      column_data <- jtry(.jcall(j_column, "[D", "toDoubles", check = FALSE))
+    } else if (column_class_name == "StringColumn"){
+      column_data <- jtry(.jcall(j_column, "[S", "toStrings", check = FALSE))    
     } else {
       stop("Unexpeted type")
     }
 
-    na <- jtry(.jcall(column, "[Z", "getNA", check = FALSE))
-    column_data <- replace(column_data, na, NA)
+    # set NA values
+    if (column_info[column_index, "nullable"] > 0 && column_class_name != "UnsupportedTypeColumn") {
+      na <- jtry(.jcall(j_column, "[Z", "getNA", check = FALSE))
+      column_data <- replace(column_data, na, NA)
+    }
+
+    # convert columns
+    column_data <- convert_from(mapping, column_data, column_info[[column_index, "sql_type"]])
 
     column_data
   })

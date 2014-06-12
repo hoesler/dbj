@@ -1,16 +1,18 @@
 #' @include JavaUtils.R
 #' @include SQLUtils.R
+#' @include JDBCSQLTypes.R
+#' @include JDBCMapping.R
 NULL
 
 #' Set the values of prepared statment.
 #' 
 #' @param  j_statement a java reference object to a java.sql.PreparedStatement
 #' @param  parameter_list a list of parameter values to fill the statement with
-insert_parameters <- function(j_statement, parameter_list) {
+insert_parameters <- function(j_statement, parameter_list, mapping) {
   #assert_that(j_statement %instanceof% "java.sql.PreparedStatement")
   assert_that(is.list(parameter_list))
   if (length(parameter_list) > 0) {
-    j_table <- create_table(as.data.frame(parameter_list))
+    j_table <- create_j_table(j_statement, as.data.frame(parameter_list), mapping)
 
     jtry(.jcall("info/urbanek/Rpackage/RJDBC/PreparedStatements", "V", "insert",
       .jcast(j_statement, "java/sql/PreparedStatement"), .jcast(j_table, "info/urbanek/Rpackage/RJDBC/Table"), as.integer(0), check = FALSE))
@@ -51,42 +53,68 @@ add_batch <- function(j_statement) {
 }
 
 #' Transform a data frame into a java reference to a info/urbanek/Rpackage/RJDBC/Table
-##' @param data a data.frame
-create_table <- function(data) {
+#' @param j_statement a jobjRef to a java.sql.PreparedStatement
+#' @param data a data.frame
+#' @param mapping a list of RJDBCMapping objects
+create_j_table <- function(j_statement, data, mapping) {
+  #assert_that(j_statement %instanceof% "java.sql.PreparedStatement")
   assert_that(is.data.frame(data))
 
-  j_columns <- unlist(lapply(data, function(column) {
-    if (is.logical(column)) {
-      jtry(.jcall("info/urbanek/Rpackage/RJDBC/BooleanColumn", "Linfo/urbanek/Rpackage/RJDBC/BooleanColumn;",
-        "create", .jarray(column), .jarray(is.na(column)), check = FALSE))
-    } else if (is.integer(column)) {
-      jtry(.jcall("info/urbanek/Rpackage/RJDBC/IntegerColumn", "Linfo/urbanek/Rpackage/RJDBC/IntegerColumn;",
-        "create", .jarray(column), .jarray(is.na(column)), check = FALSE))
-    } else if (is.numeric(column)) {
-      jtry(.jcall("info/urbanek/Rpackage/RJDBC/DoubleColumn", "Linfo/urbanek/Rpackage/RJDBC/DoubleColumn;",
-        "create", .jarray(column), .jarray(is.na(column)), check = FALSE))
-    } else if (is(column, "Date")) {
-      jtry(.jcall("info/urbanek/Rpackage/RJDBC/DateColumn", "Linfo/urbanek/Rpackage/RJDBC/DateColumn;",
-        "forDays", .jarray(as.integer(column)), .jarray(is.na(column)), check = FALSE))
-    } else if (is(column, "POSIXt")) {
-      jtry(.jcall("info/urbanek/Rpackage/RJDBC/TimestampColumn", "Linfo/urbanek/Rpackage/RJDBC/TimestampColumn;",
-        "forSeconds", .jarray(as.integer(column)), .jarray(is.na(column)), check = FALSE))
+  j_statement_meta <- jtry(.jcall(j_statement, "Ljava/sql/ParameterMetaData;", "getParameterMetaData", check = FALSE))
+
+  j_columns <- unlist(lapply(seq(ncol(data)), function(column_index) {
+    column <- unlist(data[,column_index])
+    sql_type <- jtry(.jcall(j_statement_meta, "I", "getParameterType", column_index, check = FALSE))
+    is_nullable <- jtry(.jcall(j_statement_meta, "I", "isNullable", column_index, check = FALSE))
+    
+    column_class <- NULL
+    column_data <- NULL
+
+    with(JDBC_SQL_TYPES,
+      if (sql_type %in% c(BIT, BOOLEAN)) {
+        column_class <<- "info/urbanek/Rpackage/RJDBC/BooleanColumn"
+        column_data <<- as.logical(convert_to(mapping, column, sql_type))
+      } else if (sql_type %in% c(TINYINT, SMALLINT, INTEGER)) {
+        column_class <<- "info/urbanek/Rpackage/RJDBC/IntegerColumn"
+        column_data <<- as.integer(convert_to(mapping, column, sql_type))
+      } else if (sql_type %in% c(FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL)) {
+        column_class <<- "info/urbanek/Rpackage/RJDBC/DoubleColumn"
+        column_data <<- as.numeric(convert_to(mapping, column, sql_type))
+      } else if (sql_type %in% c(BIGINT, DATE, TIME, TIMESTAMP)) {
+        column_class <<- "info/urbanek/Rpackage/RJDBC/LongColumn"
+        column_data <<- .jlong(as.numeric(convert_to(mapping, column, sql_type)))
+      } else if (sql_type %in% c(VARCHAR, CHAR, LONGVARCHAR, NVARCHAR, NCHAR, LONGNVARCHAR)) {
+        column_class <<- "info/urbanek/Rpackage/RJDBC/StringColumn"
+        column_data <<- as.character(convert_to(mapping, column, sql_type))
+      } else {
+        stop("Unsupported SQL type '", sql_type, "'")
+      }
+    )
+
+    assert_that(!any(is.null(c(column_class, column_data))))    
+
+    if (is_nullable > 0 && NA %in% column) {
+      jtry(.jcall(column_class, sprintf("L%s;", column_class),
+        "create", sql_type, .jarray(column_data), .jarray(is.na(column)), check = FALSE))
     } else {
-      j_array <- .jarray(as.character(column))
-      jtry(.jcall("info/urbanek/Rpackage/RJDBC/StringColumn", "Linfo/urbanek/Rpackage/RJDBC/StringColumn;",
-        "create", j_array, .jarray(is.na(column)), check = FALSE))
+      if (NA %in% column) {
+        stop("Parameter ", column_index, " is not nullable but data contains NA")
+      }
+      jtry(.jcall(column_class, sprintf("L%s;", column_class),
+        "create", sql_type, .jarray(column_data), check = FALSE))
     }
+
   }))
 
   jtry(.jcall("info/urbanek/Rpackage/RJDBC/ArrayListTable", "Linfo/urbanek/Rpackage/RJDBC/ArrayListTable;",
     "create", .jarray(j_columns, contents.class = "info/urbanek/Rpackage/RJDBC/Column"), check = FALSE))
 }
 
-batch_insert <- function(j_statement, data) {
+batch_insert <- function(j_statement, data, mapping) {
   #assert_that(j_statement %instanceof% "java.sql.PreparedStatement")
   assert_that(is.data.frame(data))
 
-  j_table <- create_table(data)
+  j_table <- create_j_table(j_statement, data, mapping)
 
   jtry(.jcall("info/urbanek/Rpackage/RJDBC/PreparedStatements", "V", "batchInsert",
     .jcast(j_statement, "java/sql/PreparedStatement"), .jcast(j_table, "info/urbanek/Rpackage/RJDBC/Table"), check = FALSE))
@@ -118,61 +146,3 @@ close_result_set <- function(j_result_set) {
   #assert_that(j_result_set %instanceof% "java.sql.ResultSet")
   jtry(.jcall(j_result_set, "V", "close"))
 }
-
-to_r_type <- function(sql_type) {
-  with(JDBC_SQL_TYPES, {
-    if (sql_type %in% c(BIT, BOOLEAN)) {
-      return("logical")
-    } else if (sql_type %in% c(TINYINT, SMALLINT, INTEGER, BIGINT)) {
-      return("integer")
-    } else if (sql_type %in% c(FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL)) {
-      return("numeric")
-    } else if (sql_type == DATE) {
-      return("Date")
-    } else if (sql_type == TIMESTAMP) {
-      return("POSIXct")
-    } else {
-      return("character")
-    }
-  })
-}
-
-JDBC_SQL_TYPES <- list(
-  BIT = -7,
-  TINYINT = -6,
-  SMALLINT = 5,
-  INTEGER = 4,
-  BIGINT = -5,
-  FLOAT = 6,
-  REAL = 7,
-  DOUBLE = 8,
-  NUMERIC = 2,
-  DECIMAL = 3,
-  CHAR = 1,
-  VARCHAR = 12,
-  LONGVARCHAR = -1,
-  DATE = 91,
-  TIME = 92,
-  TIMESTAMP = 93,
-  BINARY = -2,
-  VARBINARY = -3,
-  LONGVARBINARY = -4,
-  NULL_ = 0,
-  OTHER = 1111,
-  JAVA_OBJECT = 2000,
-  DISTINCT = 2001,
-  STRUCT = 2002,
-  ARRAY = 2003,
-  BLOB = 2004,
-  CLOB = 2005,
-  REF = 2006,
-  DATALINK = 70,
-  BOOLEAN = 16,
-  # JDBC 4.0
-  ROWID = -8,
-  NCHAR = -15,
-  NVARCHAR = -9,
-  LONGNVARCHAR = -16,
-  NCLOB = 2011,
-  SQLXML = 2009
-)

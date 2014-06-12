@@ -5,7 +5,7 @@
 \alias{JDBCConnection-class}
 \title{Class JDBCConnection}
 \usage{
-JDBCConnection(j_connection)
+JDBCConnection(j_connection, driver)
 }
 \arguments{
 \item{j_connection}{a jobjRef object with a java.sql.Connection reference}

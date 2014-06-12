@@ -1,4 +1,5 @@
 #' @include JDBCObject.R
+#' @include JDBCDriver.R
 #' @include JDBCConnectionExtensions.R
 #' @include JavaUtils.R
 #' @include SQLUtils.R
@@ -11,9 +12,11 @@ NULL
 setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"),
   slots = c(
     j_connection = "jobjRef",
-    quote_string = "character"),
+    quote_string = "character",
+    driver = "JDBCDriver"),
   validity = function(object) {
     if (is.jnull(object@j_connection)) return("j_connection is null")
+    if (is.null(object@driver)) return("driver is null")
     TRUE
   }
 )
@@ -22,11 +25,12 @@ setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"),
 #' @param j_connection a jobjRef object with a java.sql.Connection reference
 #' @return a \code{\linkS4class{JDBCConnection}} object
 #' @rdname JDBCConnection-class
-JDBCConnection <- function(j_connection) {
+JDBCConnection <- function(j_connection, driver) {
   assert_that(j_connection %instanceof% "java.sql.Connection")
   new("JDBCConnection",
     j_connection = j_connection,
-    quote_string = connection_info(j_connection)$quote_string)
+    quote_string = connection_info(j_connection)$quote_string,
+    driver = driver)
 }
 
 #' Create a JDBC connection.
@@ -39,9 +43,7 @@ JDBCConnection <- function(j_connection) {
 setMethod("dbConnect", signature(drv = "JDBCConnection"),
   function(drv, password = "", ...) {
     info <- connection_info(drv@j_connection)
-    j_connection <- jtry(.jcall("java/sql/DriverManager","Ljava/sql/Connection;","getConnection",
-      info$url, info$user_name, password, check = FALSE))
-    JDBCConnection(j_connection)
+    dbConnect(dbGetDriver(drv), info$url, info$user_name, password)
   },
   valueClass = "JDBCConnection"
 )
@@ -63,7 +65,7 @@ setMethod("dbCallProc", signature(conn = "JDBCConnection"),
       sql_escape_identifier(name, quote_string(conn)),
       paste0(rep('?', length(parameters)), collapse = ", ")
     ))
-    insert_parameters(j_prepared_statement, parameters)
+    insert_parameters(j_prepared_statement, parameters, dbGetDriver(conn)@mapping)
     execute_update(j_prepared_statement)
     invisible(TRUE)
   },
@@ -96,15 +98,15 @@ setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "charact
     statement <- as.character(statement)[1L]
     
     j_statement <- create_prepared_statement(conn, statement)
-    insert_parameters(j_statement, parameters)
+    insert_parameters(j_statement, parameters, dbGetDriver(conn)@mapping)
     hasResult <- execute_query(j_statement)
     
     if (hasResult) {
       j_result_set <- jtry(.jcall(j_statement, "Ljava/sql/ResultSet;", "getResultSet", check = FALSE))
-      JDBCQueryResult(j_result_set, statement)
+      JDBCQueryResult(j_result_set, conn, statement)
     } else {
       update_count <- jtry(.jcall(j_statement, "I", "getUpdateCount", check = FALSE))
-      JDBCUpdateResult(update_count, statement)
+      JDBCUpdateResult(update_count, conn, statement)
     }
     
   },
@@ -140,7 +142,7 @@ setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "chara
     on.exit(close_statement(j_statement))
 
     # TODO it might be better to to insert in strides
-    batch_insert(j_statement, parameters)
+    batch_insert(j_statement, parameters, dbGetDriver(conn)@mapping)
 
     updates <- execute_batch(j_statement)
     invisible(as.logical(updates))
@@ -164,8 +166,8 @@ setMethod("dbGetQuery", signature(conn = "JDBCConnection", statement = "characte
   valueClass = "data.frame"
 )
 
-fetch_all <- function(j_result_set, close = TRUE) {  
-  res <- JDBCQueryResult(j_result_set)
+fetch_all <- function(j_result_set, connection, close = TRUE) {  
+  res <- JDBCQueryResult(j_result_set, connection)
   if (close) {
     on.exit(dbClearResult(res))
   }
@@ -196,7 +198,7 @@ setMethod("dbGetTables", signature(conn = "JDBCConnection"),
     j_result_set <- jtry(.jcall(md, "Ljava/sql/ResultSet;", "getTables", .jnull("java/lang/String"),
                 .jnull("java/lang/String"), pattern, .jnull("[Ljava/lang/String;"), check = FALSE),
       jstop, "Unable to retrieve JDBC tables list")    
-    fetch_all(j_result_set)
+    fetch_all(j_result_set, conn)
   },
   valueClass = "data.frame"
 )
@@ -255,7 +257,7 @@ setMethod("dbGetFields", signature(conn = "JDBCConnection"),
     j_result_set <- jtry(.jcall(md, "Ljava/sql/ResultSet;", "getColumns",
         .jnull("java/lang/String"), .jnull("java/lang/String"), name, pattern, check = FALSE),
       jstop, "Unable to retrieve JDBC columns list for ", name)
-    fetch_all(j_result_set)
+    fetch_all(j_result_set, conn)
   },
   valueClass = "data.frame"
 )
@@ -446,3 +448,9 @@ setMethod("SQLKeywords", signature(dbObj = "JDBCObject"),
 quote_string <- function(conn) {
   conn@quote_string
 }
+
+setMethod("dbGetDriver", signature(dbObj = "JDBCConnection"),
+  function(dbObj, ...) {
+    dbObj@driver
+  }
+)

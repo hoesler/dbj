@@ -4,10 +4,14 @@
 \alias{dbColumnInfo,JDBCQueryResult-method}
 \title{Get info about the result set data types.}
 \usage{
-\S4method{dbColumnInfo}{JDBCQueryResult}(res, ...)
+\S4method{dbColumnInfo}{JDBCQueryResult}(res, what = c("label", "sql_type",
+  "type_name", "nullable"), ...)
 }
 \arguments{
 \item{res}{an \code{\linkS4class{JDBCQueryResult}} object.}
+
+\item{what}{a character vector indicating which info to return.
+Expected is a subset of \code{c("label", "sql_type", "type_name", "nullable")}.}
 
 \item{...}{Ignored. Needed for compatiblity with generic.}
 }

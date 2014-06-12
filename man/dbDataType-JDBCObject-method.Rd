@@ -11,7 +11,7 @@
 
 \item{obj}{an R object whose SQL type we want to determine.}
 
-\item{...}{Needed for compatibility with generic. Otherwise ignored.}
+\item{...}{Ignored. Needed for compatibility with generic.}
 }
 \description{
 Determine the SQL Data Type of an R object.

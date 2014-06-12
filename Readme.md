@@ -9,3 +9,19 @@ At the moment this a just a playgound for myself but might be merged back later 
 This fork can be installed most easily using the [devtools](https://github.com/hadley/devtools) package. After you installed this package just enter `devtools::install_github("hoesler/RJDBC")`.
 
 The source compilation requires that you haven [maven](https://maven.apache.org/) installed.
+
+##	Type conversion
+When creating a new table, the follwing type conversion is used:
+
+- logical -> BOOLEAN
+- numeric -> DOUBLE
+- integer -> INTEGER
+- character -> VARCHAR(255)
+- Date -> DATE
+- POSIXt -> TIMESTAMP
+
+
+
+
+ 
+

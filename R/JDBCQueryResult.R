@@ -28,8 +28,9 @@ setClass("JDBCQueryResult",
 #' @return a new JDBCQueryResult object
 #' @rdname JDBCDriver-class
 #' @export
-JDBCQueryResult <- function(j_result_set, statement = "") {
+JDBCQueryResult <- function(j_result_set, connection, statement = "") {
   assert_that(j_result_set %instanceof% "java.sql.ResultSet")
+  assert_that(is(connection, "JDBCConnection"))
 
   j_result_set_meta <- get_meta_data(j_result_set)
   j_result_pull <- create_result_pull(j_result_set)
@@ -37,7 +38,8 @@ JDBCQueryResult <- function(j_result_set, statement = "") {
     j_result_set = j_result_set,
     j_result_set_meta = j_result_set_meta,
     j_result_pull = j_result_pull,
-    statement = statement)
+    statement = statement,
+    connection = connection)
 }
 
 #' @rdname fetch-JDBCQueryResult-numeric-method
@@ -63,12 +65,7 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
       return(NULL)
     }
        
-    column_info <- as.data.frame(t(sapply(seq(cols), function(column_index) {     
-      ct <- jtry(.jcall(res@j_result_set_meta, "I", "getColumnType", column_index, check = FALSE))
-      type <- to_r_type(ct)   
-      label <- jtry(.jcall(res@j_result_set_meta, "S", "getColumnLabel", column_index, check = FALSE))
-      list(label = label, type = type)
-    })))
+    column_info <- dbColumnInfo(res, c("label", "nullable", "sql_type"))
 
     infinite_pull <- (n == -1)
     stride <- if (n == -1) {
@@ -79,7 +76,7 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
 
     chunks <- list()
     repeat {    
-      fetched <- fetch_resultpull(res@j_result_pull, stride, column_info) 
+      fetched <- fetch_resultpull(res@j_result_pull, stride, column_info, dbGetDriver(res)@mapping) 
       chunks <- c(chunks, list(fetched))
 
       if (!infinite_pull || nrow(fetched) < stride) {
@@ -89,7 +86,8 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
       stride <- 524288L # 512k
     }
 
-    rbind_all(chunks)
+    #rbind_all(chunks) # Does not preserve lubridate class
+    do.call(rbind, chunks)
   }
 )
 
@@ -114,21 +112,46 @@ setMethod("dbClearResult", signature(res = "JDBCQueryResult"),
 #' Get info about the result set data types.
 #' 
 #' @param res an \code{\linkS4class{JDBCQueryResult}} object.
+#' @param what a character vector indicating which info to return.
+#'   Expected is a subset of \code{c("label", "sql_type", "type_name", "nullable")}.
 #' @param ... Ignored. Needed for compatiblity with generic.
 #' @export
 setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
-  function(res, ...) {
+  function(res, what = c("label", "sql_type", "type_name", "nullable"), ...) {
+    assert_that(is.character(what))
+
+    if (length(what) == 0) {
+      return(data.frame())
+    }
+    
     column_count <- jtry(.jcall(res@j_result_set_meta, "I", "getColumnCount", check = FALSE))
-    column_info <- list(field.name = character(), field.type = character(), data.type = character())
-    if (column_count < 1) {
-      return(as.data.frame(column_info)) 
+    
+    column_info <- list()
+
+    if ("label" %in% what) {
+      column_info <- c(column_info, list(label = vapply(seq(column_count), function(i) {
+        jtry(.jcall(res@j_result_set_meta, "S", "getColumnLabel", i, check = FALSE))
+      }, "")))
     }
-    for (i in seq(column_count)) {
-      column_info$field.name[i] <- jtry(.jcall(res@j_result_set_meta, "S", "getColumnLabel", i, check = FALSE))
-      column_info$field.type[i] <- jtry(.jcall(res@j_result_set_meta, "S", "getColumnTypeName", i, check = FALSE))
-      ct <- jtry(.jcall(res@j_result_set_meta, "I", "getColumnType", i, check = FALSE))
-      column_info$data.type[i] <- to_r_type(ct)
+
+    if ("sql_type" %in% what) {
+      column_info <- c(column_info, list(sql_type = vapply(seq(column_count), function(i) {
+        jtry(.jcall(res@j_result_set_meta, "I", "getColumnType", i, check = FALSE)) 
+      }, as.integer(0))))
     }
+
+    if ("type_name" %in% what) {
+      column_info <- c(column_info, list(type_name = vapply(seq(column_count), function(i) {
+        jtry(.jcall(res@j_result_set_meta, "S", "getColumnTypeName", i, check = FALSE))
+      }, "")))
+    }
+    
+    if ("nullable" %in% what) {
+      column_info <- c(column_info, list(nullable = vapply(seq(column_count), function(i) {
+        jtry(.jcall(res@j_result_set_meta, "I", "isNullable", i, check = FALSE)) # 0 = disallows NULL, 1 = allows NULL, 2 = unknown
+      }, as.integer(0))))
+    }
+
     as.data.frame(column_info, row.names = seq(column_count))   
   },
   valueClass = "data.frame"

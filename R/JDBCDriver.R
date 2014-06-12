@@ -1,5 +1,6 @@
 #' @include JDBCObject.R
 #' @include JavaUtils.R
+#' @include JDBCMapping.R
 NULL
 
 #' Class JDBCDriver with factory methods.
@@ -9,19 +10,21 @@ setClass("JDBCDriver",
   contains = c("DBIDriver", "JDBCObject"),
   slots = c(
     driverClass = "character",
-    jdrv = "jobjRef"))
+    jdrv = "jobjRef",
+    mapping = "list"))
 
 #' @param driverClass the java class name of the JDBC driver to use
 #' @param classPath a string of paths seperated by : which shoul get added to the classpath (see \link[rJava]{.jaddClassPath})
+#' @param mapping the mapping from JDBC to R objects.
 #' @rdname JDBCDriver-class
 #' @export
-JDBC <- function(driverClass = '', classPath = '') {  
-  JDBCDriver(driverClass, classPath)
+JDBC <- function(driverClass = '', classPath = '', mapping = default_rjdbc_mapping) {  
+  JDBCDriver(driverClass, classPath, mapping)
 }
 
 #' @rdname JDBCDriver-class
 #' @export
-JDBCDriver <- function(driverClass = '', classPath = '') {
+JDBCDriver <- function(driverClass = '', classPath = '', mapping = default_rjdbc_mapping) {
   ## expand all paths in the classPath
   expanded_paths <- path.expand(unlist(strsplit(classPath, .Platform$path.sep)))
   .jaddClassPath(expanded_paths)
@@ -32,7 +35,7 @@ JDBCDriver <- function(driverClass = '', classPath = '') {
 
   jdrv <- .jnew(driverClass)
 
-  new("JDBCDriver", driverClass = driverClass, jdrv = jdrv)
+  new("JDBCDriver", driverClass = driverClass, jdrv = jdrv, mapping = mapping)
 }
 
 #' List active connections
@@ -83,7 +86,7 @@ setMethod("dbConnect", signature(drv = "JDBCDriver"),
       jc <- .jcall(drv@jdrv, "Ljava/sql/Connection;", "connect", as.character(url)[1], p)
     }
     verifyNotNull(jc, "Unable to connect JDBC to ", url)
-    JDBCConnection(jc)
+    JDBCConnection(jc, drv)
   },
   valueClass = "JDBCConnection"
 )
@@ -116,4 +119,23 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCDriver"),
       major_version = jtry(.jcall(dbObj@jdrv, "I", "getMinorVersion", check = FALSE))
     )
   }
+)
+
+setMethod("dbGetDriver", signature(dbObj = "JDBCDriver"),
+  function(dbObj, ...) {
+    dbObj
+  }
+)
+
+setMethod("dbDataType", signature(dbObj = "JDBCDriver"),
+  function(dbObj, obj, ...) {
+    mapping <- dbObj@mapping
+    for (i in seq(length(mapping))) {
+      if (mapping[[i]]$constraint(obj)) {
+        return(mapping[[i]]$create_type)
+      }
+    }
+    stop("No mapping defined for object of type ", class(obj))
+  },
+  valueClass = "character"
 )

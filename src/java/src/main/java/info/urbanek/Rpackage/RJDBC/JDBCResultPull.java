@@ -1,9 +1,11 @@
 package info.urbanek.Rpackage.RJDBC;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
 
 /**
@@ -12,16 +14,11 @@ import java.util.ArrayList;
  * from Java to R.
  */
 public final class JDBCResultPull {
-
-    /**
-     * NA double value
-     */
-    private static final double NA_DOUBLE = Double.longBitsToDouble(0x7ff00000000007a2L);
-
     /**
      * active result set
      */
     private final ResultSet resultSet;
+    private final ArrayList<ColumnBuilder<?>> columnBuilders;
 
     /**
      * create a JDBCResultPull from teh current set with the specified column types. The column type definition must
@@ -29,11 +26,12 @@ public final class JDBCResultPull {
      *
      * @param resultSet active result set
      */
-    public JDBCResultPull(final ResultSet resultSet) {
+    public JDBCResultPull(final ResultSet resultSet) throws SQLException {
         if (resultSet == null) {
             throw new NullPointerException("Result set must not be null");
         }
         this.resultSet = resultSet;
+        this.columnBuilders = initColumns();
     }
 
     /**
@@ -43,34 +41,33 @@ public final class JDBCResultPull {
      *
      * @throws SQLException if an SQL exception occurs
      */
-    private ArrayList<Column<?>> initColumns() throws SQLException {
-        final ArrayList<Column<?>> columns = new ArrayList<Column<?>>();
+    private ArrayList<ColumnBuilder<?>> initColumns() throws SQLException {
+        final ArrayList<ColumnBuilder<?>> columns = new ArrayList<ColumnBuilder<?>>();
         final ResultSetMetaData metaData = resultSet.getMetaData();
         for (int i = 0; i < metaData.getColumnCount(); i++) {
-            final Column<?> column;
             final int columnType = metaData.getColumnType(i + 1);
-            if (columnType == Types.BIT || columnType == Types.BOOLEAN) {
-                column = new BooleanColumn();
-            } else if (columnType == Types.TINYINT || columnType == Types.SMALLINT
-                    || columnType == Types.INTEGER || columnType == Types.BIGINT) {
-                column = new IntegerColumn();
-            } else if (columnType == Types.FLOAT || columnType == Types.REAL || columnType == Types.NUMERIC
-                    || columnType == Types.DOUBLE || columnType == Types.DECIMAL) {
-                column = new DoubleColumn();
-            } else if (columnType == Types.DATE) {
-                column = new DateColumn();
-            } else if (columnType == Types.TIMESTAMP) {
-                column = new TimestampColumn();
-            } else if (columnType == Types.VARCHAR || columnType == Types.CHAR || columnType == Types.LONGVARCHAR
-                    || columnType == Types.NVARCHAR|| columnType == Types.NCHAR || columnType == Types.LONGNVARCHAR) {
-                column = new StringColumn();
-            } else {
-                System.err.println("Trying to StingColumn for type " + columnType);
-                column = new StringColumn();
-            }
-            columns.add(column);
+            final ColumnBuilder<?> builder = createColumnBuilder(columnType);
+            columns.add(builder);
         }
         return columns;
+    }
+
+    private static ColumnBuilder<?> createColumnBuilder(final int sqlType) {
+        final ColumnBuilder<?> builder;
+
+        if (BooleanColumn.handles(sqlType)) {
+            return BooleanColumn.builder(sqlType);
+        } else if (IntegerColumn.handles(sqlType)) {
+            return IntegerColumn.builder(sqlType);
+        } else if (LongColumn.handles(sqlType)) {
+            return LongColumn.builder(sqlType);
+        } else if (DoubleColumn.handles(sqlType)) {
+            return DoubleColumn.builder(sqlType);
+        } else if (StringColumn.handles(sqlType)) {
+            return StringColumn.builder(sqlType);
+        } else {
+            return UnsupportedTypeColumn.builder(sqlType);
+        }
     }
 
     /**
@@ -85,16 +82,35 @@ public final class JDBCResultPull {
         if (atMost < 0) {
             throw new IllegalArgumentException("atMost must be >= 0, was " + atMost);
         }
-        final ArrayList<Column<?>> columns = initColumns();
+
+        for (ColumnBuilder<?> columnBuilder : columnBuilders) {
+            columnBuilder.clear();
+        }
+
         resultSet.setFetchSize(atMost);
         int rowCount = 0;
         while (resultSet.next() && rowCount < atMost) {
-            for (int i = 0; i < columns.size(); i++) {
-                final Column<?> column = columns.get(i);
-                column.addFromResultSet(resultSet, i + 1);
+            for (int i = 0; i < columnBuilders.size(); i++) {
+                final ColumnBuilder<?> columnBuilder = columnBuilders.get(i);
+                columnBuilder.addFromResultSet(resultSet, i + 1);
             }
             rowCount++;
         }
-        return new ArrayListTable(columns);
+        return ArrayListTable.create(Lists.transform(columnBuilders, new Function<ColumnBuilder<?>, Column<?>>() {
+            @Override
+            public Column<?> apply(final ColumnBuilder<?> columnBuilder) {
+                return columnBuilder.build();
+            }
+        }));
+    }
+
+    public int[] getSqlTypes() throws SQLException {
+        final ResultSetMetaData metaData = resultSet.getMetaData();
+        final int columnCount = metaData.getColumnCount();
+        final int[] sqlTypes = new int[columnCount];
+        for (int i = 0; i < columnCount; i++) {
+            sqlTypes[i] = metaData.getColumnType(i);
+        }
+        return sqlTypes;
     }
 }

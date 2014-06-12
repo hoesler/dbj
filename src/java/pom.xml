@@ -70,6 +70,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <injar>${project.build.finalName}.jar</injar>
                     <proguardVersion>4.11</proguardVersion>
                     <proguardInclude>${basedir}/proguard.conf</proguardInclude>
                     <assembly>

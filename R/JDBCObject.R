@@ -1,3 +1,6 @@
+#' @include JDBCObjectExtensions.R
+NULL
+
 #' Class JDBCObject
 #'
 #' @name JDBCObject-class
@@ -26,16 +29,12 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCObject"),
 #' @docType methods
 #' @param dbObj a \code{\linkS4class{JDBCObject}} object.
 #' @param obj an R object whose SQL type we want to determine.
-#' @param ... Needed for compatibility with generic. Otherwise ignored.
+#' @param ... Ignored. Needed for compatibility with generic.
 #' @export
 setMethod("dbDataType", signature(dbObj = "JDBCObject"),
   function(dbObj, obj, ...) {
-    if (is.logical(obj)) "BOOLEAN"
-    else if (is.integer(obj)) "INTEGER"
-    else if (is.numeric(obj)) "DOUBLE PRECISION"
-    else if (is(obj, "Date")) "DATE"
-    else if (is(obj, "POSIXt")) "TIMESTAMP"
-    else "VARCHAR(255)"
+    drv <- dbGetDriver(dbObj)
+    dbDataType(drv, obj)
   },
   valueClass = "character"
 )

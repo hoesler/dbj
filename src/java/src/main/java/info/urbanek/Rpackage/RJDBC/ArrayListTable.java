@@ -1,5 +1,9 @@
 package info.urbanek.Rpackage.RJDBC;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
+
 import java.util.*;
 
 public final class ArrayListTable implements Table {
@@ -57,8 +61,22 @@ public final class ArrayListTable implements Table {
         };
     }
 
+    @Override
+    public int[] sqlTypes() {
+        return Ints.toArray(Lists.transform(columns, new Function<Column<?>, Integer>() {
+            @Override
+            public Integer apply(final Column<?> objects) {
+                return objects.sqlType();
+            }
+        }));
+    }
+
     public static ArrayListTable create(final Column<?>... columns) {
         return new ArrayListTable(Arrays.asList(columns));
+    }
+
+    public static ArrayListTable create(final List<Column<?>> columns) {
+        return new ArrayListTable(columns);
     }
 
     private static class RowView extends AbstractList<Object> implements Row {

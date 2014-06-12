@@ -8,18 +8,21 @@
 \alias{JDBCUpdateResult}
 \title{Class JDBCDriver with factory methods.}
 \usage{
-JDBC(driverClass = "", classPath = "")
+JDBC(driverClass = "", classPath = "", mapping = default_rjdbc_mapping)
 
-JDBCDriver(driverClass = "", classPath = "")
+JDBCDriver(driverClass = "", classPath = "",
+  mapping = default_rjdbc_mapping)
 
-JDBCQueryResult(j_result_set, statement = "")
+JDBCQueryResult(j_result_set, connection, statement = "")
 
-JDBCUpdateResult(update_count, statement = "")
+JDBCUpdateResult(update_count, connection, statement = "")
 }
 \arguments{
 \item{driverClass}{the java class name of the JDBC driver to use}
 
 \item{classPath}{a string of paths seperated by : which shoul get added to the classpath (see \link[rJava]{.jaddClassPath})}
+
+\item{mapping}{the mapping from JDBC to R objects.}
 
 \item{j_result_set}{a \code{\linkS4class{jobjRef}} object which holds a reference to a \code{java/sql/ResultSet} Java object.}
 

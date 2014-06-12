@@ -10,4 +10,9 @@ public interface Table {
     Iterable<Column<?>> columns();
 
     Iterable<Row> rows();
+
+    /**
+     * Return the {@link java.sql.Types sql type} for each column.
+     */
+    int[] sqlTypes();
 }

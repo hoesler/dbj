@@ -1,31 +1,33 @@
 package info.urbanek.Rpackage.RJDBC;
 
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.Types;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class PreparedStatementsTest {
+    @Rule
+    public H2Database database = new H2Database();
 
     @Test
     public void testBatchInsert() throws Exception {
         // given
-        Class.forName("org.h2.Driver");
-        final String url = "jdbc:h2:mem:";
-        final Connection connection = DriverManager.getConnection(url, "sa", "");
+        final Connection connection = database.getConnection();
         connection.createStatement().execute(
                 "CREATE TABLE \"test_table\" (\"a\" DOUBLE, \"b\" VARCHAR(255), \"c\" INTEGER, \"d\" DATE, \"e\" TIMESTAMP)");
 
         final ArrayListTable table = ArrayListTable.create(
-                DoubleColumn.create(new double[]{-42.0, 0, 42.0, Double.NaN}, new boolean[] {false, false, false, false}),
-                StringColumn.create(new String[]{"a", "", "cb67%&$'", "NA"}, new boolean[] {false, false, false, false}),
-                IntegerColumn.create(new int[]{-42, 0, 42, Integer.MAX_VALUE}, new boolean[] {false, false, false, false}),
-                DateColumn.forDays(new int[]{3447, 4476, -45334, 0}, new boolean[] {false, false, false, false}),
-                TimestampColumn.forSeconds(new int[]{-42, 0, 42, Integer.MAX_VALUE}, new boolean[] {false, false, false, false})
+                DoubleColumn.create(Types.DOUBLE, new double[]{-42.0, 0, 42.0, Double.NaN}, new boolean[] {false, false, false, false}),
+                StringColumn.create(Types.VARCHAR, new String[]{"a", "", "cb67%&$'", "NA"}, new boolean[] {false, false, false, false}),
+                IntegerColumn.create(Types.INTEGER, new int[]{-42, 0, 42, Integer.MAX_VALUE}, new boolean[] {false, false, false, false}),
+                LongColumn.create(Types.DATE, new long[]{3447, 4476, -45334, 0}, new boolean[]{false, false, false, false}),
+                LongColumn.create(Types.TIMESTAMP, new long[]{-42, 0, 42, Long.MAX_VALUE}, new boolean[]{false, false, false, false})
         );
 
         final PreparedStatement preparedStatement =
@@ -38,5 +40,28 @@ public class PreparedStatementsTest {
         // then
         final int[] ints = preparedStatement.executeBatch();
         assertThat(ints.length, is(4));
+    }
+
+    @Test
+    public void testInsertTime() throws Exception {
+        // given
+        final Connection connection = database.getConnection();
+        connection.createStatement().execute(
+                "CREATE TABLE \"test_table\" (\"a\" TIME)");
+
+        final ArrayListTable table = ArrayListTable.create(
+                LongColumn.create(Types.TIME, new long[]{1000000})
+        );
+
+        final PreparedStatement preparedStatement =
+                connection.prepareStatement(
+                        "INSERT INTO \"test_table\" (\"a\") VALUES (?)");
+
+        // when
+        PreparedStatements.insert(preparedStatement, table, 0);
+
+        // then
+        final int affected = preparedStatement.executeUpdate();
+        assertThat(affected, is(1));
     }
 }

@@ -19,9 +19,10 @@ setClass("JDBCUpdateResult",
 #' @return a new JDBCUpdateResult object
 #' @rdname JDBCDriver-class
 #' @export
-JDBCUpdateResult <- function(update_count, statement = "") {
+JDBCUpdateResult <- function(update_count, connection, statement = "") {
   assert_that(is(update_count, "numeric"))
-  new("JDBCUpdateResult", update_count = update_count)
+  assert_that(is(connection, "JDBCConnection"))
+  new("JDBCUpdateResult", update_count = update_count, connection = connection)
 }
 
 #' @rdname fetch-JDBCUpdateResult-numeric-method
