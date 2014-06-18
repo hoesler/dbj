@@ -2,18 +2,16 @@ context("JDBCTypeConversion")
 
 test_that("the default mapping can be overwritten", {
   # given
-  mapping <- c(list(
-    rjdbc_mapping(
-      JDBC_SQL_TYPES$DOUBLE,
-      function(x) x + 1,
-      function(x) x + 1,
-      is.numeric,
-      "DOUBLE"
-    )
-  ), default_rjdbc_mapping)
+  read_conversions <- c(list(
+    sqltype_read_conversion(JDBC_SQL_TYPES$DOUBLE, function(x) x + 1)
+  ), default_read_conversions)
+
+  write_conversions <- c(list(
+    mapped_write_conversion("numeric", function(x) x + 1, "DOUBLE")
+  ), default_write_conversions)
 
   # when
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', mapping = mapping)
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', read_conversions = read_conversions, write_conversions = write_conversions)
   
   # then
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
@@ -28,19 +26,16 @@ test_that("the default mapping can be overwritten", {
 test_that("I can map Duration to DOUBLE", {
   # given
   library(lubridate)
-  mapping <- c(list(
-    rjdbc_mapping(
-      JDBC_SQL_TYPES$DOUBLE,
-      function(x) duration(x),
-      function(x) as.numeric(x),
-      is.duration,
-      "DOUBLE"
-    )
-  ), default_rjdbc_mapping)
+  read_conversions <- c(list(
+    sqltype_read_conversion(JDBC_SQL_TYPES$DOUBLE, function(x) duration(x))
+  ), default_read_conversions)
+
+  write_conversions <- c(list(
+    mapped_write_conversion("Duration", function(x) as.numeric(x), "DOUBLE")
+  ), default_write_conversions)
 
   # when
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar',
-    mapping = mapping)
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', read_conversions = read_conversions, write_conversions = write_conversions)
   
   # then
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')

@@ -11,20 +11,22 @@ setClass("JDBCDriver",
   slots = c(
     driverClass = "character",
     jdrv = "jobjRef",
-    mapping = "list"))
+    read_conversions = "list",
+    write_conversions = "list"))
 
 #' @param driverClass the java class name of the JDBC driver to use
 #' @param classPath a string of paths seperated by : which shoul get added to the classpath (see \link[rJava]{.jaddClassPath})
-#' @param mapping the mapping from JDBC to R objects.
+#' @param read_conversions a list of RJDBCReadConversion objects.
+#' @param write_conversions a list of RJDBCWriteConversion objects.
 #' @rdname JDBCDriver-class
 #' @export
-JDBC <- function(driverClass = '', classPath = '', mapping = default_rjdbc_mapping) {  
-  JDBCDriver(driverClass, classPath, mapping)
+JDBC <- function(driverClass = '', classPath = '', read_conversions = default_read_conversions, write_conversions = default_write_conversions) {  
+  JDBCDriver(driverClass, classPath, read_conversions, write_conversions)
 }
 
 #' @rdname JDBCDriver-class
 #' @export
-JDBCDriver <- function(driverClass = '', classPath = '', mapping = default_rjdbc_mapping) {
+JDBCDriver <- function(driverClass = '', classPath = '', read_conversions = default_read_conversions, write_conversions = default_write_conversions) {
   ## expand all paths in the classPath
   expanded_paths <- path.expand(unlist(strsplit(classPath, .Platform$path.sep)))
   .jaddClassPath(expanded_paths)
@@ -35,7 +37,7 @@ JDBCDriver <- function(driverClass = '', classPath = '', mapping = default_rjdbc
 
   jdrv <- .jnew(driverClass)
 
-  new("JDBCDriver", driverClass = driverClass, jdrv = jdrv, mapping = mapping)
+  new("JDBCDriver", driverClass = driverClass, jdrv = jdrv, read_conversions = read_conversions, write_conversions = write_conversions)
 }
 
 #' List active connections
@@ -129,10 +131,12 @@ setMethod("dbGetDriver", signature(dbObj = "JDBCDriver"),
 
 setMethod("dbDataType", signature(dbObj = "JDBCDriver"),
   function(dbObj, obj, ...) {
-    mapping <- dbObj@mapping
-    for (i in seq(length(mapping))) {
-      if (mapping[[i]]$constraint(obj)) {
-        return(mapping[[i]]$create_type)
+    write_conversions <- dbObj@write_conversions
+    for (i in seq(length(write_conversions))) {
+      if (write_conversions[[i]]$condition(list(class_names = class(obj)))) {
+        db_data_type <- write_conversions[[i]]$create_type
+        assert_that(is.character(db_data_type) && length(db_data_type == 1))
+        return(db_data_type)
       }
     }
     stop("No mapping defined for object of type ", class(obj))

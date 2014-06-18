@@ -3,14 +3,14 @@
 \alias{create_j_table}
 \title{Transform a data frame into a java reference to a info/urbanek/Rpackage/RJDBC/Table}
 \usage{
-create_j_table(j_statement, data, mapping)
+create_j_table(j_statement, data, write_conversions)
 }
 \arguments{
 \item{j_statement}{a jobjRef to a java.sql.PreparedStatement}
 
 \item{data}{a data.frame}
 
-\item{mapping}{a list of RJDBCMapping objects}
+\item{write_conversions}{a list of RJDBCMapping objects}
 }
 \description{
 Transform a data frame into a java reference to a info/urbanek/Rpackage/RJDBC/Table

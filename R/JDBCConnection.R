@@ -65,7 +65,7 @@ setMethod("dbCallProc", signature(conn = "JDBCConnection"),
       sql_escape_identifier(name, quote_string(conn)),
       paste0(rep('?', length(parameters)), collapse = ", ")
     ))
-    insert_parameters(j_prepared_statement, parameters, dbGetDriver(conn)@mapping)
+    insert_parameters(j_prepared_statement, parameters, dbGetDriver(conn)@write_conversions)
     execute_update(j_prepared_statement)
     invisible(TRUE)
   },
@@ -98,7 +98,7 @@ setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "charact
     statement <- as.character(statement)[1L]
     
     j_statement <- create_prepared_statement(conn, statement)
-    insert_parameters(j_statement, parameters, dbGetDriver(conn)@mapping)
+    insert_parameters(j_statement, parameters, dbGetDriver(conn)@write_conversions)
     hasResult <- execute_query(j_statement)
     
     if (hasResult) {
@@ -142,7 +142,7 @@ setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "chara
     on.exit(close_statement(j_statement))
 
     # TODO it might be better to to insert in strides
-    batch_insert(j_statement, parameters, dbGetDriver(conn)@mapping)
+    batch_insert(j_statement, parameters, dbGetDriver(conn)@write_conversions)
 
     updates <- execute_batch(j_statement)
     invisible(as.logical(updates))

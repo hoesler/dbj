@@ -6,22 +6,45 @@ This version is a fork from Simon Urbanek's original RJDBC packge. Apart from mi
 At the moment this a just a playgound for myself but might be merged back later on.
 
 ## Installation
-This fork can be installed most easily using the [devtools](https://github.com/hadley/devtools) package. After you installed this package just enter `devtools::install_github("hoesler/RJDBC")`.
+RJDBC can be installed most easily using the [devtools](https://github.com/hadley/devtools) package. After you installed devtools just run `devtools::install_github("hoesler/RJDBC")`.
 
 The source compilation requires that you haven [maven](https://maven.apache.org/) installed.
 
-##	Type conversion
-When creating a new table, the follwing type conversion is used:
+##	Type mapping
+Type mapping in RJDBC has four data type units: The R working type, The R transfer type, the Java transfer type and the SQL storage Type. The working type is the type of a data.frame column you work with on the front end. For transfer these data types must be converted into a R transfer type associated with one of the Java transfer types, both used to send data from R to Java and vice versa. Due to rJava and performance reasons this must be one of the Java raw types (boolean, byte, int, long, float, double) or String.
 
-- logical -> BOOLEAN
-- numeric -> DOUBLE
-- integer -> INTEGER
-- character -> VARCHAR(255)
-- Date -> DATE
-- POSIXt -> TIMESTAMP
+The way the data transfer is implemented requires that all data that can possibly be transferred must be convertible to one of these transfer types.
 
+The default mapping is defined in the following way:
 
+##### Transfer unit
 
+R Transfer Type | Java Transfer Type | SQL Types
+----------------|-------------------------------------------------------------------------------
+logical         | boolean            | BIT, BOOLEAN
+numeric         | long               | BIGINT, DATE, TIMESTAMP, TIME
+numeric         | double             | FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL
+integer         | int                | TINYINT, SMALLINT, INTEGER
+character       | String             | CHAR, VARCHAR, LONGVARCHAR, NCHAR, NVARCHAR, LONGNVARCHAR
 
- 
+##### JDBC -> R
+SQL Types                                                 | Transfer unit conversion
+----------------------------------------------------------|--------------------------------------------------------------------
+BIT, BOOLEAN                                              | identity             
+FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL, BIGINT             | identity
+TINYINT, SMALLINT, INTEGER                                | identity
+DATE                                                      | as.Date(x / 1000 / 60 / 60 / 24, origin = "1970-01-01", tz = "GMT")
+TIMESTAMP                                                 | as.POSIXct(x / 1000, origin = "1970-01-01", tz = "GMT")
+TIME                                                      | identity
+CHAR, VARCHAR, LONGVARCHAR, NCHAR, NVARCHAR, LONGNVARCHAR | identity
 
+##### R -> JDBC
+R Working Type | Colum created as | Transfer unit conversion
+---------------|------------------|------------------------------------
+logical        | BOOLEAN          | identity
+numeric        | DOUBLE PRECISION | identity
+integer        | INTEGER          | identity
+factor         | INTEGER          | as.integer
+character      | VARCHAR (255)    | identity
+Date           | DATE             | as.numeric(x) * 24 * 60 * 60 * 1000
+POSIXt         | TIMESTAMP        | as.numeric(x) * 1000

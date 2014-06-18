@@ -1,118 +1,173 @@
 #' @include JDBCSQLTypes.R
 NULL
 
-#' Create a converion definition for a set of SQL types between working and transfer type. 
+#' Create a RJDBCReadConversion object. 
 #' 
-#' @param sql_types a vector of sql types as defined in \code{\link{JDBC_SQL_TYPES}}
-#' @param convert_from a function which can be applied to a vector and returns a vector
-#'   with the values converted to a desired working type.
-#' @param convert_to a function which can be applied to a vector of a working type and returns a vector
-#'   with values matching to transfer type of the given sql type.
-#' @param constraint a function which accepts an object argument and returns a logical indicating if this mapping is applicable for the object.
-#' @param create_type a character which provides the default SQL Type used for creating database columns for objects which satisfy the constraint.
+#' @param condition a function which accepts a list and returns a logical
+#' @param conversion a function which accepts a data frame column vector and returns it transformed into a vector of a transfer data type.
 #' 
 #' @export
-rjdbc_mapping <- function(sql_types, convert_from, convert_to, constraint, create_type) {
-  assert_that(is.numeric(sql_types) && sql_types %in% JDBC_SQL_TYPES)
-  assert_that(is.function(convert_from))
-  assert_that(is.function(convert_to))
+read_conversion <- function(condition, conversion) {
+  assert_that(is.function(condition))
+  assert_that(is.function(conversion))
 
   structure(list(
-    sql_types = sql_types,
-    convert_from = convert_from,
-    convert_to = convert_to,
-    constraint = constraint,
-    create_type = create_type
-  ), class = "RJDBCMapping")
+    condition = condition,
+    conversion = conversion
+  ), class = "RJDBCReadConversion")
+}
+
+#' @param sql_types a numeric vector of JDBC_SQL_TYPES
+#' @export
+#' @rdname read_conversion
+sqltype_read_conversion <- function(sql_types, conversion) {
+  assert_that(is.numeric(sql_types))
+
+  read_conversion(function(attributes) {
+    assert_that(is.list(attributes) && c("sql_type") %in% names(attributes))
+    with(JDBC_SQL_TYPES, attributes$sql_type %in% sql_types)
+  }, conversion)
 }
 
 #' @export
-#' @rdname rjdbc_mapping
-default_rjdbc_mapping <- list(  
-  rjdbc_mapping(
+#' @rdname read_conversion
+default_read_conversions <- list(
+  sqltype_read_conversion(
     with(JDBC_SQL_TYPES, c(TINYINT, SMALLINT, INTEGER)),
-    identity,
-    identity,
-    is.integer,
+    identity
+  ),
+  sqltype_read_conversion(
+    with(JDBC_SQL_TYPES, c(FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL, BIGINT)),
+    identity
+  ),
+  sqltype_read_conversion(
+    with(JDBC_SQL_TYPES, c(BIT, BOOLEAN)),
+    identity
+  ),
+  sqltype_read_conversion(
+    with(JDBC_SQL_TYPES, c(CHAR, VARCHAR, LONGVARCHAR, NCHAR, NVARCHAR, LONGNVARCHAR)),
+    identity
+  ),
+  sqltype_read_conversion(
+    with(JDBC_SQL_TYPES, c(TIME)),
+    identity
+  ),
+  sqltype_read_conversion(
+    with(JDBC_SQL_TYPES, c(DATE)),
+    function(data) as.Date(data / 1000 / 60 / 60 / 24, origin = "1970-01-01", tz = "GMT")
+  ),
+  sqltype_read_conversion(
+    with(JDBC_SQL_TYPES, c(TIMESTAMP)),
+    function(data) as.POSIXct(data / 1000, origin = "1970-01-01", tz = "GMT")
+  )
+)
+
+#' Create a RJDBCWriteConversion object. 
+#' 
+#' @param condition a function which accepts a list and returns a logical.
+#' @param conversion a function which accepts a data frame column vector and returns it transformed into a vector of a transfer data type.
+#' @param create_type a character vector of length 1 which holds a sql type name used to store data which sattisfies the given condition.
+#' 
+#' @export
+write_conversion <- function(condition, conversion, create_type) {
+  assert_that(is.function(condition))
+  assert_that(is.function(conversion))
+  assert_that(is.character(create_type))
+
+  structure(list(
+    condition = condition,
+    conversion = conversion,
+    create_type = create_type
+  ), class = "RJDBCWriteConversion")
+}
+
+#' @param class_names a character vector of class names
+#' @export
+#' @rdname write_conversion
+mapped_write_conversion <- function(class_names, conversion, create_type) {
+  assert_that(is.character(class_names))
+ 
+  write_conversion(function(attributes) {
+    assert_that(is.list(attributes) && all(c("class_names") %in% names(attributes)))
+    any(attributes$class_names %in% class_names)
+  }, conversion, create_type)
+}
+
+#' @export
+#' @rdname write_conversion
+default_write_conversions <- list(
+  mapped_write_conversion(
+    c("integer", "factor"),
+    as.integer,
     "INTEGER"
   ),
-  rjdbc_mapping(
-    with(JDBC_SQL_TYPES, c(FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL, BIGINT)),
+  mapped_write_conversion(
+    "numeric",
     identity,
-    identity,
-    is.numeric,
     "DOUBLE PRECISION"
   ),
-  rjdbc_mapping(
-    with(JDBC_SQL_TYPES, c(BIT, BOOLEAN)),
-    identity,
-    identity,
-    is.logical,
+  mapped_write_conversion(
+    "logical",
+    as.numeric,
     "BOOLEAN"
   ),
-  rjdbc_mapping(
-    with(JDBC_SQL_TYPES, c(TIME)),
+  mapped_write_conversion(
+    "numeric",
     as.numeric,
-    as.numeric,
-    is.numeric,
     "TIME"
   ),
-  rjdbc_mapping(
-    with(JDBC_SQL_TYPES, c(DATE)),
-    function(x) as.Date(x / 1000 / 60 / 60 / 24, origin = "1970-01-01", tz = "GMT"),
-    function(x) as.numeric(x) * 24 * 60 * 60 * 1000, # days to milliseconds
-    function(x) is(x, "Date"),
+  mapped_write_conversion(
+    "Date",
+    function(data) as.numeric(data) * 24 * 60 * 60 * 1000, # days to milliseconds
     "DATE"
   ),
-  rjdbc_mapping(
-    with(JDBC_SQL_TYPES, c(TIMESTAMP)),
-    function(x) as.POSIXct(x / 1000, origin = "1970-01-01", tz = "GMT"),
-    function(x) as.numeric(x) * 1000, # seconds to milliseconds
-    function(x) is(x, "POSIXt"),
+  mapped_write_conversion(
+    "POSIXt",
+    function(data) as.numeric(data) * 1000, # seconds to milliseconds
     "TIMESTAMP"
   ),
-  rjdbc_mapping(
-    with(JDBC_SQL_TYPES, c(CHAR, VARCHAR, LONGVARCHAR, NCHAR, NVARCHAR, LONGNVARCHAR)),
-    as.character,
-    as.character,
-    function(x) is.character(x) || is.factor(x),
+  mapped_write_conversion(
+    "character",
+    identity,
     "VARCHAR(255)"
   )
 )
 
-#' Convert from transfer type to client type
+#' Convert from transfer type to client type.
 #' 
-#' @param a list of RJDBCMapping mapping definitions
-#' @param data the data object to convert
-#' @param sql_type the source sql type of the data
-convert_from <- function(mapping, data, sql_type) {
-  assert_that(is.list(mapping) && all(sapply(mapping, class) == "RJDBCMapping"))
-  assert_that(is.numeric(sql_type) && length(sql_type) == 1)
+#' @param conversions a list of RJDBCReadConversion objects
+#' @param data the data vector to convert
+#' @param data_attributes a named list of attributes of data
+convert_from <- function(conversions, data, data_attributes) {
+  assert_that(is.list(conversions) && all(sapply(conversions, class) == "RJDBCReadConversion"))
+  assert_that(is.list(data_attributes) && "sql_type" %in% names(data_attributes))
 
-  for (i in seq(length(mapping))) {
-    if (sql_type %in% mapping[[i]]$sql_types) {
-      return(mapping[[i]]$convert_from(data))
+  for (i in seq_along(conversions)) {
+    if (conversions[[i]]$condition(data_attributes)) {
+      return(conversions[[i]]$conversion(data))
     }
   }
 
-  stop("No conversion rule for sql type '", sql_type, "' was defined") 
+  stop(sprintf("No read conversion rule was defined for attributes %s",
+    list(data_attributes))) 
 }
 
 #' Convert from client type to transfer type
 #' 
-#' @param a list of RJDBCMapping mapping definitions
+#' @param conversions a list of RJDBCWriteConversion objects
 #' @param data the data object to convert
-#' @param sql_type the target sql type of the data
-convert_to <- function(mapping, data, sql_type) {
-  assert_that(is.list(mapping))
-  assert_that(all(sapply(mapping, class) == "RJDBCMapping"))
-  assert_that(is.numeric(sql_type) && length(sql_type) == 1)
+#' @param data_attributes a named list of attributes
+convert_to <- function(conversions, data, data_attributes) {
+  assert_that(is.list(conversions))
+  assert_that(all(sapply(conversions, class) == "RJDBCWriteConversion"))
+  assert_that(is.list(data_attributes) && "class_names" %in% names(data_attributes))
 
-  for (i in seq(length(mapping))) {
-    if (sql_type %in% mapping[[i]]$sql_types && mapping[[i]]$constraint(data)) {
-      return(mapping[[i]]$convert_to(data))
+  for (i in seq_along(conversions)) {
+    if (conversions[[i]]$condition(data_attributes)) {
+      return(conversions[[i]]$conversion(data))
     }
   }
 
-  stop("No conversion rule for sql type '", sql_type, "' and data type ", class(data), " was defined") 
+  stop(sprintf("No write conversion rule was defined for attributes %s",
+    list(data_attributes)))
 }

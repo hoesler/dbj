@@ -10,12 +10,19 @@ create_result_pull <- function(j_result_set) {
   rp
 }
 
-fetch_resultpull <- function(j_result_pull, rows, column_info, mapping) {
+fetch_resultpull <- function(j_result_pull, rows, column_info, read_conversions) {
   assert_that(is.data.frame(column_info))
+  assert_that(all(c("nullable", "label") %in% names(column_info)))
   java_table <- jtry(.jcall(j_result_pull, "Linfo/urbanek/Rpackage/RJDBC/Table;", "fetch", as.integer(rows), check = FALSE))
   verifyNotNull(java_table, "Table creation failed")
   
   column_count <- jtry(.jcall(java_table, "I", "columnCount", check = FALSE))
+  if (column_count == 0) {
+    return(data.frame())
+  } else {
+    assert_that(nrow(column_info) == column_count)
+  }
+
   row_count <- jtry(.jcall(java_table, "I", "rowCount", check = FALSE))
 
   column_list <- lapply(seq(column_count), function(column_index) {
@@ -42,11 +49,14 @@ fetch_resultpull <- function(j_result_pull, rows, column_info, mapping) {
     # set NA values
     if (column_info[column_index, "nullable"] > 0 && column_class_name != "UnsupportedTypeColumn") {
       na <- jtry(.jcall(j_column, "[Z", "getNA", check = FALSE))
+      if (length(na) != length(column_data)) {
+        stop("NA length mismatch")
+      }
       column_data <- replace(column_data, na, NA)
     }
 
-    # convert columns
-    column_data <- convert_from(mapping, column_data, column_info[[column_index, "sql_type"]])
+    # convert column data
+    column_data <- convert_from(read_conversions, column_data, as.list(column_info[column_index,]))
 
     column_data
   })

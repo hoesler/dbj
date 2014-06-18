@@ -3,7 +3,7 @@
 \alias{insert_parameters}
 \title{Set the values of prepared statment.}
 \usage{
-insert_parameters(j_statement, parameter_list, mapping)
+insert_parameters(j_statement, parameter_list, write_conversions)
 }
 \arguments{
 \item{j_statement}{a java reference object to a java.sql.PreparedStatement}

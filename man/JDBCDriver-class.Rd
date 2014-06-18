@@ -8,10 +8,13 @@
 \alias{JDBCUpdateResult}
 \title{Class JDBCDriver with factory methods.}
 \usage{
-JDBC(driverClass = "", classPath = "", mapping = default_rjdbc_mapping)
+JDBC(driverClass = "", classPath = "",
+  read_conversions = default_read_conversions,
+  write_conversions = default_write_conversions)
 
 JDBCDriver(driverClass = "", classPath = "",
-  mapping = default_rjdbc_mapping)
+  read_conversions = default_read_conversions,
+  write_conversions = default_write_conversions)
 
 JDBCQueryResult(j_result_set, connection, statement = "")
 
@@ -22,7 +25,9 @@ JDBCUpdateResult(update_count, connection, statement = "")
 
 \item{classPath}{a string of paths seperated by : which shoul get added to the classpath (see \link[rJava]{.jaddClassPath})}
 
-\item{mapping}{the mapping from JDBC to R objects.}
+\item{read_conversions}{a list of RJDBCReadConversion objects.}
+
+\item{write_conversions}{a list of RJDBCWriteConversion objects.}
 
 \item{j_result_set}{a \code{\linkS4class{jobjRef}} object which holds a reference to a \code{java/sql/ResultSet} Java object.}
 

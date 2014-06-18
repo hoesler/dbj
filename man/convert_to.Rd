@@ -3,14 +3,14 @@
 \alias{convert_to}
 \title{Convert from client type to transfer type}
 \usage{
-convert_to(mapping, data, sql_type)
+convert_to(conversions, data, data_attributes)
 }
 \arguments{
-\item{a}{list of RJDBCMapping mapping definitions}
+\item{conversions}{a list of RJDBCWriteConversion objects}
 
 \item{data}{the data object to convert}
 
-\item{sql_type}{the target sql type of the data}
+\item{data_attributes}{a named list of attributes}
 }
 \description{
 Convert from client type to transfer type

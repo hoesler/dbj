@@ -76,7 +76,7 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
 
     chunks <- list()
     repeat {    
-      fetched <- fetch_resultpull(res@j_result_pull, stride, column_info, dbGetDriver(res)@mapping) 
+      fetched <- fetch_resultpull(res@j_result_pull, stride, column_info, dbGetDriver(res)@read_conversions) 
       chunks <- c(chunks, list(fetched))
 
       if (!infinite_pull || nrow(fetched) < stride) {
