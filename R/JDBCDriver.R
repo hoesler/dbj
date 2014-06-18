@@ -31,9 +31,8 @@ JDBCDriver <- function(driverClass = '', classPath = '', read_conversions = defa
   expanded_paths <- path.expand(unlist(strsplit(classPath, .Platform$path.sep)))
   .jaddClassPath(expanded_paths)
   
-  if (nchar(driverClass) && is.jnull(.jfindClass(as.character(driverClass)[1]))) {
-    stop("Cannot find JDBC driver class ",driverClass)
-  }
+  tryCatch(.jfindClass(as.character(driverClass)[1]),
+    error = function(e) sprintf("Driver for class '%s' could not be found.", driverClass))
 
   jdrv <- .jnew(driverClass)
 

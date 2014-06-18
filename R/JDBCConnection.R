@@ -270,7 +270,7 @@ setMethod("dbGetFields", signature(conn = "JDBCConnection"),
 #' @export
 setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
-    dbGetQuery(conn, paste("SELECT * FROM", sql_escape(name,TRUE, quote_string(conn))))
+    dbGetQuery(conn, paste("SELECT * FROM", sql_escape_identifier(name, quote_string(conn))))
   },
   valueClass = "data.frame"
 )
@@ -280,32 +280,22 @@ setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
 #' @param conn An existing \code{\linkS4class{JDBCConnection}}
 #' @param name character vector of length 1 giving name of table to write to
 #' @param value the date frame to write to the table
-#' @param overwrite a logical value indicating if the table should be overwritten if it exists
-#' @param append a logical value indicating if the data should get appended to an existing table
+#' @param create a logical specifying whether to create a new table if it does not exist. Its default is TRUE.
+#' @param append a logical specifying whether to append to an existing table. Its default is TRUE.
 #' @export
 setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "data.frame"),
-  function(conn, name, value, overwrite = TRUE, append = FALSE, ...) {
-    assert_that(is(overwrite, "logical"))
-    assert_that(is(append, "logical"))    
-    assert_that(!all(overwrite, append))
+  function(conn, name, value, create = TRUE, append = TRUE, ...) { 
     assert_that(ncol(value) > 0)
     assert_that(!is.null(names(value)))
     assert_that(!any(is.na(names(value))))
-
+    assert_that(is(create, "logical"))
+    assert_that(is(append, "logical"))   
+    
     table_exists <- dbExistsTable(conn, name)
-    if (append && !table_exists) {
-      stop("Cannot append to a non-existing table `", name, "'")
-    }
-    if (table_exists && !(overwrite || append)) {
-      stop("Table `", name, "' exists and neither overwrite nor append is TRUE")
-    }
 
-    if (overwrite && table_exists) {
-      removed <- dbRemoveTable(conn, name)
-      if (!removed) {
-        stop("Failed to remove table `", name, "'")
-      }
-    }    
+    if (!table_exists && !create) {
+      stop("Table `", name, "' does not exist and create is FALSE")
+    }      
     
     commit_automatically <- jtry(.jcall(conn@j_connection, "Z", "getAutoCommit", check = FALSE))
     if (commit_automatically) {
@@ -313,22 +303,30 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
       on.exit(jtry(.jcall(conn@j_connection, "V", "setAutoCommit", commit_automatically, check = FALSE)))
     }
     
-    escaped_table_name <- sql_escape(name, TRUE, quote_string(conn))
+    escaped_table_name <- sql_escape_identifier(name, quote_string(conn))
 
-    if (!append) {
+    if (!table_exists && create) {
       data_types <- sapply(value, dbDataType, dbObj = conn)
-      field_definitions <- paste(sql_escape(names(value), TRUE, quote_string(conn)), data_types, collapse = ', ')
+      field_definitions <- paste(sql_escape_identifier(names(value), quote_string(conn)), data_types, collapse = ', ')
+      
       statement <- sprintf("CREATE TABLE %s (%s)", escaped_table_name, field_definitions)
       table_was_created <- dbSendUpdate(conn, statement)
       if (!table_was_created) {
         stop("Table could not be created")
       }
     }
+
+    if (!append) {
+      truncated <- dbTruncateTable(conn, name, use_delete = TRUE)
+      if (!truncated) {
+        stop(sprintf("Table %s could not be truncated", name))
+      }
+    }
     
     if (nrow(value) > 0) {
       statement <- sprintf("INSERT INTO %s(%s) VALUES(%s)",
         escaped_table_name,
-        paste(sql_escape(names(value), TRUE, quote_string(conn)), collapse = ', '),
+        paste(sql_escape_identifier(names(value), quote_string(conn)), collapse = ', '),
         paste(rep("?", length(value)), collapse = ', '))
       
       dbSendUpdate(conn, statement, parameters = value)
@@ -449,8 +447,21 @@ quote_string <- function(conn) {
   conn@quote_string
 }
 
+#' @inheritParams dbGetDriver
 setMethod("dbGetDriver", signature(dbObj = "JDBCConnection"),
   function(dbObj, ...) {
     dbObj@driver
+  }
+)
+
+#' @param use_delete Send a DELETE FROM query instead of TRUNCATE TABLE. Default is FALSE.
+#' @inheritParams dbTruncateTable
+setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "character"),
+  function(conn, name, use_delete = FALSE, ...) {
+    if (use_delete) {
+      dbSendUpdate(conn, sprintf("DELETE FROM %s", sql_escape_identifier(name, quote_string(conn))))
+    } else {
+      dbSendUpdate(conn, sprintf("TRUNCATE TABLE %s", sql_escape_identifier(name, quote_string(conn))))      
+    }
   }
 )

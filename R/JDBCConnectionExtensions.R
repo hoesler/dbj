@@ -30,3 +30,14 @@ setGeneric("dbSendUpdate",
   function(conn, statement, parameters, ...) standardGeneric("dbSendUpdate"),
   valueClass = "logical"
 )
+
+#' Truncate a table
+#' 
+#' @param conn An \code{DBIConnection} object.
+#' @param name The name of the table.
+#' @param ... Other arguments used by methods.
+#' @export
+setGeneric("dbTruncateTable",
+  function(conn, name, ...) standardGeneric("dbTruncateTable"),
+  valueClass = "logical"
+)

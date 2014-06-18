@@ -3,13 +3,13 @@ NULL
 #' Escape a string so that is is safe to use inside a SQL query.
 #' 
 #' @param  string a character vector
-#' @param  identifier a logical value idicating if \code{string} is an identifier
 #' @param  quote the quoting character
+#' @param  identifier a logical value idicating if \code{string} is an identifier
 #' @export
-sql_escape <- function(string, identifier = FALSE, quote = "\"") {
-  assert_that(is(string, "character"))
-  assert_that(is(identifier, "logical"))
-  assert_that(is(quote, "character"))
+sql_escape <- function(string, quote, identifier) {
+  assert_that(is.character(string))
+  assert_that(is.logical(identifier))
+  assert_that(is.character(quote))
 
   if (identifier) {
     vid <- grep("^[A-Za-z]+([A-Za-z0-9_]*)$", string)
@@ -18,7 +18,7 @@ sql_escape <- function(string, identifier = FALSE, quote = "\"") {
         stop("The JDBC connection doesn't support quoted identifiers, 
           but table/column name contains characters that must be quoted (", paste(string[-vid], collapse = ','), ")")
       }
-      string[-vid] <- sql_escape(string[-vid], FALSE, quote)
+      string[-vid] <- sql_escape(string[-vid], quote, FALSE)
     }
     string[vid] <- paste(quote, string[vid], quote, sep = '')
     return(string)
@@ -38,11 +38,11 @@ sql_escape <- function(string, identifier = FALSE, quote = "\"") {
 }
 
 #' @rdname sql_escape
-sql_escape_identifier <- function(string, quote = "\"") {
+sql_escape_identifier <- function(string, quote) {
   sql_escape(string, quote = quote, identifier = TRUE)
 }
 
 #' @rdname sql_escape
-sql_escape_value <- function(string, quote = "\"") {
+sql_escape_value <- function(string, quote) {
   sql_escape(string, quote = quote, identifier = FALSE)
 }

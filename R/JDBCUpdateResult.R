@@ -29,7 +29,7 @@ JDBCUpdateResult <- function(update_count, connection, statement = "") {
 #' @export
 setMethod("fetch", signature(res = "JDBCUpdateResult", n = "missing"),
   function(res, n, ...) {
-    stop("This is an update result")
+    stop("fetch is unsupported in JDBCUpdateResult")
   }
 )
 
@@ -43,7 +43,7 @@ setMethod("fetch", signature(res = "JDBCUpdateResult", n = "missing"),
 #' @export
 setMethod("fetch", signature(res = "JDBCUpdateResult", n = "numeric"),
   function(res, n, ...) {
-    stop("This is an update result")
+    stop("fetch is unsupported in JDBCUpdateResult")
   }
 )
 
@@ -54,8 +54,7 @@ setMethod("fetch", signature(res = "JDBCUpdateResult", n = "numeric"),
 #' @export
 setMethod("dbClearResult", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
-    warning("This is an update result")
-    TRUE
+    invisible(TRUE)
   },
   valueClass = "logical"
 )
@@ -67,7 +66,7 @@ setMethod("dbClearResult", signature(res = "JDBCUpdateResult"),
 #' @export
 setMethod("dbColumnInfo", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
-    stop("This is an update result")    
+    stop("dbColumnInfo is unsupported in JDBCUpdateResult")    
   },
   valueClass = "data.frame"
 )
@@ -83,7 +82,7 @@ setMethod("dbGetException", signature(conn = "JDBCUpdateResult"),
 #' @export
 setMethod("dbGetRowCount", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
-    stop("This is an update result")
+    stop("dbGetRowCount is unsupported in JDBCUpdateResult")
   },
   valueClass = "numeric"
 )
@@ -120,7 +119,7 @@ setMethod("dbHasCompleted", signature(res = "JDBCUpdateResult"),
 #' @export
 setMethod("dbListFields", signature(conn = "JDBCUpdateResult", name = "missing"),
   function(conn, name, use_labels = TRUE, ...) {
-    stop("This is an update result")
+    stop("dbListFields is unsupported in JDBCUpdateResult")
   },
   valueClass = "character"
 )

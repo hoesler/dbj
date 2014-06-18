@@ -67,3 +67,21 @@ test_that("has method dbRemoveTable(conn, name, ...)", {
 test_that("has method dbWriteTable(conn, name, value, ...)", {
   expect_that(hasMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "data.frame")), is_true())
 })
+
+## extensions
+
+test_that("has method dbGetFields(conn, ...)", {
+  expect_that(hasMethod("dbGetFields", signature(conn = "JDBCConnection")), is_true())
+})
+
+test_that("has method dbGetTables(conn, ...)", {
+  expect_that(hasMethod("dbGetTables", signature(conn = "JDBCConnection")), is_true())
+})
+
+test_that("has method dbSendUpdate(conn, statement, parameters, ...)", {
+  expect_that(hasMethod("dbSendUpdate", signature(conn = "JDBCConnection", statement = "character", parameters = "list")), is_true())
+})
+
+test_that("has method dbTruncateTable(conn, name, ...)", {
+  expect_that(hasMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "character")), is_true())
+})

@@ -158,3 +158,33 @@ test_that("dbConnect() works", {
   # then
   expect_that(con2, is_a("JDBCConnection"))
 })
+
+test_that("dbTruncateTable() works using truncate", {
+  # given
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
+  on.exit(dbDisconnect(con))
+  data(iris)
+  dbWriteTable(con, "iris", iris)
+  
+  # when
+  success <- dbTruncateTable(con, "iris", use_delete = FALSE)
+
+  # then
+  expect_that(success, is_true())
+})
+
+test_that("dbTruncateTable() works using delete from", {
+  # given
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
+  on.exit(dbDisconnect(con))
+  data(iris)
+  dbWriteTable(con, "iris", iris)
+  
+  # when
+  success <- dbTruncateTable(con, "iris", use_delete = TRUE)
+
+  # then
+  expect_that(success, is_true())
+})
