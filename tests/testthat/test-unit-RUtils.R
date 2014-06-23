@@ -1,8 +1,5 @@
-# JavaUtils methods
+# RUtils methods
 context("RUtils unit tests")
-
-## jtry
-#######
 
 test_that("partition.data.frame returns a list of data.frames", {
   # given
