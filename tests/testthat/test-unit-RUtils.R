@@ -13,7 +13,7 @@ test_that("partition.data.frame returns a list of data.frames", {
   expect_that(all(sapply(parts, is.data.frame)), is_true())
 })
 
-test_that("partition.data.frame contains all rows of the input", {
+test_that("partition.data.frame partitions correctly", {
   # given
   data(iris)
 
@@ -21,5 +21,6 @@ test_that("partition.data.frame contains all rows of the input", {
   parts <- partition(iris, 100)
 
   # then
+  expect_that(length(parts), equals(2))
   expect_that(do.call(rbind, parts), equals(iris))
 })
