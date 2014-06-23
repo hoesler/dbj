@@ -26,6 +26,7 @@ checkException <- function() {
 #' Throw an error with the given \code{j_exception} as the cause.
 #' 
 #' @param  j_exception a java Throwable which is converted to a part of the message
+#' @param expression a R expression to evaluate
 #' @param  ... any further message parts passed to \code{stop}
 jstop <- function(j_exception, expression, ...) {
   assert_that(j_exception %instanceof% "java.lang.Throwable")

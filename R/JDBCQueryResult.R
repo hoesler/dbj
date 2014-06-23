@@ -4,9 +4,6 @@ NULL
 
 #' Class JDBCQueryResult with factory method JDBCQueryResult.
 #'
-#' @name JDBCQueryResult-class
-#' @docType class
-#' @rdname JDBCQueryResult-class
 #' @export
 setClass("JDBCQueryResult",
   contains = c("JDBCResult"),
@@ -24,9 +21,10 @@ setClass("JDBCQueryResult",
 )
 
 #' @param j_result_set a \code{\linkS4class{jobjRef}} object which holds a reference to a \code{java/sql/ResultSet} Java object.
+#' @param connection the \code{\linkS4class{JDBCConnection}} which which was used for the query.
 #' @param statement the stament that was used to create the j_result_set
 #' @return a new JDBCQueryResult object
-#' @rdname JDBCDriver-class
+#' @rdname JDBCQueryResult-class
 #' @export
 JDBCQueryResult <- function(j_result_set, connection, statement = "") {
   assert_that(j_result_set %instanceof% "java.sql.ResultSet")
@@ -68,11 +66,12 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
     column_info <- dbColumnInfo(res, c("label", "nullable", "sql_type"))
 
     infinite_pull <- (n == -1)
-    stride <- if (n == -1) {
-        32768L  ## infinite j_result_pull: start fairly small to support tiny queries and increase later
-      } else {
-        n
-      }
+    stride <- if (infinite_pull) {
+      32768L  #start fairly small to support tiny queries and increase later
+      # TODO does the increaing stride srategy really has any performnace / memory benefit?
+    } else {
+      n
+    }
 
     chunks <- list()
     repeat {    
@@ -86,7 +85,6 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
       stride <- 524288L # 512k
     }
 
-    #rbind_all(chunks) # Does not preserve lubridate class
     do.call(rbind, chunks)
   }
 )

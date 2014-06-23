@@ -1,7 +1,7 @@
 #' A DBI implementation using JDBC over rJava.
 #'
 #' @docType package
-#' @import DBI rJava methods dplyr assertthat
+#' @import DBI rJava methods assertthat
 #' @name RJDBC
 NULL
 

@@ -4,8 +4,6 @@
 \alias{JDBC}
 \alias{JDBCDriver}
 \alias{JDBCDriver-class}
-\alias{JDBCQueryResult}
-\alias{JDBCUpdateResult}
 \title{Class JDBCDriver with factory methods.}
 \usage{
 JDBC(driverClass = "", classPath = "",
@@ -15,10 +13,6 @@ JDBC(driverClass = "", classPath = "",
 JDBCDriver(driverClass = "", classPath = "",
   read_conversions = default_read_conversions,
   write_conversions = default_write_conversions)
-
-JDBCQueryResult(j_result_set, connection, statement = "")
-
-JDBCUpdateResult(update_count, connection, statement = "")
 }
 \arguments{
 \item{driverClass}{the java class name of the JDBC driver to use}
@@ -28,19 +22,6 @@ JDBCUpdateResult(update_count, connection, statement = "")
 \item{read_conversions}{a list of RJDBCReadConversion objects.}
 
 \item{write_conversions}{a list of RJDBCWriteConversion objects.}
-
-\item{j_result_set}{a \code{\linkS4class{jobjRef}} object which holds a reference to a \code{java/sql/ResultSet} Java object.}
-
-\item{statement}{the stament that was used to create the j_result_set}
-
-\item{j_result_set}{a \code{\linkS4class{jobjRef}} object which holds a reference to a \code{java/sql/ResultSet} Java object.}
-
-\item{statement}{the stament that was used to create the j_result_set}
-}
-\value{
-a new JDBCQueryResult object
-
-a new JDBCUpdateResult object
 }
 \description{
 Class JDBCDriver with factory methods.

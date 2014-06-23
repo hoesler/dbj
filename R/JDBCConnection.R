@@ -4,6 +4,7 @@
 #' @include JavaUtils.R
 #' @include SQLUtils.R
 #' @include JDBCUtils.R
+#' @include RUtils.R
 NULL
 
 #' Class JDBCConnection
@@ -23,6 +24,7 @@ setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"),
 
 #' Create a new \code{\linkS4class{JDBCConnection}} object
 #' @param j_connection a jobjRef object with a java.sql.Connection reference
+#' @param driver the full qualified class name of the JDBC Driver to use.
 #' @return a \code{\linkS4class{JDBCConnection}} object
 #' @rdname JDBCConnection-class
 JDBCConnection <- function(j_connection, driver) {
@@ -131,21 +133,29 @@ setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "chara
   valueClass = "logical"
 )
 
+
+#' Update a database using a prepared statment query and multiple parameters.
+#' @inheritParams dbSendUpdate
+#' @param partition_size the size which will be used to partition the data into seperate commits
 setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "data.frame"),
-  function(conn, statement, parameters, ...) {
+  function(conn, statement, parameters, partition_size = 10000, ...) {
     assert_that(!is.null(names(parameters)))
     assert_that(!any(is.na(names(parameters))))
     assert_that(length(statement) == 1)
     assert_that(nrow(parameters) > 0)
 
-    j_statement <- create_prepared_statement(conn, statement)
-    on.exit(close_statement(j_statement))
+    conversions <- dbGetDriver(conn)@write_conversions
 
-    # TODO it might be better to to insert in strides
-    batch_insert(j_statement, parameters, dbGetDriver(conn)@write_conversions)
+    sapply(partition(parameters, partition_size), function(subset) {
+      # Create a new statement for each batch. Reusing a single statement messes up ParameterMetaData (on H2).
+      j_statement <- create_prepared_statement(conn, statement)
+      tryCatch({
+        batch_insert(j_statement, subset, conversions)
+        execute_batch(j_statement)},
+      finally = close_statement(j_statement))   
+    })    
 
-    updates <- execute_batch(j_statement)
-    invisible(as.logical(updates))
+    invisible(TRUE)
   },
   valueClass = "logical"
 )
@@ -454,8 +464,9 @@ setMethod("dbGetDriver", signature(dbObj = "JDBCConnection"),
   }
 )
 
-#' @param use_delete Send a DELETE FROM query instead of TRUNCATE TABLE. Default is FALSE.
+#' Truncate a table
 #' @inheritParams dbTruncateTable
+#' @param use_delete Send a DELETE FROM query instead of TRUNCATE TABLE. Default is FALSE.
 setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, use_delete = FALSE, ...) {
     if (use_delete) {

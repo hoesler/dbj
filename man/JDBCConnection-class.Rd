@@ -9,6 +9,8 @@ JDBCConnection(j_connection, driver)
 }
 \arguments{
 \item{j_connection}{a jobjRef object with a java.sql.Connection reference}
+
+\item{driver}{the full qualified class name of the JDBC Driver to use.}
 }
 \value{
 a \code{\linkS4class{JDBCConnection}} object

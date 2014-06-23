@@ -2,6 +2,7 @@
 \docType{methods}
 \name{dbTruncateTable,JDBCConnection,character-method}
 \alias{dbTruncateTable,JDBCConnection,character-method}
+\title{Truncate a table}
 \usage{
 \S4method{dbTruncateTable}{JDBCConnection,character}(conn, name,
   use_delete = FALSE, ...)
@@ -14,5 +15,8 @@
 \item{name}{The name of the table.}
 
 \item{...}{Other arguments used by methods.}
+}
+\description{
+Truncate a table
 }
 

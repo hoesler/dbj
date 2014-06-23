@@ -9,53 +9,53 @@
  $ :List of 3
   ..$ condition  :function (attributes)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 90 20 93 3 20 3 90 93
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ conversion :function (x, ...)  
   ..$ create_type: chr "INTEGER"
   ..- attr(*, "class")= chr "RJDBCWriteConversion"
  $ :List of 3
   ..$ condition  :function (attributes)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 90 20 93 3 20 3 90 93
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ conversion :function (x)  
   ..$ create_type: chr "DOUBLE PRECISION"
   ..- attr(*, "class")= chr "RJDBCWriteConversion"
  $ :List of 3
   ..$ condition  :function (attributes)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 90 20 93 3 20 3 90 93
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ conversion :function (x, ...)  
   ..$ create_type: chr "BOOLEAN"
   ..- attr(*, "class")= chr "RJDBCWriteConversion"
  $ :List of 3
   ..$ condition  :function (attributes)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 90 20 93 3 20 3 90 93
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ conversion :function (x, ...)  
   ..$ create_type: chr "TIME"
   ..- attr(*, "class")= chr "RJDBCWriteConversion"
  $ :List of 3
   ..$ condition  :function (attributes)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 90 20 93 3 20 3 90 93
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ conversion :function (data)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 121 5 121 57 5 57 121 121
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ create_type: chr "DATE"
   ..- attr(*, "class")= chr "RJDBCWriteConversion"
  $ :List of 3
   ..$ condition  :function (attributes)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 90 20 93 3 20 3 90 93
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ conversion :function (data)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 126 5 126 42 5 42 126 126
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ create_type: chr "TIMESTAMP"
   ..- attr(*, "class")= chr "RJDBCWriteConversion"
  $ :List of 3
   ..$ condition  :function (attributes)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 90 20 93 3 20 3 90 93
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ conversion :function (x)  
   ..$ create_type: chr "VARCHAR(255)"
   ..- attr(*, "class")= chr "RJDBCWriteConversion"
@@ -65,7 +65,7 @@ write_conversion(condition, conversion, create_type)
 
 mapped_write_conversion(class_names, conversion, create_type)
 
-'default_write_conversions'
+default_write_conversions
 }
 \arguments{
 \item{condition}{a function which accepts a list and returns a logical.}

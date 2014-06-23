@@ -8,6 +8,8 @@ jstop(j_exception, expression, ...)
 \arguments{
 \item{j_exception}{a java Throwable which is converted to a part of the message}
 
+\item{expression}{a R expression to evaluate}
+
 \item{...}{any further message parts passed to \code{stop}}
 }
 \description{

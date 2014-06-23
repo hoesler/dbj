@@ -8,7 +8,6 @@ Depends:
     R (>= 3.0)
 Imports:
     methods (>= 3.0.3),
-    dplyr (>= 0.2),
     assertthat (>= 0.1),
     rJava (>= 0.4-15)
 Suggests:
@@ -19,6 +18,7 @@ License: GPL-2
 URL: http://www.rforge.net/RJDBC/
 Collate:
     'SQLUtils.R'
+    'RUtils.R'
     'JavaUtils.R'
     'JDBCSQLTypes.R'
     'JDBCMapping.R'

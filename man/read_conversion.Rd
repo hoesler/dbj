@@ -9,48 +9,48 @@
  $ :List of 2
   ..$ condition :function (attributes)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 26 19 29 3 19 3 26 29
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ conversion:function (x)  
   ..- attr(*, "class")= chr "RJDBCReadConversion"
  $ :List of 2
   ..$ condition :function (attributes)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 26 19 29 3 19 3 26 29
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ conversion:function (x)  
   ..- attr(*, "class")= chr "RJDBCReadConversion"
  $ :List of 2
   ..$ condition :function (attributes)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 26 19 29 3 19 3 26 29
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ conversion:function (x)  
   ..- attr(*, "class")= chr "RJDBCReadConversion"
  $ :List of 2
   ..$ condition :function (attributes)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 26 19 29 3 19 3 26 29
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ conversion:function (x)  
   ..- attr(*, "class")= chr "RJDBCReadConversion"
  $ :List of 2
   ..$ condition :function (attributes)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 26 19 29 3 19 3 26 29
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ conversion:function (x)  
   ..- attr(*, "class")= chr "RJDBCReadConversion"
  $ :List of 2
   ..$ condition :function (attributes)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 26 19 29 3 19 3 26 29
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ conversion:function (data)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 57 5 57 89 5 89 57 57
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..- attr(*, "class")= chr "RJDBCReadConversion"
  $ :List of 2
   ..$ condition :function (attributes)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 26 19 29 3 19 3 26 29
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..$ conversion:function (data)  
   .. ..- attr(*, "srcref")=Class 'srcref'  atomic [1:8] 61 5 61 77 5 77 61 61
-  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x11f6aa200> 
+  .. .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x10cdc64a0> 
   ..- attr(*, "class")= chr "RJDBCReadConversion"
 }}
 \usage{
@@ -58,7 +58,7 @@ read_conversion(condition, conversion)
 
 sqltype_read_conversion(sql_types, conversion)
 
-'default_read_conversions'
+default_read_conversions
 }
 \arguments{
 \item{condition}{a function which accepts a list and returns a logical}

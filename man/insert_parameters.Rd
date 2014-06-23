@@ -9,6 +9,8 @@ insert_parameters(j_statement, parameter_list, write_conversions)
 \item{j_statement}{a java reference object to a java.sql.PreparedStatement}
 
 \item{parameter_list}{a list of parameter values to fill the statement with}
+
+\item{write_conversions}{a list of \code{JDBCWriteConversion} objects}
 }
 \description{
 Set the values of prepared statment.

@@ -8,6 +8,7 @@ NULL
 #' 
 #' @param  j_statement a java reference object to a java.sql.PreparedStatement
 #' @param  parameter_list a list of parameter values to fill the statement with
+#' @param write_conversions a list of \code{JDBCWriteConversion} objects
 insert_parameters <- function(j_statement, parameter_list, write_conversions) {
   #assert_that(j_statement %instanceof% "java.sql.PreparedStatement")
   assert_that(is.list(parameter_list))
@@ -89,7 +90,7 @@ create_j_table <- function(j_statement, data, write_conversions) {
         j_column_classname <<- "info/urbanek/Rpackage/RJDBC/StringColumn"
         j_column_data <<- as.character(converted_column_data)
       } else {
-        stop("Unsupported SQL type '", sql_type, "'")
+        stop("Unsupported SQL type '", sql_type, "'", " for column ", column_index, " named ", names(data)[column_index])
       }
     )
 
