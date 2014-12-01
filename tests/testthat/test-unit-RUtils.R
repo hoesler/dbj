@@ -21,6 +21,6 @@ test_that("partition.data.frame partitions correctly", {
   parts <- partition(iris, 100)
 
   # then
-  expect_that(length(parts), equals(2))
+  expect_that(sapply(parts, nrow), equals(c(100, 50)))
   expect_that(do.call(rbind, parts), equals(iris))
 })

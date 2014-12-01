@@ -43,7 +43,7 @@ setMethod("dbDataType", signature(dbObj = "JDBCObject"),
 #' @export
 setMethod("summary", signature(object = "JDBCObject"),
   function(object, ...) {
-    .NotYetImplemented()
+    stop(sprintf("summary is not implemented for class %s", class(dbObj)))
   }
 )
 
@@ -67,4 +67,12 @@ setMethod("make.db.names", signature(dbObj = "JDBCObject"),
   function(dbObj, ...) {
     callNextMethod()
   }
+)
+
+#' @export
+setMethod("dbIsValid", signature(dbObj = "JDBCObject"),
+  function(dbObj, ...) {
+    stop(sprintf("dbIsValid is not implemented for class %s", class(dbObj)))
+  },
+  valueClass = "logical"
 )

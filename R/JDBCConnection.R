@@ -279,8 +279,10 @@ setMethod("dbGetFields", signature(conn = "JDBCConnection"),
 #' @param ... Ignored. Needed for compatibility with generic.
 #' @export
 setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
-  function(conn, name, ...) {
-    dbGetQuery(conn, paste("SELECT * FROM", sql_escape_identifier(name, quote_string(conn))))
+  function(conn, name, columns = "*", ...) {
+    dbGetQuery(conn, sprintf("SELECT %s FROM %s",
+      ifelse(missing(columns), columns, sql_escape_identifier(columns)),
+      sql_escape_identifier(name, quote_string(conn))))
   },
   valueClass = "data.frame"
 )
@@ -475,4 +477,12 @@ setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "characte
       dbSendUpdate(conn, sprintf("TRUNCATE TABLE %s", sql_escape_identifier(name, quote_string(conn))))      
     }
   }
+)
+
+#' @export
+setMethod("dbIsValid", signature(dbObj = "JDBCObject"),
+  function(dbObj, timeout = 0, ...) {
+    jtry(.jcall(dbObj@j_connection, "Z", "isValid", as.integer(timeout), check = FALSE))
+  },
+  valueClass = "logical"
 )

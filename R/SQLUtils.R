@@ -14,10 +14,6 @@ sql_escape <- function(string, quote, identifier) {
   if (identifier) {
     vid <- grep("^[A-Za-z]+([A-Za-z0-9_]*)$", string)
     if (length(string[-vid])) {
-      if (is.na(quote)) {
-        stop("The JDBC connection doesn't support quoted identifiers, 
-          but table/column name contains characters that must be quoted (", paste(string[-vid], collapse = ','), ")")
-      }
       string[-vid] <- sql_escape(string[-vid], quote, FALSE)
     }
     string[vid] <- paste(quote, string[vid], quote, sep = '')
@@ -28,13 +24,13 @@ sql_escape <- function(string, quote, identifier) {
     quote <- ''
   }
   
-  string <- gsub("\\\\","\\\\\\\\",string)
+  string <- gsub("\\\\", "\\\\\\\\", string)
   
   if (nchar(quote)) {
-    string <- gsub(paste("\\",quote,sep = ''),paste("\\\\\\",quote,sep = ''),string,perl = TRUE)
+    string <- gsub(paste("\\", quote, sep = ''), paste("\\\\\\", quote, sep = ''), string, perl = TRUE)
   }
 
-  paste(quote,string,quote,sep = '')
+  paste(quote, string, quote, sep = '')
 }
 
 #' @rdname sql_escape

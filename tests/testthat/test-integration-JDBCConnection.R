@@ -188,3 +188,17 @@ test_that("dbTruncateTable() works using delete from", {
   # then
   expect_that(success, is_true())
 })
+
+test_that("dbIsValid() works", {
+  # given
+  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
+  on.exit(dbDisconnect(con))
+
+  # when
+  valid <- dbIsValid(con)
+
+  # then
+  expect_that(valid, is_true())
+})
+
