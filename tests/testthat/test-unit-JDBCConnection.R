@@ -20,6 +20,10 @@ test_that("has method dbCallProc(conn, ...)", {
   expect_that(hasMethod("dbCallProc", signature(conn = "JDBCConnection")), is_true())
 })
 
+test_that("has method dbBegin(conn, ...)", {
+  expect_that(hasMethod("dbBegin", signature(conn = "JDBCConnection")), is_true())
+})
+
 test_that("has method dbCommit(conn, ...)", {
   expect_that(hasMethod("dbCommit", signature(conn = "JDBCConnection")), is_true())
 })
@@ -66,6 +70,14 @@ test_that("has method dbRemoveTable(conn, name, ...)", {
 
 test_that("has method dbWriteTable(conn, name, value, ...)", {
   expect_that(hasMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "data.frame")), is_true())
+})
+
+test_that("has method dbQuoteIdentifier(conn, x, ...)", {
+  expect_that(hasMethod("dbQuoteIdentifier", signature(conn = "JDBCConnection", name = "character")), is_true())
+})
+
+test_that("has method dbQuoteString(conn, x, ...)", {
+  expect_that(hasMethod("dbQuoteString", signature(conn = "JDBCConnection", name = "character")), is_true())
 })
 
 ## extensions

@@ -13,7 +13,7 @@ NULL
 setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"),
   slots = c(
     j_connection = "jobjRef",
-    quote_string = "character",
+    identifier_quote_string = "character",
     driver = "JDBCDriver"),
   validity = function(object) {
     if (is.jnull(object@j_connection)) return("j_connection is null")
@@ -31,7 +31,7 @@ JDBCConnection <- function(j_connection, driver) {
   assert_that(j_connection %instanceof% "java.sql.Connection")
   new("JDBCConnection",
     j_connection = j_connection,
-    quote_string = connection_info(j_connection)$quote_string,
+    identifier_quote_string = connection_info(j_connection)$identifier_quote_string,
     driver = driver)
 }
 
@@ -59,12 +59,13 @@ setMethod("dbConnect", signature(drv = "JDBCConnection"),
 #' @export
 setMethod("dbCallProc", signature(conn = "JDBCConnection"),
   function(conn, name, parameters = list(), ...) {
+    .Deprecated("dbSendUpdate")
     assert_that(is(name, "character"))
     assert_that(length(name) == 1)
     assert_that(is(parameters, "list"))
 
     j_prepared_statement <- prepare_call(conn, sprintf("{call %s(%s)}",
-      sql_escape_identifier(name, quote_string(conn)),
+      dbQuoteIdentifier(conn, name),
       paste0(rep('?', length(parameters)), collapse = ", ")
     ))
     insert_parameters(j_prepared_statement, parameters, dbGetDriver(conn)@write_conversions)
@@ -160,22 +161,6 @@ setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "chara
   valueClass = "logical"
 )
 
-#' Execute a SQL statement on a database connection to fetch data from the database
-#'
-#' @param conn an object of class \code{\linkS4class{JDBCConnection}}
-#' @param statement the statement to send
-#' @param ... Ignored. Needed for compatiblity with generic.
-#' @export
-setMethod("dbGetQuery", signature(conn = "JDBCConnection", statement = "character"),
-  function(conn, statement, ...) {
-    result <- dbSendQuery(conn, statement, ...)
-    ## Teradata needs this - closing the statement also closes the result set according to Java docs
-    on.exit(dbClearResult(result))
-    fetch(result, -1)
-  },
-  valueClass = "data.frame"
-)
-
 fetch_all <- function(j_result_set, connection, close = TRUE) {  
   res <- JDBCQueryResult(j_result_set, connection)
   if (close) {
@@ -237,7 +222,7 @@ setMethod("dbExistsTable", signature(conn = "JDBCConnection", name = "character"
 #' @export
 setMethod("dbRemoveTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
-    dbSendUpdate(conn, paste("DROP TABLE", sql_escape_identifier(name, quote_string(conn))))
+    dbSendUpdate(conn, paste("DROP TABLE", dbQuoteIdentifier(conn, name)))
   },
   valueClass = "logical"
 )
@@ -279,10 +264,8 @@ setMethod("dbGetFields", signature(conn = "JDBCConnection"),
 #' @param ... Ignored. Needed for compatibility with generic.
 #' @export
 setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
-  function(conn, name, columns = "*", ...) {
-    dbGetQuery(conn, sprintf("SELECT %s FROM %s",
-      ifelse(missing(columns), columns, sql_escape_identifier(columns)),
-      sql_escape_identifier(name, quote_string(conn))))
+  function(conn, name, ...) {
+    dbGetQuery(conn, paste("SELECT * FROM", dbQuoteIdentifier(conn, name)))
   },
   valueClass = "data.frame"
 )
@@ -311,15 +294,15 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     
     commit_automatically <- jtry(.jcall(conn@j_connection, "Z", "getAutoCommit", check = FALSE))
     if (commit_automatically) {
-      jtry(.jcall(conn@j_connection, "V", "setAutoCommit", FALSE, check = FALSE))
+      jtry(.jcall(conn@j_connection, "V", "setAutoCommit", FALSE, check = FALSE)) # TODO: switch to dbBegin here?
       on.exit(jtry(.jcall(conn@j_connection, "V", "setAutoCommit", commit_automatically, check = FALSE)))
     }
     
-    escaped_table_name <- sql_escape_identifier(name, quote_string(conn))
+    escaped_table_name <- dbQuoteIdentifier(conn, name)
 
     if (!table_exists && create) {
       data_types <- sapply(value, dbDataType, dbObj = conn)
-      field_definitions <- paste(sql_escape_identifier(names(value), quote_string(conn)), data_types, collapse = ', ')
+      field_definitions <- paste(dbQuoteIdentifier(conn, names(value)), data_types, collapse = ', ')
       
       statement <- sprintf("CREATE TABLE %s (%s)", escaped_table_name, field_definitions)
       table_was_created <- dbSendUpdate(conn, statement)
@@ -338,7 +321,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     if (nrow(value) > 0) {
       statement <- sprintf("INSERT INTO %s(%s) VALUES(%s)",
         escaped_table_name,
-        paste(sql_escape_identifier(names(value), quote_string(conn)), collapse = ', '),
+        paste(dbQuoteIdentifier(conn, names(value)), collapse = ', '),
         paste(rep("?", length(value)), collapse = ', '))
       
       dbSendUpdate(conn, statement, parameters = value)
@@ -349,6 +332,20 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     }
 
     invisible(TRUE)           
+  },
+  valueClass = "logical"
+)
+
+
+#' Begin a transaction.
+#' 
+#' @param conn An existing \code{\linkS4class{JDBCConnection}}
+#' @param ... Ignored. Included for compatibility with generic.
+#' @export
+setMethod("dbBegin", signature(conn = "JDBCConnection"),
+  function(conn, ...) {
+    jtry(.jcall(conn@j_connection, "V", "setAutoCommit", FALSE, check = FALSE))
+    invisible(TRUE)
   },
   valueClass = "logical"
 )
@@ -415,7 +412,7 @@ connection_info <- function(j_connection) {
     driver_version = jtry(.jcall(md, "S", "getDriverVersion", check = FALSE)),
     url = jtry(.jcall(md, "S", "getURL", check = FALSE)),
     user_name = jtry(.jcall(md, "S", "getUserName", check = FALSE)),
-    quote_string = jtry(.jcall(md, "S", "getIdentifierQuoteString", check = FALSE))
+    identifier_quote_string = jtry(.jcall(md, "S", "getIdentifierQuoteString", check = FALSE))
   )
 }
 
@@ -455,10 +452,6 @@ setMethod("SQLKeywords", signature(dbObj = "JDBCObject"),
   valueClass = "character"
 )
 
-quote_string <- function(conn) {
-  conn@quote_string
-}
-
 #' @inheritParams dbGetDriver
 setMethod("dbGetDriver", signature(dbObj = "JDBCConnection"),
   function(dbObj, ...) {
@@ -472,9 +465,9 @@ setMethod("dbGetDriver", signature(dbObj = "JDBCConnection"),
 setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, use_delete = FALSE, ...) {
     if (use_delete) {
-      dbSendUpdate(conn, sprintf("DELETE FROM %s", sql_escape_identifier(name, quote_string(conn))))
+      dbSendUpdate(conn, sprintf("DELETE FROM %s", dbQuoteIdentifier(conn, name)))
     } else {
-      dbSendUpdate(conn, sprintf("TRUNCATE TABLE %s", sql_escape_identifier(name, quote_string(conn))))      
+      dbSendUpdate(conn, sprintf("TRUNCATE TABLE %s", dbQuoteIdentifier(conn, name)))      
     }
   }
 )
@@ -485,4 +478,28 @@ setMethod("dbIsValid", signature(dbObj = "JDBCConnection"),
     !is.jnull(dbObj@j_connection) && jtry(.jcall(dbObj@j_connection, "Z", "isValid", as.integer(timeout), check = FALSE))
   },
   valueClass = "logical"
+)
+
+#' Quote identifier
+#' @param conn  A subclass of DBIConnection, representing an active connection to an DBMS.
+#' @param x A character vector to label as being escaped SQL.
+#' @param ... Other arguments passed on to methods. Not otherwise used.
+#' @export
+setMethod("dbQuoteIdentifier", signature(conn = "JDBCConnection", x = "character"),
+  function(conn, x, ...) {
+    qs <- conn@identifier_quote_string
+    x <- gsub(qs, sprintf("%s%s", qs, qs), x, fixed = TRUE)
+    SQL(paste(qs, x, qs, sep = ""))
+  }
+)
+
+#' Quote identifier
+#' @param conn  A subclass of DBIConnection, representing an active connection to an DBMS.
+#' @param x A character vector to label as being escaped SQL.
+#' @param ... Other arguments passed on to methods. Not otherwise used.
+#' @export
+setMethod("dbQuoteIdentifier", signature(conn = "JDBCConnection", x = "SQL"),
+  function(conn, x, ...) {
+    x
+  }
 )
