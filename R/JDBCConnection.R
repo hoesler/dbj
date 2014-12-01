@@ -480,9 +480,9 @@ setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "characte
 )
 
 #' @export
-setMethod("dbIsValid", signature(dbObj = "JDBCObject"),
+setMethod("dbIsValid", signature(dbObj = "JDBCConnection"),
   function(dbObj, timeout = 0, ...) {
-    jtry(.jcall(dbObj@j_connection, "Z", "isValid", as.integer(timeout), check = FALSE))
+    !is.jnull(dbObj@j_connection) && jtry(.jcall(dbObj@j_connection, "Z", "isValid", as.integer(timeout), check = FALSE))
   },
   valueClass = "logical"
 )

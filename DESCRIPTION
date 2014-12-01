@@ -4,7 +4,7 @@ Title: Provides access to databases through the JDBC interface
 Author: Simon Urbanek <Simon.Urbanek@r-project.org>
 Maintainer: Simon Urbanek <Simon.Urbanek@r-project.org>
 Depends:
-    DBI (>= 0.2-7),
+    DBI (>= 0.3),
     R (>= 3.0)
 Imports:
     methods (>= 3.0.3),
