@@ -245,7 +245,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCQueryResult"),
 )
 
 result_info <- function(result_set) {
-  assert_that(result_set, is_a("JDBCQueryResult"))
+  assert_that(is(result_set, "JDBCQueryResult"))
   list(
     cols = jtry(.jcall(result_set@j_result_set_meta, "I", "getColumnCount", check = FALSE)),
     rows_fetched = jtry(.jcall(result_set@j_result_set, "I", "getRow", check = FALSE))
