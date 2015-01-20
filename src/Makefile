@@ -5,15 +5,16 @@ PACKAGE_ROOT=..
 all: inst
 
 create_jar:
+	rm java/target/*.jar
 	mvn -f java/pom.xml package
 
 inst: create_jar
 	mkdir -p $(PACKAGE_ROOT)/inst/java
 	cp java/target/RJDBC*SNAPSHOT.jar $(PACKAGE_ROOT)/inst/java
 
-clean: clean_src clean_inst
+clean: clean_target clean_inst
 
-clean_src:
+clean_target:
 	mvn -f java/pom.xml clean
 
 clean_inst:
