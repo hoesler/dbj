@@ -2,7 +2,7 @@ context("JDBCDriver integration tests")
 
 test_that("column info can be fetched", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
@@ -18,7 +18,7 @@ test_that("column info can be fetched", {
 
 test_that("data can be fetched", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
@@ -34,7 +34,7 @@ test_that("data can be fetched", {
 
 test_that("dbHasCompleted is false initially", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   dbWriteTable(con, "iris", iris)
@@ -49,7 +49,7 @@ test_that("dbHasCompleted is false initially", {
 
 test_that("dbHasCompleted is false while fetching", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
@@ -66,7 +66,7 @@ test_that("dbHasCompleted is false while fetching", {
 
 test_that("dbHasCompleted is true after fetching", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
@@ -83,7 +83,7 @@ test_that("dbHasCompleted is true after fetching", {
 
 test_that("dbListFields returns the column labels", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
@@ -100,7 +100,7 @@ test_that("dbListFields returns the column labels", {
 test_that("dbGetStatement returns the statement", {
   # given
   statement <- 'SELECT 1 + 1'
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   res <- dbSendQuery(con, statement)
@@ -114,7 +114,7 @@ test_that("dbGetStatement returns the statement", {
 
 #test_that("dbGetRowCount returns the correct number", {
 #  # given
-#  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+#  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
 #  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
 #  on.exit(dbDisconnect(con))
 #  dbWriteTable(con, "iris", iris)

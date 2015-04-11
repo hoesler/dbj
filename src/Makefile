@@ -5,7 +5,8 @@ PACKAGE_ROOT=..
 all: inst
 
 create_jar:
-	rm java/target/*.jar
+	mkdir -p java/target
+	find java/target/ -name *.jar -delete
 	mvn -f java/pom.xml package
 
 inst: create_jar

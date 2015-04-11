@@ -2,7 +2,7 @@ context("JDBCConnection integration tests")
 
 test_that("dbListTables returns all table names", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
 
@@ -15,7 +15,7 @@ test_that("dbListTables returns all table names", {
 
 test_that("dbWriteTable will write iris data.frame", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
@@ -29,7 +29,7 @@ test_that("dbWriteTable will write iris data.frame", {
 
 test_that("dbWriteTable will write Batting data.frame", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   library(Lahman)
@@ -43,7 +43,7 @@ test_that("dbWriteTable will write Batting data.frame", {
 
 test_that("a table can be read", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
@@ -61,7 +61,7 @@ test_that("a table can be read", {
 
 test_that("a query can be sent", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
@@ -76,7 +76,7 @@ test_that("a query can be sent", {
 
 test_that("a prepared query can be sent", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
@@ -91,7 +91,7 @@ test_that("a prepared query can be sent", {
 
 test_that("an update query can be sent", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   
@@ -104,7 +104,7 @@ test_that("an update query can be sent", {
 
 test_that("SQLKeywords() returns a character vector of keywords", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   
@@ -120,7 +120,7 @@ test_that("SQLKeywords() returns a character vector of keywords", {
 
 test_that("summary() prints something", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
 
@@ -130,7 +130,7 @@ test_that("summary() prints something", {
 
 test_that("dbCallProc() works", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   dbSendUpdate(con, 'CREATE ALIAS NEXT_PRIME AS $$
@@ -148,7 +148,7 @@ $$;')
 
 test_that("dbConnect() works", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
 
@@ -161,7 +161,7 @@ test_that("dbConnect() works", {
 
 test_that("dbTruncateTable() works using truncate", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
@@ -176,7 +176,7 @@ test_that("dbTruncateTable() works using truncate", {
 
 test_that("dbTruncateTable() works using delete from", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
   data(iris)
@@ -191,7 +191,7 @@ test_that("dbTruncateTable() works using delete from", {
 
 test_that("dbIsValid() works", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar')
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
 

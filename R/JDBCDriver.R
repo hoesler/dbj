@@ -21,6 +21,8 @@ setClass("JDBCDriver",
 #' @rdname JDBCDriver-class
 #' @export
 JDBC <- function(driverClass = '', classPath = '', read_conversions = default_read_conversions, write_conversions = default_write_conversions) {  
+  assert_that(is.character(driverClass))
+  assert_that(is.character(classPath))
   JDBCDriver(driverClass, classPath, read_conversions, write_conversions)
 }
 
@@ -35,6 +37,7 @@ JDBCDriver <- function(driverClass = '', classPath = '', read_conversions = defa
     error = function(e) sprintf("Driver for class '%s' could not be found.", driverClass))
 
   jdrv <- .jnew(driverClass)
+  verifyNotNull(jdrv)
 
   new("JDBCDriver", driverClass = driverClass, jdrv = jdrv, read_conversions = read_conversions, write_conversions = write_conversions)
 }

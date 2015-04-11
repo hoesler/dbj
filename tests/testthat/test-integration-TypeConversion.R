@@ -11,7 +11,7 @@ test_that("the default mapping can be overwritten", {
   ), default_write_conversions)
 
   # when
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', read_conversions = read_conversions, write_conversions = write_conversions)
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"), read_conversions = read_conversions, write_conversions = write_conversions)
   
   # then
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
@@ -35,7 +35,7 @@ test_that("I can map Duration to DOUBLE", {
   ), default_write_conversions)
 
   # when
-  h2_drv <- JDBC('org.h2.Driver', '../h2.jar', read_conversions = read_conversions, write_conversions = write_conversions)
+  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"), read_conversions = read_conversions, write_conversions = write_conversions)
   
   # then
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
