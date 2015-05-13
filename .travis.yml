@@ -6,7 +6,9 @@ warnings_are_errors: true
 
 r_binary_packages:
   - DBI
-  - testthat
   - rJava
-  - assertthat
   - methods
+
+r_github_packages:
+  - hadley/assertthat
+  - hadley/testthat
