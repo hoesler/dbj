@@ -16,10 +16,6 @@ test_that("has method dbColumnInfo(res, ...)", {
   expect_that(hasMethod("dbColumnInfo", signature(res = "JDBCQueryResult")), is_true())
 })
 
-test_that("has method dbGetException(conn, ...)", {
-  expect_that(hasMethod("dbGetException", signature(conn = "JDBCQueryResult")), is_true())
-})
-
 test_that("has method dbGetInfo(dbObj, ...)", {
   expect_that(hasMethod("dbGetInfo", signature(dbObj = "JDBCQueryResult")), is_true())
 })
@@ -46,8 +42,4 @@ test_that("has method dbListFields(conn, name, ...)", {
 
 test_that("has method summary(object, ...)", {
   expect_that(hasMethod("summary", signature(object = "JDBCQueryResult")), is_true())
-})
-
-test_that("has method coerce(from, to, ...)", {
-  expect_that(hasMethod("coerce", signature(from = "JDBCConnection", to = "JDBCQueryResult")), is_true())
 })

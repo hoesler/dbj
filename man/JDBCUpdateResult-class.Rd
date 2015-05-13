@@ -4,9 +4,30 @@
 \name{JDBCUpdateResult-class}
 \alias{JDBCUpdateResult}
 \alias{JDBCUpdateResult-class}
+\alias{dbClearResult,JDBCUpdateResult-method}
+\alias{dbColumnInfo,JDBCUpdateResult-method}
+\alias{dbGetRowCount,JDBCUpdateResult-method}
+\alias{dbGetRowsAffected,JDBCUpdateResult-method}
+\alias{dbGetStatement,JDBCUpdateResult-method}
+\alias{dbHasCompleted,JDBCUpdateResult-method}
+\alias{summary,JDBCUpdateResult-method}
 \title{Class JDBCUpdateResult with factory method JDBCUpdateResult.}
 \usage{
 JDBCUpdateResult(update_count, connection, statement = "")
+
+\S4method{dbClearResult}{JDBCUpdateResult}(res, ...)
+
+\S4method{dbColumnInfo}{JDBCUpdateResult}(res, ...)
+
+\S4method{dbGetRowCount}{JDBCUpdateResult}(res, ...)
+
+\S4method{dbGetRowsAffected}{JDBCUpdateResult}(res, ...)
+
+\S4method{dbGetStatement}{JDBCUpdateResult}(res, ...)
+
+\S4method{dbHasCompleted}{JDBCUpdateResult}(res, ...)
+
+\S4method{summary}{JDBCUpdateResult}(object, ...)
 }
 \arguments{
 \item{update_count}{the number of affected rows.}
@@ -14,6 +35,12 @@ JDBCUpdateResult(update_count, connection, statement = "")
 \item{connection}{a \code{\linkS4class{JDBCConnection}} object.}
 
 \item{statement}{statement which was used for the query which returned this result}
+
+\item{res}{an \code{\linkS4class{JDBCUpdateResult}} object.}
+
+\item{...}{Ignored. Needed for compatibility with generic.}
+
+\item{object}{an \code{\linkS4class{JDBCUpdateResult}} object.}
 }
 \value{
 a new JDBCUpdateResult object

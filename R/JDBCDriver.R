@@ -5,6 +5,10 @@ NULL
 
 #' Class JDBCDriver with factory methods.
 #'
+#' \code{JDBCDriver} objects are usually created by 
+#' \code{\link[RJDBC]{JDBC}}.
+#' 
+#' @keywords internal
 #' @export
 setClass("JDBCDriver",
   contains = c("DBIDriver", "JDBCObject"),
@@ -74,6 +78,7 @@ setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
 #' @param url the url to connect to
 #' @param user the user to log in
 #' @param password the users password
+#' @param ... named values which transformed into key-value pairs of of a Java Properties object which is passed to the connect method.
 #' @export
 setMethod("dbConnect", signature(drv = "JDBCDriver"),
   function(drv, url, user = '', password = '', ...) {
@@ -125,12 +130,16 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCDriver"),
   }
 )
 
+#' @rdname JDBCDriver-class
+#' @export
 setMethod("dbGetDriver", signature(dbObj = "JDBCDriver"),
   function(dbObj, ...) {
     dbObj
   }
 )
 
+#' @rdname JDBCDriver-class
+#' @export
 setMethod("dbDataType", signature(dbObj = "JDBCDriver"),
   function(dbObj, obj, ...) {
     write_conversions <- dbObj@write_conversions

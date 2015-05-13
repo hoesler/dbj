@@ -5,6 +5,8 @@
 \alias{JDBC}
 \alias{JDBCDriver}
 \alias{JDBCDriver-class}
+\alias{dbDataType,JDBCDriver-method}
+\alias{dbGetDriver,JDBCDriver-method}
 \title{Class JDBCDriver with factory methods.}
 \usage{
 JDBC(driverClass = "", classPath = "",
@@ -14,6 +16,10 @@ JDBC(driverClass = "", classPath = "",
 JDBCDriver(driverClass = "", classPath = "",
   read_conversions = default_read_conversions,
   write_conversions = default_write_conversions)
+
+\S4method{dbGetDriver}{JDBCDriver}(dbObj, ...)
+
+\S4method{dbDataType}{JDBCDriver}(dbObj, obj, ...)
 }
 \arguments{
 \item{driverClass}{the java class name of the JDBC driver to use}
@@ -25,6 +31,8 @@ JDBCDriver(driverClass = "", classPath = "",
 \item{write_conversions}{a list of RJDBCWriteConversion objects.}
 }
 \description{
-Class JDBCDriver with factory methods.
+\code{JDBCDriver} objects are usually created by
+\code{\link[RJDBC]{JDBC}}.
 }
+\keyword{internal}
 

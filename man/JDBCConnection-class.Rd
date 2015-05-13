@@ -4,14 +4,34 @@
 \name{JDBCConnection-class}
 \alias{JDBCConnection}
 \alias{JDBCConnection-class}
+\alias{SQLKeywords,JDBCConnection-method}
+\alias{dbGetDriver,JDBCConnection-method}
+\alias{dbIsValid,JDBCConnection-method}
+\alias{summary,JDBCConnection-method}
 \title{Class JDBCConnection}
 \usage{
 JDBCConnection(j_connection, driver)
+
+\S4method{summary}{JDBCConnection}(object, ...)
+
+\S4method{SQLKeywords}{JDBCConnection}(dbObj, ...)
+
+\S4method{dbGetDriver}{JDBCConnection}(dbObj, ...)
+
+\S4method{dbIsValid}{JDBCConnection}(dbObj, timeout = 0, ...)
 }
 \arguments{
 \item{j_connection}{a jobjRef object with a java.sql.Connection reference}
 
 \item{driver}{the full qualified class name of the JDBC Driver to use.}
+
+\item{object}{an object of class \code{\linkS4class{JDBCConnection}}}
+
+\item{...}{Other arguments passed on to methods. Not otherwise used.}
+
+\item{dbObj}{A subclass of DBIConnection, representing an active connection to an DBMS.}
+
+\item{timeout}{The time in seconds to wait for the database operation used to validate the connection to complete. If the timeout period expires before the operation completes, this method returns false. A value of 0 indicates a timeout is not applied to the database operation.}
 }
 \value{
 a \code{\linkS4class{JDBCConnection}} object

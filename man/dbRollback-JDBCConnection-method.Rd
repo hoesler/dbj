@@ -8,7 +8,7 @@
 \S4method{dbRollback}{JDBCConnection}(conn, ...)
 }
 \arguments{
-\item{conn}{An existing \code{\linkS4class{JDBCConnection}}}
+\item{conn}{an object of class \code{\linkS4class{JDBCConnection}}}
 
 \item{...}{Ignored. Included for compatibility with generic.}
 }

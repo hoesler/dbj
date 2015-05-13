@@ -3,3 +3,4 @@ Readme.md
 ^\.Rproj\.user$
 RJDBC.sublime-*
 src/java/.idea/
+.travis.yml

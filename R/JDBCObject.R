@@ -3,13 +3,10 @@ NULL
 
 #' Class JDBCObject
 #'
-#' @name JDBCObject-class
-#' @rdname JDBCObject-class
-#' @exportClass JDBCObject
+#' @export
 setClass("JDBCObject", contains = c("DBIObject", "VIRTUAL"))
 
-#' Get metadata about a database object.
-#'
+#' @rdname JDBCObject-class
 #' @param dbObj An object of class \code{\linkS4class{JDBCObject}}
 #' @param ... Ignored. Included for compatibility with generic.
 #' @export
@@ -24,13 +21,8 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCObject"),
   }
 )
 
-#' Determine the SQL Data Type of an R object.
-#'
-#' @docType methods
-#' @param dbObj a \code{\linkS4class{JDBCObject}} object.
-#' @param obj an R object whose SQL type we want to determine.
-#' @param ... Ignored. Needed for compatibility with generic.
-#' @export
+#' @rdname JDBCObject-class
+#' @param obj An R object whose SQL type we want to determine.
 setMethod("dbDataType", signature(dbObj = "JDBCObject"),
   function(dbObj, obj, ...) {
     drv <- dbGetDriver(dbObj)
@@ -40,20 +32,16 @@ setMethod("dbDataType", signature(dbObj = "JDBCObject"),
   valueClass = "character"
 )
 
+#' @rdname JDBCObject-class
+#' @param object an object of class \code{\linkS4class{JDBCObject}}
 #' @export
 setMethod("summary", signature(object = "JDBCObject"),
   function(object, ...) {
-    stop(sprintf("summary is not implemented for class %s", class(dbObj)))
+    stop(sprintf("summary is not implemented for class %s", class(object)))
   }
 )
 
-#' @export
-setMethod("isSQLKeyword", signature(dbObj = "JDBCObject"),
-  function(dbObj, ...) {
-    callNextMethod()
-  }
-)
-
+#' @rdname JDBCObject-class
 #' @export
 setMethod("SQLKeywords", signature(dbObj = "JDBCObject"),
   function(dbObj, ...) {
@@ -62,13 +50,7 @@ setMethod("SQLKeywords", signature(dbObj = "JDBCObject"),
   }
 )
 
-#' @export
-setMethod("make.db.names", signature(dbObj = "JDBCObject"),
-  function(dbObj, ...) {
-    callNextMethod()
-  }
-)
-
+#' @rdname JDBCObject-class
 #' @export
 setMethod("dbIsValid", signature(dbObj = "JDBCObject"),
   function(dbObj, ...) {

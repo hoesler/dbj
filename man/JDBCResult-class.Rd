@@ -3,7 +3,19 @@
 \docType{class}
 \name{JDBCResult-class}
 \alias{JDBCResult-class}
+\alias{SQLKeywords,JDBCResult-method}
+\alias{dbGetDriver,JDBCResult-method}
 \title{Class JDBCResult}
+\usage{
+\S4method{dbGetDriver}{JDBCResult}(dbObj, ...)
+
+\S4method{SQLKeywords}{JDBCResult}(dbObj, ...)
+}
+\arguments{
+\item{dbObj}{An object of class \code{\linkS4class{JDBCResult}}}
+
+\item{...}{Ignored. Included for compatibility with generic.}
+}
 \description{
 Class JDBCResult
 }

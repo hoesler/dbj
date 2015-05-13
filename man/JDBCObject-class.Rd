@@ -3,7 +3,32 @@
 \docType{class}
 \name{JDBCObject-class}
 \alias{JDBCObject-class}
+\alias{SQLKeywords,JDBCObject-method}
+\alias{dbDataType,JDBCObject-method}
+\alias{dbGetInfo,JDBCObject-method}
+\alias{dbIsValid,JDBCObject-method}
+\alias{summary,JDBCObject-method}
 \title{Class JDBCObject}
+\usage{
+\S4method{dbGetInfo}{JDBCObject}(dbObj, ...)
+
+\S4method{dbDataType}{JDBCObject}(dbObj, obj, ...)
+
+\S4method{summary}{JDBCObject}(object, ...)
+
+\S4method{SQLKeywords}{JDBCObject}(dbObj, ...)
+
+\S4method{dbIsValid}{JDBCObject}(dbObj, ...)
+}
+\arguments{
+\item{dbObj}{An object of class \code{\linkS4class{JDBCObject}}}
+
+\item{...}{Ignored. Included for compatibility with generic.}
+
+\item{obj}{An R object whose SQL type we want to determine.}
+
+\item{object}{an object of class \code{\linkS4class{JDBCObject}}}
+}
 \description{
 Class JDBCObject
 }

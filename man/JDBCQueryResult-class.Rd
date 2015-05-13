@@ -4,9 +4,27 @@
 \name{JDBCQueryResult-class}
 \alias{JDBCQueryResult}
 \alias{JDBCQueryResult-class}
+\alias{dbClearResult,JDBCQueryResult-method}
+\alias{dbGetRowCount,JDBCQueryResult-method}
+\alias{dbGetRowsAffected,JDBCQueryResult-method}
+\alias{dbGetStatement,JDBCQueryResult-method}
+\alias{dbHasCompleted,JDBCQueryResult-method}
+\alias{summary,JDBCQueryResult-method}
 \title{Class JDBCQueryResult with factory method JDBCQueryResult.}
 \usage{
 JDBCQueryResult(j_result_set, connection, statement = "")
+
+\S4method{dbClearResult}{JDBCQueryResult}(res, ...)
+
+\S4method{dbGetRowCount}{JDBCQueryResult}(res, ...)
+
+\S4method{dbGetRowsAffected}{JDBCQueryResult}(res, ...)
+
+\S4method{dbGetStatement}{JDBCQueryResult}(res, ...)
+
+\S4method{dbHasCompleted}{JDBCQueryResult}(res, ...)
+
+\S4method{summary}{JDBCQueryResult}(object, ...)
 }
 \arguments{
 \item{j_result_set}{a \code{\linkS4class{jobjRef}} object which holds a reference to a \code{java/sql/ResultSet} Java object.}
@@ -14,6 +32,12 @@ JDBCQueryResult(j_result_set, connection, statement = "")
 \item{connection}{the \code{\linkS4class{JDBCConnection}} which which was used for the query.}
 
 \item{statement}{the stament that was used to create the j_result_set}
+
+\item{res}{an \code{\linkS4class{JDBCQueryResult}} object.}
+
+\item{...}{Ignored. Needed for compatibility with generic.}
+
+\item{object}{an \code{\linkS4class{JDBCUpdateResult}} object.}
 }
 \value{
 a new JDBCQueryResult object

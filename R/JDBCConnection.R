@@ -116,6 +116,8 @@ setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "charact
   valueClass = "JDBCResult"
 )
 
+#' @rdname dbSendUpdate
+#' @export
 setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "missing"),
   function(conn, statement, parameters, ...) {
     j_statement <- create_prepared_statement(conn, statement)
@@ -126,6 +128,8 @@ setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "chara
   valueClass = "logical"
 )
 
+#' @rdname dbSendUpdate
+#' @export
 setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "list"),
   function(conn, statement, parameters, ...) {
     assert_that(!is.null(names(parameters)))
@@ -135,9 +139,9 @@ setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "chara
 )
 
 
-#' Update a database using a prepared statment query and multiple parameters.
-#' @inheritParams dbSendUpdate
+#' @rdname dbSendUpdate
 #' @param partition_size the size which will be used to partition the data into seperate commits
+#' @export
 setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "data.frame"),
   function(conn, statement, parameters, partition_size = 10000, ...) {
     assert_that(!is.null(names(parameters)))
@@ -277,6 +281,7 @@ setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
 #' @param value the date frame to write to the table
 #' @param create a logical specifying whether to create a new table if it does not exist. Its default is TRUE.
 #' @param append a logical specifying whether to append to an existing table. Its default is TRUE.
+#' @param ... Ignored. Included for compatibility with generic.
 #' @export
 setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "data.frame"),
   function(conn, name, value, create = TRUE, append = TRUE, ...) { 
@@ -365,7 +370,7 @@ setMethod("dbCommit", signature(conn = "JDBCConnection"),
 
 #' Roll back a transaction.
 #' 
-#' @param conn An existing \code{\linkS4class{JDBCConnection}}
+#' @param conn an object of class \code{\linkS4class{JDBCConnection}}
 #' @param ... Ignored. Included for compatibility with generic.
 #' @export
 setMethod("dbRollback", signature(conn = "JDBCConnection"), 
@@ -376,6 +381,8 @@ setMethod("dbRollback", signature(conn = "JDBCConnection"),
   valueClass = "logical"
 )
 
+#' @rdname JDBCConnection-class
+#' @param object an object of class \code{\linkS4class{JDBCConnection}}
 #' @export
 setMethod("summary", "JDBCConnection", 
   function(object, ...) {
@@ -442,8 +449,9 @@ setMethod("dbListResults", signature(conn = "JDBCConnection"),
   valueClass = "list"
 )
 
+#' @rdname JDBCConnection-class
 #' @export
-setMethod("SQLKeywords", signature(dbObj = "JDBCObject"),
+setMethod("SQLKeywords", signature(dbObj = "JDBCConnection"),
   function(dbObj, ...) {
     md <- jtry(.jcall(dbObj@j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE))
     keywords <- jtry(.jcall(md, "S", "getSQLKeywords", check = FALSE))
@@ -452,7 +460,8 @@ setMethod("SQLKeywords", signature(dbObj = "JDBCObject"),
   valueClass = "character"
 )
 
-#' @inheritParams dbGetDriver
+#' @rdname JDBCConnection-class
+#' @export
 setMethod("dbGetDriver", signature(dbObj = "JDBCConnection"),
   function(dbObj, ...) {
     dbObj@driver
@@ -472,6 +481,10 @@ setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "characte
   }
 )
 
+#' @rdname JDBCConnection-class
+#' @param dbObj A subclass of DBIConnection, representing an active connection to an DBMS.
+#' @param timeout The time in seconds to wait for the database operation used to validate the connection to complete. If the timeout period expires before the operation completes, this method returns false. A value of 0 indicates a timeout is not applied to the database operation.
+#' @param ... Other arguments passed on to methods. Not otherwise used.
 #' @export
 setMethod("dbIsValid", signature(dbObj = "JDBCConnection"),
   function(dbObj, timeout = 0, ...) {
@@ -481,7 +494,7 @@ setMethod("dbIsValid", signature(dbObj = "JDBCConnection"),
 )
 
 #' Quote identifier
-#' @param conn  A subclass of DBIConnection, representing an active connection to an DBMS.
+#' @param conn A subclass of DBIConnection, representing an active connection to an DBMS.
 #' @param x A character vector to label as being escaped SQL.
 #' @param ... Other arguments passed on to methods. Not otherwise used.
 #' @export
@@ -494,7 +507,7 @@ setMethod("dbQuoteIdentifier", signature(conn = "JDBCConnection", x = "character
 )
 
 #' Quote identifier
-#' @param conn  A subclass of DBIConnection, representing an active connection to an DBMS.
+#' @param conn A subclass of DBIConnection, representing an active connection to an DBMS.
 #' @param x A character vector to label as being escaped SQL.
 #' @param ... Other arguments passed on to methods. Not otherwise used.
 #' @export

@@ -18,6 +18,8 @@
 \item{create}{a logical specifying whether to create a new table if it does not exist. Its default is TRUE.}
 
 \item{append}{a logical specifying whether to append to an existing table. Its default is TRUE.}
+
+\item{...}{Ignored. Included for compatibility with generic.}
 }
 \description{
 Write a local data frame or file to the database.

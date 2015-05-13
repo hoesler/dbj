@@ -40,14 +40,6 @@ JDBCQueryResult <- function(j_result_set, connection, statement = "") {
     connection = connection)
 }
 
-#' @rdname fetch-JDBCQueryResult-numeric-method
-#' @export
-setMethod("fetch", signature(res = "JDBCQueryResult", n = "missing"),
-  function(res, n, ...) {
-    fetch(res, -1)
-  }
-)
-
 #' Fetch records from a previously executed query
 #'
 #' @param res an \code{\linkS4class{JDBCQueryResult}} object.
@@ -89,8 +81,15 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
   }
 )
 
-#' Clear a result set.
-#' 
+#' @rdname fetch-JDBCQueryResult-numeric-method
+#' @export
+setMethod("fetch", signature(res = "JDBCQueryResult", n = "missing"),
+  function(res, n, ...) {
+    fetch(res, -1)
+  }
+)
+
+#' @rdname JDBCQueryResult-class
 #' @param res an \code{\linkS4class{JDBCQueryResult}} object.
 #' @param ... Ignored. Needed for compatibility with generic.
 #' @export
@@ -155,14 +154,7 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
   valueClass = "data.frame"
 )
 
-#' @export
-setMethod("dbGetException", signature(conn = "JDBCQueryResult"),
-  function(conn, ...) {
-    .NotYetImplemented()
-  }
-)
-
-#' Get number of rows fetched so far
+#' @rdname JDBCQueryResult-class
 #' @export
 setMethod("dbGetRowCount", signature(res = "JDBCQueryResult"),
   function(res, ...) {
@@ -171,6 +163,7 @@ setMethod("dbGetRowCount", signature(res = "JDBCQueryResult"),
   valueClass = "numeric"
 )
 
+#' @rdname JDBCQueryResult-class
 #' @export
 setMethod("dbGetRowsAffected", signature(res = "JDBCQueryResult"),
   function(res, ...) {
@@ -179,6 +172,7 @@ setMethod("dbGetRowsAffected", signature(res = "JDBCQueryResult"),
   valueClass = "numeric"
 )
 
+#' @rdname JDBCQueryResult-class
 #' @export
 setMethod("dbGetStatement", signature(res = "JDBCQueryResult"),
   function(res, ...) {
@@ -187,6 +181,7 @@ setMethod("dbGetStatement", signature(res = "JDBCQueryResult"),
   valueClass = "character"
 )
 
+#' @rdname JDBCQueryResult-class
 #' @export
 setMethod("dbHasCompleted", signature(res = "JDBCQueryResult"),
   function(res, ...) {
@@ -222,6 +217,8 @@ setMethod("dbListFields", signature(conn = "JDBCQueryResult", name = "missing"),
   valueClass = "character"
 )
 
+#' @rdname JDBCQueryResult-class
+#' @param object an \code{\linkS4class{JDBCUpdateResult}} object.
 #' @export
 setMethod("summary", "JDBCQueryResult",
   function(object, ...) {
@@ -251,10 +248,3 @@ result_info <- function(result_set) {
     rows_fetched = jtry(.jcall(result_set@j_result_set, "I", "getRow", check = FALSE))
   )
 }
-
-#' @export
-setMethod("coerce", signature(from = "JDBCConnection", to = "JDBCQueryResult"),
-  function(from, to) {
-    .NotYetImplemented() # TODO: I have no idea what the api wants us to do here
-  }
-)

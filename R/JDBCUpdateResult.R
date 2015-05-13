@@ -24,14 +24,6 @@ JDBCUpdateResult <- function(update_count, connection, statement = "") {
   new("JDBCUpdateResult", update_count = update_count, connection = connection, statement = statement)
 }
 
-#' @rdname fetch-JDBCUpdateResult-numeric-method
-#' @export
-setMethod("fetch", signature(res = "JDBCUpdateResult", n = "missing"),
-  function(res, n, ...) {
-    stop("fetch is unsupported in JDBCUpdateResult")
-  }
-)
-
 #' Fetch records from a previously executed query
 #'
 #' @param res an \code{\linkS4class{JDBCUpdateResult}} object.
@@ -46,8 +38,15 @@ setMethod("fetch", signature(res = "JDBCUpdateResult", n = "numeric"),
   }
 )
 
-#' Clear a result set.
-#' 
+#' @rdname fetch-JDBCUpdateResult-numeric-method
+#' @export
+setMethod("fetch", signature(res = "JDBCUpdateResult", n = "missing"),
+  function(res, n, ...) {
+    stop("fetch is unsupported in JDBCUpdateResult")
+  }
+)
+
+#' @rdname JDBCUpdateResult-class
 #' @param res an \code{\linkS4class{JDBCUpdateResult}} object.
 #' @param ... Ignored. Needed for compatibility with generic.
 #' @export
@@ -58,10 +57,7 @@ setMethod("dbClearResult", signature(res = "JDBCUpdateResult"),
   valueClass = "logical"
 )
 
-#' Get info about the result set data types.
-#' 
-#' @param res an \code{\linkS4class{JDBCUpdateResult}} object.
-#' @param ... Ignored. Needed for compatiblity with generic.
+#' @rdname JDBCUpdateResult-class
 #' @export
 setMethod("dbColumnInfo", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
@@ -70,14 +66,7 @@ setMethod("dbColumnInfo", signature(res = "JDBCUpdateResult"),
   valueClass = "data.frame"
 )
 
-#' @export
-setMethod("dbGetException", signature(conn = "JDBCUpdateResult"),
-  function(conn, ...) {
-    .NotYetImplemented()
-  }
-)
-
-#' Get number of rows fetched so far
+#' @rdname JDBCUpdateResult-class
 #' @export
 setMethod("dbGetRowCount", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
@@ -86,6 +75,7 @@ setMethod("dbGetRowCount", signature(res = "JDBCUpdateResult"),
   valueClass = "numeric"
 )
 
+#' @rdname JDBCUpdateResult-class
 #' @export
 setMethod("dbGetRowsAffected", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
@@ -94,6 +84,7 @@ setMethod("dbGetRowsAffected", signature(res = "JDBCUpdateResult"),
   valueClass = "numeric"
 )
 
+#' @rdname JDBCUpdateResult-class
 #' @export
 setMethod("dbGetStatement", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
@@ -102,6 +93,7 @@ setMethod("dbGetStatement", signature(res = "JDBCUpdateResult"),
   valueClass = "character"
 )
 
+#' @rdname JDBCUpdateResult-class
 #' @export
 setMethod("dbHasCompleted", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
@@ -123,6 +115,8 @@ setMethod("dbListFields", signature(conn = "JDBCUpdateResult", name = "missing")
   valueClass = "character"
 )
 
+#' @rdname JDBCUpdateResult-class
+#' @param object an \code{\linkS4class{JDBCUpdateResult}} object.
 #' @export
 setMethod("summary", "JDBCUpdateResult",
   function(object, ...) {
@@ -144,11 +138,4 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCUpdateResult"),
     )
   },
   valueClass = "list"
-)
-
-#' @export
-setMethod("coerce", signature(from = "JDBCConnection", to = "JDBCUpdateResult"),
-  function(from, to) {
-    .NotYetImplemented() # TODO: I have no idea what the api wants us to do here
-  }
 )
