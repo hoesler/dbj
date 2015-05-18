@@ -1,6 +1,6 @@
 # RJDBC
 
-[![Build Status](https://travis-ci.org/hoesler/RJDBC.svg?branch=develop)](https://travis-ci.org/hoesler/RJDBC)
+[![Build Status](https://travis-ci.org/hoesler/RJDBC.svg?branch=master)](https://travis-ci.org/hoesler/RJDBC)
 
 RJDBC is a [R](http://cran.r-project.org/) package implementing the [DBI](http://cran.r-project.org/web/packages/DBI/) interface using [JDBC](http://www.oracle.com/technetwork/java/javase/jdbc/index.html) via [rJava](http://www.rforge.net/rJava/).
 
