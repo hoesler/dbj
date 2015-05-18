@@ -29,8 +29,8 @@ test_that("dbGetInfo() returns a list", {
 
   # then
   expect_that(info, is_a("list"))
-  expect_that(info$minor_version, is_a("integer"))
-  expect_that(info$major_version, is_a("integer"))
+  expect_that(info$driver.version, is_a("character"))
+  expect_that(info$client.version, is_a("character"))
 })
 
 test_that("summary() prints something", {

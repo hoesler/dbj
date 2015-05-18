@@ -226,7 +226,7 @@ result_info <- function(result_set) {
     statement = result_set@statement,
     col.count = jtry(.jcall(result_set@j_result_set_meta, "I", "getColumnCount", check = FALSE)),
     row.count = jtry(.jcall(result_set@j_result_set, "I", "getRow", check = FALSE)),
-    has.completed = dbHasCompleted(result_set)
+    has.completed = dbHasCompleted(result_set),
     is.select = TRUE
   )
 }
@@ -236,9 +236,9 @@ result_info <- function(result_set) {
 #' @param dbObj an object of class \code{\linkS4class{JDBCQueryResult}}
 #' @param ... Ignored. Needed for compatiblity with generic.
 #' @export
-setMethod("dbIsValid", signature(dbObj = "JDBCObject"),
+setMethod("dbIsValid", signature(dbObj = "JDBCQueryResult"),
   function(dbObj, ...) {
-    jtry(.jcall(j_result_set, "Z", "isClosed", check = FALSE))
+    jtry(.jcall(dbObj@j_result_set, "Z", "isClosed", check = FALSE))
   },
   valueClass = "logical"
 )

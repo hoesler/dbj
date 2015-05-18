@@ -21,5 +21,5 @@ test_that("has method summary(object, ...)", {
 })
 
 test_that("dbIsValid returns TRUE", {
-  expect_that(dbIsValid(new("JDBCUpdateResult")), is_true())
+  expect_that(dbIsValid(new("JDBCDriver")), is_true())
 })

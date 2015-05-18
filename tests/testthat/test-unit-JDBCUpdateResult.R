@@ -20,12 +20,12 @@ test_that("has method dbGetInfo(dbObj, ...)", {
   expect_that(hasMethod("dbGetInfo", signature(dbObj = "JDBCUpdateResult")), is_true())
 })
 
-test_that("has method dbGetRowCount(res, ...)", {
-  expect_that(hasMethod("dbGetRowCount", signature(res = "JDBCUpdateResult")), is_true())
+test_that("dbGetRowCount throw error", {
+  expect_error(dbGetRowCount(new("JDBCUpdateResult")))
 })
 
-test_that("dbGetRowsAffected throw error", {
-  expect_error(dbGetRowsAffected(new(JDBCUpdateResult)))
+test_that("has method dbGetRowsAffected(res, ...)", {
+  expect_that(hasMethod("dbGetRowsAffected", signature(res = "JDBCUpdateResult")), is_true())
 })
 
 test_that("has method dbGetStatement(res, ...)", {
@@ -33,7 +33,7 @@ test_that("has method dbGetStatement(res, ...)", {
 })
 
 test_that("dbHasCompleted returns TRUE", {
-  expect_that(dbHasCompleted, new(JDBCUpdateResult)), is_true())
+  expect_that(dbHasCompleted(new("JDBCUpdateResult")), is_true())
 })
 
 test_that("has method dbListFields(conn, name, ...)", {

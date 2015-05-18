@@ -111,8 +111,8 @@ setMethod("summary", signature(object = "JDBCDriver"),
     cat("JDBC Driver\n")
     cat(sprintf("  Version: %s\n", info$driver.version))
     cat(sprintf("  Client class: %s\n", object@driverClass))
-    cat(sprintf("  Client version: %s\n", info@client.version))
-    cat(sprintf("  Max connections: %s\n", info@max.connections))
+    cat(sprintf("  Client version: %s\n", info$client.version))
+    cat(sprintf("  Max connections: %s\n", info$max.connections))
     invisible(NULL)
   }
 )
@@ -125,13 +125,13 @@ setMethod("summary", signature(object = "JDBCDriver"),
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCDriver"),
   function(dbObj, ...) {
-    minor_version = jtry(.jcall(dbObj@jdrv, "I", "getMajorVersion", check = FALSE)),
+    minor_version = jtry(.jcall(dbObj@jdrv, "I", "getMajorVersion", check = FALSE))
     major_version = jtry(.jcall(dbObj@jdrv, "I", "getMinorVersion", check = FALSE))
 
     list(
       driver.version = "0.9.99",
       client.version = paste(major_version, minor_version, sep = "."),
-      max.connections = NA      
+      max.connections = NA # TODO: Is there a way to get this information from JDBC?     
     )
   }
 )
@@ -166,7 +166,7 @@ setMethod("dbDataType", signature(dbObj = "JDBCDriver"),
 #' @param dbObj an object of class \code{\linkS4class{JDBCDriver}}
 #' @param ... Ignored. Needed for compatiblity with generic.
 #' @export
-setMethod("dbIsValid", signature(dbObj = "JDBCObject"),
+setMethod("dbIsValid", signature(dbObj = "JDBCDriver"),
   function(dbObj, ...) {
     TRUE
   },

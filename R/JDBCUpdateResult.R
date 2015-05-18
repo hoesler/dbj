@@ -111,7 +111,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCUpdateResult"),
 #' @param dbObj an object of class \code{\linkS4class{JDBCUpdateResult}}
 #' @param ... Ignored. Needed for compatiblity with generic.
 #' @export
-setMethod("dbIsValid", signature(dbObj = "JDBCObject"),
+setMethod("dbIsValid", signature(dbObj = "JDBCUpdateResult"),
   function(dbObj, ...) {
     TRUE
   },
