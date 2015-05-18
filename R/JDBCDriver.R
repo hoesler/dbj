@@ -109,8 +109,10 @@ setMethod("summary", signature(object = "JDBCDriver"),
   function(object, ...) {
     info <- dbGetInfo(object)
     cat("JDBC Driver\n")
-    cat(sprintf("  Driver class: %s\n", object@driverClass))
-    cat(sprintf("  Driver version: %s.%s\n", info$major_version, info$minor_version))
+    cat(sprintf("  Version: %s\n", info$driver.version))
+    cat(sprintf("  Client class: %s\n", object@driverClass))
+    cat(sprintf("  Client version: %s\n", info@client.version))
+    cat(sprintf("  Max connections: %s\n", info@max.connections))
     invisible(NULL)
   }
 )
@@ -123,9 +125,13 @@ setMethod("summary", signature(object = "JDBCDriver"),
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCDriver"),
   function(dbObj, ...) {
+    minor_version = jtry(.jcall(dbObj@jdrv, "I", "getMajorVersion", check = FALSE)),
+    major_version = jtry(.jcall(dbObj@jdrv, "I", "getMinorVersion", check = FALSE))
+
     list(
-      minor_version = jtry(.jcall(dbObj@jdrv, "I", "getMajorVersion", check = FALSE)),
-      major_version = jtry(.jcall(dbObj@jdrv, "I", "getMinorVersion", check = FALSE))
+      driver.version = "0.9.99",
+      client.version = paste(major_version, minor_version, sep = "."),
+      max.connections = NA      
     )
   }
 )
@@ -153,4 +159,16 @@ setMethod("dbDataType", signature(dbObj = "JDBCDriver"),
     stop("No mapping defined for object of type ", class(obj))
   },
   valueClass = "character"
+)
+
+#' Check if \code{dbObj} is valid, which is always true for objects of type \code{\linkS4class{JDBCDriver}}.
+#' 
+#' @param dbObj an object of class \code{\linkS4class{JDBCDriver}}
+#' @param ... Ignored. Needed for compatiblity with generic.
+#' @export
+setMethod("dbIsValid", signature(dbObj = "JDBCObject"),
+  function(dbObj, ...) {
+    TRUE
+  },
+  valueClass = "logical"
 )

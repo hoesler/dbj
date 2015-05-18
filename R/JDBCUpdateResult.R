@@ -75,32 +75,6 @@ setMethod("dbGetRowCount", signature(res = "JDBCUpdateResult"),
   valueClass = "numeric"
 )
 
-#' @rdname JDBCUpdateResult-class
-#' @export
-setMethod("dbGetRowsAffected", signature(res = "JDBCUpdateResult"),
-  function(res, ...) {
-    res@update_count
-  },
-  valueClass = "numeric"
-)
-
-#' @rdname JDBCUpdateResult-class
-#' @export
-setMethod("dbGetStatement", signature(res = "JDBCUpdateResult"),
-  function(res, ...) {
-    res@statement
-  },
-  valueClass = "character"
-)
-
-#' @rdname JDBCUpdateResult-class
-#' @export
-setMethod("dbHasCompleted", signature(res = "JDBCUpdateResult"),
-  function(res, ...) {
-    TRUE
-  }
-)
-
 #' Get the names or labels for the columns of the result set.
 #' 
 #' @param conn an \code{\linkS4class{JDBCUpdateResult}} object.
@@ -115,17 +89,6 @@ setMethod("dbListFields", signature(conn = "JDBCUpdateResult", name = "missing")
   valueClass = "character"
 )
 
-#' @rdname JDBCUpdateResult-class
-#' @param object an \code{\linkS4class{JDBCUpdateResult}} object.
-#' @export
-setMethod("summary", "JDBCUpdateResult",
-  function(object, ...) {
-    info <- result_info(object)
-    cat("JDBC Update Result\n")
-    cat(sprintf("  Update Count: %s\n", info$update_count))
-  }
-)
-
 #' Get info about the result.
 #' 
 #' @param dbObj an object of class \code{\linkS4class{JDBCUpdateResult}}
@@ -134,8 +97,23 @@ setMethod("summary", "JDBCUpdateResult",
 setMethod("dbGetInfo", signature(dbObj = "JDBCUpdateResult"),
   function(dbObj, ...) {
     list(
-      update_count = dbObj@update_count
+      statement = dbObj@statement,
+      rows.affected = dbObj@update_count,
+      has.completed = TRUE,
+      is.select = FALSE
     )
   },
   valueClass = "list"
+)
+
+#' Check if \code{dbObj} is valid, which is always true for objects of type \code{\linkS4class{JDBCUpdateResult}}.
+#' 
+#' @param dbObj an object of class \code{\linkS4class{JDBCUpdateResult}}
+#' @param ... Ignored. Needed for compatiblity with generic.
+#' @export
+setMethod("dbIsValid", signature(dbObj = "JDBCObject"),
+  function(dbObj, ...) {
+    TRUE
+  },
+  valueClass = "logical"
 )

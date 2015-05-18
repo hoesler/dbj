@@ -174,15 +174,6 @@ setMethod("dbGetRowsAffected", signature(res = "JDBCQueryResult"),
 
 #' @rdname JDBCQueryResult-class
 #' @export
-setMethod("dbGetStatement", signature(res = "JDBCQueryResult"),
-  function(res, ...) {
-    res@statement
-  },
-  valueClass = "character"
-)
-
-#' @rdname JDBCQueryResult-class
-#' @export
 setMethod("dbHasCompleted", signature(res = "JDBCQueryResult"),
   function(res, ...) {
     if (jtry(.jcall(res@j_result_set, "I", "getRow", check = FALSE)) > 0) {
@@ -217,18 +208,6 @@ setMethod("dbListFields", signature(conn = "JDBCQueryResult", name = "missing"),
   valueClass = "character"
 )
 
-#' @rdname JDBCQueryResult-class
-#' @param object an \code{\linkS4class{JDBCUpdateResult}} object.
-#' @export
-setMethod("summary", "JDBCQueryResult",
-  function(object, ...) {
-    info <- result_info(object)
-    cat("JDBC Result Set\n")
-    cat(sprintf("  Columns: %s\n", info$cols))
-    cat(sprintf("  Rows fetched: %s\n", info$rows_fetched))
-  }
-)
-
 #' Get info about the result.
 #' 
 #' @param dbObj an object of class \code{\linkS4class{JDBCQueryResult}}
@@ -244,7 +223,22 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCQueryResult"),
 result_info <- function(result_set) {
   assert_that(is(result_set, "JDBCQueryResult"))
   list(
-    cols = jtry(.jcall(result_set@j_result_set_meta, "I", "getColumnCount", check = FALSE)),
-    rows_fetched = jtry(.jcall(result_set@j_result_set, "I", "getRow", check = FALSE))
+    statement = result_set@statement,
+    col.count = jtry(.jcall(result_set@j_result_set_meta, "I", "getColumnCount", check = FALSE)),
+    row.count = jtry(.jcall(result_set@j_result_set, "I", "getRow", check = FALSE)),
+    has.completed = dbHasCompleted(result_set)
+    is.select = TRUE
   )
 }
+
+#' Get info about the result.
+#' 
+#' @param dbObj an object of class \code{\linkS4class{JDBCQueryResult}}
+#' @param ... Ignored. Needed for compatiblity with generic.
+#' @export
+setMethod("dbIsValid", signature(dbObj = "JDBCObject"),
+  function(dbObj, ...) {
+    jtry(.jcall(j_result_set, "Z", "isClosed", check = FALSE))
+  },
+  valueClass = "logical"
+)
