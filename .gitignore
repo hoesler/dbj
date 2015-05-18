@@ -18,3 +18,5 @@ RJDBC.Rproj
 # RStudio files
 .Rproj.user/
 
+# autoconf
+/autom4te.cache/
