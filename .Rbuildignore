@@ -1,6 +1,6 @@
 Readme.md
 ^.*\.Rproj$
 ^\.Rproj\.user$
-RJDBC.sublime-*
+^.*.sublime-*
 src/java/.idea/
 .travis.yml
