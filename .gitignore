@@ -1,10 +1,9 @@
-inst/java
-*.class
-*.jar
+/inst/java
+/tests/*.jar
+
 *.sublime-*
 config.log
-RJDBC.Rproj
-.idea
+*.Rproj
 
 .Rapp*
 .RData

@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
 
 /**
@@ -53,8 +54,6 @@ public final class JDBCResultPull {
     }
 
     private static ColumnBuilder<?> createColumnBuilder(final int sqlType) {
-        final ColumnBuilder<?> builder;
-
         if (BooleanColumn.handles(sqlType)) {
             return BooleanColumn.builder(sqlType);
         } else if (IntegerColumn.handles(sqlType)) {
@@ -77,17 +76,33 @@ public final class JDBCResultPull {
      * @return number of rows retrieved
      * @throws SQLException if an SQL exception occurs
      */
-    @SuppressWarnings("unchecked") // checked by column type
     public Table fetch(final int atMost) throws SQLException {
+        return fetch(atMost, 0);
+    }
+
+    /**
+     * Fetch records from the result set into column arrays. It replaces any existing data in the buffers.
+     *
+     * @param atMost    the maximum number of rows to be retrieved
+     * @param fetchSize fetch size hint to be sent to the driver. Note that some databases don't support fetch sizes
+     *                  larger than 32767. If less than 1 the fetch size is not changed.
+     * @return number of rows retrieved
+     * @throws SQLException if an SQL exception occurs
+     */
+    public Table fetch(final int atMost, int fetchSize) throws SQLException {
         if (atMost < 0) {
             throw new IllegalArgumentException("atMost must be >= 0, was " + atMost);
+        }
+
+        try {
+            resultSet.setFetchSize(fetchSize);
+        } catch (SQLFeatureNotSupportedException ignored) {
         }
 
         for (ColumnBuilder<?> columnBuilder : columnBuilders) {
             columnBuilder.clear();
         }
 
-        resultSet.setFetchSize(atMost);
         int rowCount = 0;
         while (resultSet.next() && rowCount < atMost) {
             for (int i = 0; i < columnBuilders.size(); i++) {

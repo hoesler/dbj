@@ -10,10 +10,10 @@ create_result_pull <- function(j_result_set) {
   rp
 }
 
-fetch_resultpull <- function(j_result_pull, rows, column_info, read_conversions) {
+fetch_resultpull <- function(j_result_pull, rows, column_info, read_conversions, fetch_size) {
   assert_that(is.data.frame(column_info))
   assert_that(all(c("nullable", "label") %in% names(column_info)))
-  java_table <- jtry(.jcall(j_result_pull, "Linfo/urbanek/Rpackage/RJDBC/Table;", "fetch", as.integer(rows), check = FALSE))
+  java_table <- jtry(.jcall(j_result_pull, "Linfo/urbanek/Rpackage/RJDBC/Table;", "fetch", as.integer(rows), as.integer(fetch_size), check = FALSE))
   verifyNotNull(java_table, "Table creation failed")
   
   column_count <- jtry(.jcall(java_table, "I", "columnCount", check = FALSE))

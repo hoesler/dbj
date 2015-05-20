@@ -46,10 +46,14 @@ JDBCQueryResult <- function(j_result_set, connection, statement = "") {
 #' @param n optional maximum number of records to retrieve per fetch. Use \code{-1} to 
 #'    retrieve all pending records; use \code{0} for to fetch the default 
 #'    number of rows as defined in \code{\link{JDBC}}
+#' @param fetch_size a hint to the number of rows that should be fetched from the database in a single block.
+#'    See \url{http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setFetchSize(int)}.
 #' @param ... Ignored. Needed for compatibility with generic.
 #' @export
 setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
-  function(res, n, ...) {
+  function(res, n, fetch_size = 0, ...) {
+    assert_that(is.numeric(fetch_size))    
+
     cols <- jtry(.jcall(res@j_result_set_meta, "I", "getColumnCount", check = FALSE))
     if (cols < 1L) {
       return(NULL)
@@ -67,7 +71,7 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
 
     chunks <- list()
     repeat {    
-      fetched <- fetch_resultpull(res@j_result_pull, stride, column_info, dbGetDriver(res)@read_conversions) 
+      fetched <- fetch_resultpull(res@j_result_pull, stride, column_info, dbGetDriver(res)@read_conversions, fetch_size) 
       chunks <- c(chunks, list(fetched))
 
       if (!infinite_pull || nrow(fetched) < stride) {

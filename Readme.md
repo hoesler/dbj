@@ -8,6 +8,9 @@ This version is a fork of [Simon Urbanek's original RJDBC packge](https://github
 
 At the moment this a just a playgound for myself but might be merged back later on.
 
+## Requirements
+- Java 6+
+
 ## Installation
 RJDBC can be installed most easily using the [devtools](https://github.com/hadley/devtools) package. After you have installed devtools, just run `devtools::install_github("hoesler/RJDBC")`.
 
@@ -22,7 +25,7 @@ The default mapping is defined in the following way:
 
 ##### Transfer unit
 R Transfer Type | Java Transfer Type | SQL Types
-----------------|-------------------------------------------------------------------------------
+----------------|--------------------|----------------------------------------------------------
 logical         | boolean            | BIT, BOOLEAN
 numeric         | long               | BIGINT, DATE, TIMESTAMP, TIME
 numeric         | double             | FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL
