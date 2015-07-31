@@ -4,10 +4,7 @@ NULL
 
 create_result_pull <- function(j_result_set) {
   assert_that(j_result_set %instanceof% "java.sql.ResultSet")
-  
-  rp <- .jnew("info/urbanek/Rpackage/RJDBC/JDBCResultPull", .jcast(j_result_set, "java/sql/ResultSet"), check = FALSE)
-  verifyNotNull(rp, "Failed to instantiate JDBCResultPull hepler object")
-  rp
+  .jnew("info/urbanek/Rpackage/RJDBC/JDBCResultPull", .jcast(j_result_set, "java/sql/ResultSet"), check = TRUE)
 }
 
 fetch_resultpull <- function(j_result_pull, rows, column_info, read_conversions, fetch_size) {

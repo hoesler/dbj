@@ -7,7 +7,7 @@
 verifyNotNull <- function(j_object, ...) {
   assert_that(is(j_object, "jobjRef"))
   if (is.jnull(j_object)) {
-    stop(deparse(substitute(j_object)), " is null", ...)
+    stop(deparse(substitute(j_object)), " is null: ", ...)
   }
   invisible(NULL)
 }
