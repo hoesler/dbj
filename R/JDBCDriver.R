@@ -125,8 +125,8 @@ setMethod("summary", signature(object = "JDBCDriver"),
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCDriver"),
   function(dbObj, ...) {
-    minor_version = jtry(.jcall(dbObj@jdrv, "I", "getMajorVersion", check = FALSE))
-    major_version = jtry(.jcall(dbObj@jdrv, "I", "getMinorVersion", check = FALSE))
+    major_version = jtry(.jcall(dbObj@jdrv, "I", "getMajorVersion", check = FALSE))
+    minor_version = jtry(.jcall(dbObj@jdrv, "I", "getMinorVersion", check = FALSE))
 
     list(
       driver.version = "0.9.99",
