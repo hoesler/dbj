@@ -14,10 +14,16 @@ dbj can be installed most easily using the [devtools](https://github.com/hadley/
 
 The source compilation requires that you haven [maven](https://maven.apache.org/) installed.
 
+## Usage
+```R
+# Example using a H2 database
+con <- dbConnect(dbj::driver('org.h2.Driver', classPath = '~/h2.jar'), jdbc:h2:mem:', user = '', password = '')
+```
+
 ##	Type mapping
 Type mapping in dbj has four data type units: The R working type, The R transfer type, the Java transfer type and the SQL storage Type. The working type is the type of a data.frame column you work with on the front end. For data transfer, these data types must be converted into a R transfer type, which is associated with one of the Java transfer types. Both transfer types are used to send data from R to Java and vice versa. Due to rJava and performance reasons this must be one of the Java raw types (boolean, byte, int, long, float, double) or String.
 
-The way the data transfer is implemented requires that all data that can possibly be transferred must be convertible to one of these transfer types.
+The way the data transfer is implemented, requires that all data that can possibly be transferred must be convertible to one of these transfer types.
 
 The default mapping is defined in the following way:
 
