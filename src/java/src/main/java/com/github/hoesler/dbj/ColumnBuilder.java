@@ -1,4 +1,4 @@
-package info.urbanek.Rpackage.RJDBC;
+package com.github.hoesler.dbj;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -1,7 +1,7 @@
 #' @include JDBCSQLTypes.R
 NULL
 
-#' Create a RJDBCReadConversion object. 
+#' Create a JDBCReadConversion object. 
 #' 
 #' @param condition a function which accepts a list and returns a logical
 #' @param conversion a function which accepts a data frame column vector and returns it transformed into a vector of a transfer data type.
@@ -14,7 +14,7 @@ read_conversion <- function(condition, conversion) {
   structure(list(
     condition = condition,
     conversion = conversion
-  ), class = "RJDBCReadConversion")
+  ), class = "JDBCReadConversion")
 }
 
 #' @param sql_types a numeric vector of JDBC_SQL_TYPES
@@ -62,7 +62,7 @@ default_read_conversions <- list(
   )
 )
 
-#' Create a RJDBCWriteConversion object. 
+#' Create a JDBCWriteConversion object. 
 #' 
 #' @param condition a function which accepts a list and returns a logical.
 #' @param conversion a function which accepts a data frame column vector and returns it transformed into a vector of a transfer data type.
@@ -78,7 +78,7 @@ write_conversion <- function(condition, conversion, create_type) {
     condition = condition,
     conversion = conversion,
     create_type = create_type
-  ), class = "RJDBCWriteConversion")
+  ), class = "JDBCWriteConversion")
 }
 
 #' @param class_names a character vector of class names
@@ -135,11 +135,11 @@ default_write_conversions <- list(
 
 #' Convert from transfer type to client type.
 #' 
-#' @param conversions a list of RJDBCReadConversion objects
+#' @param conversions a list of JDBCReadConversion objects
 #' @param data the data vector to convert
 #' @param data_attributes a named list of attributes of data
 convert_from <- function(conversions, data, data_attributes) {
-  assert_that(is.list(conversions) && all(sapply(conversions, class) == "RJDBCReadConversion"))
+  assert_that(is.list(conversions) && all(sapply(conversions, class) == "JDBCReadConversion"))
   assert_that(is.list(data_attributes) && "sql_type" %in% names(data_attributes))
 
   for (i in seq_along(conversions)) {
@@ -154,12 +154,12 @@ convert_from <- function(conversions, data, data_attributes) {
 
 #' Convert from client type to transfer type
 #' 
-#' @param conversions a list of RJDBCWriteConversion objects
+#' @param conversions a list of JDBCWriteConversion objects
 #' @param data the data object to convert
 #' @param data_attributes a named list of attributes
 convert_to <- function(conversions, data, data_attributes) {
   assert_that(is.list(conversions))
-  assert_that(all(sapply(conversions, class) == "RJDBCWriteConversion"))
+  assert_that(all(sapply(conversions, class) == "JDBCWriteConversion"))
   assert_that(is.list(data_attributes) && "class_names" %in% names(data_attributes))
 
   for (i in seq_along(conversions)) {

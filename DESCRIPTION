@@ -1,8 +1,9 @@
-Package: RJDBC
+Package: dbj
 Version: 0.9.99
+Encoding: UTF-8
 Title: Provides access to databases through the JDBC interface
-Author: Simon Urbanek <Simon.Urbanek@r-project.org>
-Maintainer: Simon Urbanek <Simon.Urbanek@r-project.org>
+Author: Christoph Hösler <christoph.hoesler@gmail.com>
+Maintainer: Christoph Hösler <christoph.hoesler@gmail.com>
 Depends:
     DBI (>= 0.3.1),
     R (>= 3.0)
@@ -14,10 +15,10 @@ Suggests:
     testthat (>= 0.8.1),
     lubridate (>= 1.3.3),
     Lahman (>= 3.0-1)
-Description: RJDBC is an implementation of R's DBI interface using JDBC as a
+Description: dbj is an implementation of R's DBI interface using JDBC as a
     back-end. This allows R to connect to any DBMS that has a JDBC driver.
 License: GPL-2
-URL: http://www.rforge.net/RJDBC/
+URL: http://github.com/hoesler/dbj
 Collate:
     'SQLUtils.R'
     'RUtils.R'
@@ -33,5 +34,5 @@ Collate:
     'JDBCResult.R'
     'JDBCQueryResult.R'
     'JDBCUpdateResult.R'
-    'RJDBC.R'
     'ResultPull.R'
+    'dbj.R'

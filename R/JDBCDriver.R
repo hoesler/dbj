@@ -6,7 +6,7 @@ NULL
 #' Class JDBCDriver with factory methods.
 #'
 #' \code{JDBCDriver} objects are usually created by 
-#' \code{\link[RJDBC]{JDBC}}.
+#' \code{\link[dbj]{JDBC}}.
 #' 
 #' @keywords internal
 #' @export
@@ -20,8 +20,8 @@ setClass("JDBCDriver",
 
 #' @param driverClass the java class name of the JDBC driver to use
 #' @param classPath a string of paths seperated by : which shoul get added to the classpath (see \link[rJava]{.jaddClassPath})
-#' @param read_conversions a list of RJDBCReadConversion objects.
-#' @param write_conversions a list of RJDBCWriteConversion objects.
+#' @param read_conversions a list of JDBCReadConversion objects.
+#' @param write_conversions a list of JDBCWriteConversion objects.
 #' @rdname JDBCDriver-class
 #' @export
 JDBC <- function(driverClass = '', classPath = '', read_conversions = default_read_conversions, write_conversions = default_write_conversions) {  
@@ -100,11 +100,6 @@ setMethod("dbConnect", signature(drv = "JDBCDriver"),
   valueClass = "JDBCConnection"
 )
 
-#' Print a summary for the driver
-#'
-#' @param object An object of class \code{\linkS4class{JDBCDriver}}
-#' @param ... Ignored. Needed for compatibility with generic.
-#' @export
 setMethod("summary", signature(object = "JDBCDriver"),
   function(object, ...) {
     info <- dbGetInfo(object)

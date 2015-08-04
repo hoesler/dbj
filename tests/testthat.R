@@ -18,5 +18,5 @@ if (!file.exists(h2_jar_dest)) {
 options(h2_jar = file.path(getwd(), h2_jar_dest))
 if (!is.character(getOption("h2_jar"))) stop("Path to h2 jar could not be resolved")
 
-test_check("RJDBC", filter = "unit-.*")
-test_check("RJDBC", filter = "integration-.*")
+test_check("dbj", filter = "unit-.*")
+test_check("dbj", filter = "integration-.*")

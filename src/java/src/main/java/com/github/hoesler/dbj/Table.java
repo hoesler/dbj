@@ -1,4 +1,4 @@
-package info.urbanek.Rpackage.RJDBC;
+package com.github.hoesler.dbj;
 
 public interface Table {
     int rowCount();

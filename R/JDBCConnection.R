@@ -381,9 +381,6 @@ setMethod("dbRollback", signature(conn = "JDBCConnection"),
   valueClass = "logical"
 )
 
-#' @rdname JDBCConnection-class
-#' @param object an object of class \code{\linkS4class{JDBCConnection}}
-#' @export
 setMethod("summary", "JDBCConnection", 
   function(object, ...) {
     info <- connection_info(object@j_connection)

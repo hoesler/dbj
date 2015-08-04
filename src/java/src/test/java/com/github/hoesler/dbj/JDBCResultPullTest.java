@@ -1,4 +1,4 @@
-package info.urbanek.Rpackage.RJDBC;
+package com.github.hoesler.dbj;
 
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;

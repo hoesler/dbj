@@ -1,23 +1,21 @@
-# RJDBC
+# dbj
 
-[![Build Status](https://travis-ci.org/hoesler/RJDBC.svg?branch=master)](https://travis-ci.org/hoesler/RJDBC)
+[![Build Status](https://travis-ci.org/hoesler/dbj.svg?branch=master)](https://travis-ci.org/hoesler/dbj)
 
-RJDBC is a [R](http://cran.r-project.org/) package implementing the [DBI](https://github.com/rstats-db/DBI) interface (version 0.3.1) using [JDBC](http://www.oracle.com/technetwork/java/javase/jdbc/index.html) via [rJava](http://www.rforge.net/rJava/).
+dbj is a [R](http://cran.r-project.org/) package implementing the [DBI](https://github.com/rstats-db/DBI) interface (version 0.3.1) using [JDBC](http://www.oracle.com/technetwork/java/javase/jdbc/index.html) via [rJava](http://www.rforge.net/rJava/).
 
-This version is a fork of [Simon Urbanek's original RJDBC packge](https://github.com/s-u/RJDBC). It started with only minor code modifications to meet the requirements of the [devtools](https://github.com/hadley/devtools) package development tools and the design guidelines for good R packages (See [R packages](http://r-pkgs.had.co.nz/) by Hadley Wickham). It ended with a more or less complete rewrite of the whole package.
-
-At the moment this a just a playgound for myself but might be merged back later on.
+This version is a rewrite of [Simon Urbanek's RJDBC packge](https://github.com/s-u/dbj). It started with only minor code modifications to meet the requirements of the [devtools](https://github.com/hadley/devtools) package development tools and the design guidelines for good R packages (See [R packages](http://r-pkgs.had.co.nz/) by Hadley Wickham). It ended with a more or less complete rewrite of the whole package.
 
 ## Requirements
 - Java 6+
 
 ## Installation
-RJDBC can be installed most easily using the [devtools](https://github.com/hadley/devtools) package. After you have installed devtools, just run `devtools::install_github("hoesler/RJDBC")`.
+dbj can be installed most easily using the [devtools](https://github.com/hadley/devtools) package. After you have installed devtools, just run `devtools::install_github("hoesler/dbj")`.
 
 The source compilation requires that you haven [maven](https://maven.apache.org/) installed.
 
 ##	Type mapping
-Type mapping in RJDBC has four data type units: The R working type, The R transfer type, the Java transfer type and the SQL storage Type. The working type is the type of a data.frame column you work with on the front end. For data transfer, these data types must be converted into a R transfer type, which is associated with one of the Java transfer types. Both transfer types are used to send data from R to Java and vice versa. Due to rJava and performance reasons this must be one of the Java raw types (boolean, byte, int, long, float, double) or String.
+Type mapping in dbj has four data type units: The R working type, The R transfer type, the Java transfer type and the SQL storage Type. The working type is the type of a data.frame column you work with on the front end. For data transfer, these data types must be converted into a R transfer type, which is associated with one of the Java transfer types. Both transfer types are used to send data from R to Java and vice versa. Due to rJava and performance reasons this must be one of the Java raw types (boolean, byte, int, long, float, double) or String.
 
 The way the data transfer is implemented requires that all data that can possibly be transferred must be convertible to one of these transfer types.
 
