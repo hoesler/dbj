@@ -18,13 +18,23 @@ setClass("JDBCDriver",
     read_conversions = "list",
     write_conversions = "list"))
 
+#' Deprecated
+#' @param driverClass the java class name of the JDBC driver to use
+#' @param classPath a string of paths seperated by : which shoul get added to the classpath (see \link[rJava]{.jaddClassPath})
+#' @param read_conversions a list of JDBCReadConversion objects.
+#' @param write_conversions a list of JDBCWriteConversion objects.
+#' @export
+JDBC <- function(driverClass = '', classPath = '', read_conversions = default_read_conversions, write_conversions = default_write_conversions) {  
+  driver(driverClass, classPath, read_conversions, write_conversions)
+}
+
 #' @param driverClass the java class name of the JDBC driver to use
 #' @param classPath a string of paths seperated by : which shoul get added to the classpath (see \link[rJava]{.jaddClassPath})
 #' @param read_conversions a list of JDBCReadConversion objects.
 #' @param write_conversions a list of JDBCWriteConversion objects.
 #' @rdname JDBCDriver-class
 #' @export
-JDBC <- function(driverClass = '', classPath = '', read_conversions = default_read_conversions, write_conversions = default_write_conversions) {  
+driver <- function(driverClass = '', classPath = '', read_conversions = default_read_conversions, write_conversions = default_write_conversions) {  
   assert_that(is.character(driverClass))
   assert_that(is.character(classPath))
   JDBCDriver(driverClass, classPath, read_conversions, write_conversions)

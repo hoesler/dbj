@@ -1,8 +1,8 @@
 context("JDBCDriver integration tests")
 
-test_that("JDBC() creates a driver object", {
+test_that("dbj::driver() creates a driver object", {
   # when
-  drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
+  drv <- dbj::driver('org.h2.Driver', getOption("h2_jar"))
   
   # then
   expect_that(drv, is_a("JDBCDriver"))
@@ -10,7 +10,7 @@ test_that("JDBC() creates a driver object", {
 
 test_that("dbConnect() establishes a connection", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
+  h2_drv <- dbj::driver('org.h2.Driver', getOption("h2_jar"))
   
   # when
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
@@ -22,7 +22,7 @@ test_that("dbConnect() establishes a connection", {
 
 test_that("dbGetInfo() returns a list", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
+  h2_drv <- dbj::driver('org.h2.Driver', getOption("h2_jar"))
   
   # when
   info <- dbGetInfo(h2_drv)
@@ -35,7 +35,7 @@ test_that("dbGetInfo() returns a list", {
 
 test_that("summary() prints something", {
   # given
-  h2_drv <- JDBC('org.h2.Driver', getOption("h2_jar"))
+  h2_drv <- dbj::driver('org.h2.Driver', getOption("h2_jar"))
 
   # then
   expect_that(summary(h2_drv), prints_text(".*"))
