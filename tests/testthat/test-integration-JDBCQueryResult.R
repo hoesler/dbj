@@ -112,6 +112,22 @@ test_that("dbGetStatement returns the statement", {
   expect_that(actual, equals(statement))
 })
 
+test_that("dbGetInfo() returns expected data", {
+  # given
+  statement <- 'SELECT 1 + 1'
+  h2_drv <- dbj::driver('org.h2.Driver', getOption("h2_jar"))
+  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
+  on.exit(dbDisconnect(con))
+  res <- dbSendQuery(con, statement)
+
+  # when
+  info <- dbGetInfo(res)
+
+  # then
+  expect_that(info, is_a("list"))
+  expect_that(c("statement", "row.count", "rows.affected", "has.completed", "is.select"), is_contained_in(names(info)))
+})
+
 #test_that("dbGetRowCount returns the correct number", {
 #  # given
 #  h2_drv <- dbj::driver('org.h2.Driver', getOption("h2_jar"))

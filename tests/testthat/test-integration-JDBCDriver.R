@@ -20,23 +20,14 @@ test_that("dbConnect() establishes a connection", {
   expect_that(con, is_a("JDBCConnection"))
 })
 
-test_that("dbGetInfo() returns a list", {
+test_that("dbGetInfo() returns expected data", {
   # given
   h2_drv <- dbj::driver('org.h2.Driver', getOption("h2_jar"))
-  
+
   # when
   info <- dbGetInfo(h2_drv)
 
   # then
   expect_that(info, is_a("list"))
-  expect_that(info$driver.version, is_a("character"))
-  expect_that(info$client.version, is_a("character"))
-})
-
-test_that("summary() prints something", {
-  # given
-  h2_drv <- dbj::driver('org.h2.Driver', getOption("h2_jar"))
-
-  # then
-  expect_that(summary(h2_drv), prints_text(".*"))
+  expect_that(c("driver.version", "client.version", "max.connections"), is_contained_in(names(info)))
 })

@@ -36,10 +36,6 @@ test_that("has method dbGetInfo(dbObj, ...)", {
   expect_that(hasMethod("dbGetInfo", signature(dbObj = "JDBCConnection")), is_true())
 })
 
-test_that("has method summary(object, ...)", {
-  expect_that(hasMethod("summary", signature(object = "JDBCConnection")), is_true())
-})
-
 test_that("has method dbGetException(conn, ...)", {
   expect_that(hasMethod("dbGetException", signature(conn = "JDBCConnection")), is_true())
 })

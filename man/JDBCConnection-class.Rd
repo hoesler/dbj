@@ -36,4 +36,5 @@ Class JDBCConnection
 
 Create a new \code{\linkS4class{JDBCConnection}} object
 }
+\keyword{internal}
 

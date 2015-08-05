@@ -9,6 +9,7 @@ NULL
 
 #' Class JDBCConnection
 #' 
+#' @keywords internal
 #' @export
 setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"),
   slots = c(
@@ -381,20 +382,6 @@ setMethod("dbRollback", signature(conn = "JDBCConnection"),
   valueClass = "logical"
 )
 
-setMethod("summary", "JDBCConnection", 
-  function(object, ...) {
-    info <- connection_info(object@j_connection)
-    cat("JDBC Connection\n")
-    cat(sprintf("  URL: %s\n", info$url))
-    cat(sprintf("  User: %s\n", info$user_name)) 
-    cat(sprintf("  Driver name: %s\n", info$driver_name))
-    cat(sprintf("  Driver Version: %s\n", info$driver_version))   
-    cat(sprintf("  Database product name: %s\n", info$database_product_name))
-    cat(sprintf("  Database product version: %s\n", info$database_product_version))
-    invisible(NULL)
-  }
-)
-
 #' Get info about the connection.
 #' 
 #' @param dbObj an object of class \code{\linkS4class{JDBCConnection}}
@@ -415,8 +402,13 @@ connection_info <- function(j_connection) {
     driver_name = jtry(.jcall(md, "S", "getDriverName", check = FALSE)),
     driver_version = jtry(.jcall(md, "S", "getDriverVersion", check = FALSE)),
     url = jtry(.jcall(md, "S", "getURL", check = FALSE)),
-    user_name = jtry(.jcall(md, "S", "getUserName", check = FALSE)),
-    identifier_quote_string = jtry(.jcall(md, "S", "getIdentifierQuoteString", check = FALSE))
+    username = jtry(.jcall(md, "S", "getUserName", check = FALSE)),
+    identifier_quote_string = jtry(.jcall(md, "S", "getIdentifierQuoteString", check = FALSE)),
+    # TODO: get data for the folowing keys as required by DBI
+    db.version = "",
+    dbname = "",
+    host = "",
+    port = ""
   )
 }
 

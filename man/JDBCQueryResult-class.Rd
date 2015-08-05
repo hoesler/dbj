@@ -37,4 +37,5 @@ a new JDBCQueryResult object
 \description{
 Class JDBCQueryResult with factory method JDBCQueryResult.
 }
+\keyword{internal}
 

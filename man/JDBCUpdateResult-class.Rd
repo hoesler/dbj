@@ -34,4 +34,5 @@ a new JDBCUpdateResult object
 \description{
 Class JDBCUpdateResult with factory method JDBCUpdateResult.
 }
+\keyword{internal}
 

@@ -118,14 +118,19 @@ test_that("SQLKeywords() returns a character vector of keywords", {
   expect_that(all(.SQL92Keywords %in% keywords), is_true())
 })
 
-test_that("summary() prints something", {
+test_that("dbGetInfo() returns expected data", {
   # given
   h2_drv <- dbj::driver('org.h2.Driver', getOption("h2_jar"))
   con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
   on.exit(dbDisconnect(con))
 
+  # when
+  info <- dbGetInfo(con)
+
   # then
-  expect_that(summary(con), prints_text(".*"))
+  expect_that(info, is_a("list"))
+  expect_that(c("db.version", "dbname", "username", "host", "port"), is_contained_in(names(info)))
+  expect_that(c("password"), not(is_contained_in(names(info))))
 })
 
 test_that("dbCallProc() works", {

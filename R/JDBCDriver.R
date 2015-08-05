@@ -6,7 +6,7 @@ NULL
 #' Class JDBCDriver with factory methods.
 #'
 #' \code{JDBCDriver} objects are usually created by 
-#' \code{\link[dbj]{JDBC}}.
+#' \code{\link[dbj]{driver}}.
 #' 
 #' @keywords internal
 #' @export
@@ -20,16 +20,17 @@ setClass("JDBCDriver",
 
 #' Deprecated
 #' @param driverClass the java class name of the JDBC driver to use
-#' @param classPath a string of paths seperated by : which shoul get added to the classpath (see \link[rJava]{.jaddClassPath})
+#' @param classPath a string of paths seperated by : which should get added to the classpath (see \link[rJava]{.jaddClassPath})
 #' @param read_conversions a list of JDBCReadConversion objects.
 #' @param write_conversions a list of JDBCWriteConversion objects.
+#' @rdname JDBCDriver-class-deprecated
 #' @export
 JDBC <- function(driverClass = '', classPath = '', read_conversions = default_read_conversions, write_conversions = default_write_conversions) {  
   driver(driverClass, classPath, read_conversions, write_conversions)
 }
 
 #' @param driverClass the java class name of the JDBC driver to use
-#' @param classPath a string of paths seperated by : which shoul get added to the classpath (see \link[rJava]{.jaddClassPath})
+#' @param classPath a string of paths seperated by : which should get added to the classpath (see \link[rJava]{.jaddClassPath})
 #' @param read_conversions a list of JDBCReadConversion objects.
 #' @param write_conversions a list of JDBCWriteConversion objects.
 #' @rdname JDBCDriver-class
@@ -37,12 +38,7 @@ JDBC <- function(driverClass = '', classPath = '', read_conversions = default_re
 driver <- function(driverClass = '', classPath = '', read_conversions = default_read_conversions, write_conversions = default_write_conversions) {  
   assert_that(is.character(driverClass))
   assert_that(is.character(classPath))
-  JDBCDriver(driverClass, classPath, read_conversions, write_conversions)
-}
 
-#' @rdname JDBCDriver-class
-#' @export
-JDBCDriver <- function(driverClass = '', classPath = '', read_conversions = default_read_conversions, write_conversions = default_write_conversions) {
   ## expand all paths in the classPath
   expanded_paths <- path.expand(unlist(strsplit(classPath, .Platform$path.sep)))
   .jaddClassPath(expanded_paths)
@@ -108,18 +104,6 @@ setMethod("dbConnect", signature(drv = "JDBCDriver"),
     JDBCConnection(jc, drv)
   },
   valueClass = "JDBCConnection"
-)
-
-setMethod("summary", signature(object = "JDBCDriver"),
-  function(object, ...) {
-    info <- dbGetInfo(object)
-    cat("JDBC Driver\n")
-    cat(sprintf("  Version: %s\n", info$driver.version))
-    cat(sprintf("  Client class: %s\n", object@driverClass))
-    cat(sprintf("  Client version: %s\n", info$client.version))
-    cat(sprintf("  Max connections: %s\n", info$max.connections))
-    invisible(NULL)
-  }
 )
 
 #' Get meta information about the driver

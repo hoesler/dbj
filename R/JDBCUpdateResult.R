@@ -4,6 +4,7 @@ NULL
 
 #' Class JDBCUpdateResult with factory method JDBCUpdateResult.
 #'
+#' @keywords internal
 #' @export
 setClass("JDBCUpdateResult",
   contains = c("JDBCResult"),

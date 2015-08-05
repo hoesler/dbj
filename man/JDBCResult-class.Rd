@@ -19,4 +19,5 @@
 \description{
 Class JDBCResult
 }
+\keyword{internal}
 

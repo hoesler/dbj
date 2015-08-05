@@ -3,6 +3,7 @@ NULL
 
 #' Class JDBCObject
 #'
+#' @keywords internal
 #' @export
 setClass("JDBCObject", contains = c("DBIObject", "VIRTUAL"))
 
@@ -30,15 +31,6 @@ setMethod("dbDataType", signature(dbObj = "JDBCObject"),
     dbDataType(drv, obj)
   },
   valueClass = "character"
-)
-
-#' @rdname JDBCObject-class
-#' @param object an object of class \code{\linkS4class{JDBCObject}}
-#' @export
-setMethod("summary", signature(object = "JDBCObject"),
-  function(object, ...) {
-    stop(sprintf("summary is not implemented for class %s", class(object)))
-  }
 )
 
 #' @rdname JDBCObject-class

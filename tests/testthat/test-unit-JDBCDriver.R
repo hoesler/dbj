@@ -16,10 +16,6 @@ test_that("has method dbListConnections(dbObj, ...)", {
   expect_that(hasMethod("dbListConnections", signature(drv = "JDBCDriver")), is_true())
 })
 
-test_that("has method summary(object, ...)", {
-  expect_that(hasMethod("summary", signature(object = "JDBCDriver")), is_true())
-})
-
 test_that("dbIsValid returns TRUE", {
   expect_that(dbIsValid(new("JDBCDriver")), is_true())
 })

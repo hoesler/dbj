@@ -4,6 +4,7 @@ NULL
 
 #' Class JDBCQueryResult with factory method JDBCQueryResult.
 #'
+#' @keywords internal
 #' @export
 setClass("JDBCQueryResult",
   contains = c("JDBCResult"),
@@ -231,7 +232,9 @@ result_info <- function(result_set) {
     col.count = jtry(.jcall(result_set@j_result_set_meta, "I", "getColumnCount", check = FALSE)),
     row.count = jtry(.jcall(result_set@j_result_set, "I", "getRow", check = FALSE)),
     has.completed = dbHasCompleted(result_set),
-    is.select = TRUE
+    is.select = TRUE,
+    # TODO: total number of records to be fetched
+    rows.affected = NA
   )
 }
 

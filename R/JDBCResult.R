@@ -3,6 +3,7 @@ NULL
 
 #' Class JDBCResult
 #'
+#' @keywords internal
 #' @export
 setClass("JDBCResult",
   contains = c("DBIResult", "JDBCObject", "VIRTUAL"),

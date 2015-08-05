@@ -18,5 +18,20 @@ if (!file.exists(h2_jar_dest)) {
 options(h2_jar = file.path(getwd(), h2_jar_dest))
 if (!is.character(getOption("h2_jar"))) stop("Path to h2 jar could not be resolved")
 
+expect_contained <- function(a, b) {
+	expect_that(a, is_contained_in(b))
+}
+
+is_contained_in <- function(expected_elements, label = NULL, ...) {
+	function(actual_elements) {
+		contained <- actual_elements %in% expected_elements
+		expectation(
+			all(contained),
+			paste0("[", paste0(expected_elements, collapse = ", "), "] does not contain [", paste0(actual_elements[!contained], collapse = ", "), "]"),
+			paste0("expected_elements contains all ", length(actual_elements), " elements in actual_elements")
+		)
+	}
+}
+
 test_check("dbj", filter = "unit-.*")
 test_check("dbj", filter = "integration-.*")
