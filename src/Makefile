@@ -11,7 +11,7 @@ create_jar:
 
 inst: create_jar
 	mkdir -p $(PACKAGE_ROOT)/inst/java
-	find -E java/target -regex '.*dbj-[0-9]+\.[0-9]+\.jar' -exec cp {} $(PACKAGE_ROOT)/inst/java \;
+	find java/target -name '*.jar' -not -name '*proguard*' -exec cp {} $(PACKAGE_ROOT)/inst/java \;
 
 clean: clean_target clean_inst
 
