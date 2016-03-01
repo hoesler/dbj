@@ -2,10 +2,11 @@
 #' @include JavaUtils.R
 NULL
 
-#' Class JDBCQueryResult with factory method JDBCQueryResult.
+#' JDBCQueryResult class.
 #'
 #' @keywords internal
 #' @export
+#' @include JDBCObject.R
 setClass("JDBCQueryResult",
   contains = c("JDBCResult"),
   slots = c(
@@ -26,7 +27,6 @@ setClass("JDBCQueryResult",
 #' @param statement the stament that was used to create the j_result_set
 #' @return a new JDBCQueryResult object
 #' @rdname JDBCQueryResult-class
-#' @export
 JDBCQueryResult <- function(j_result_set, connection, statement = "") {
   assert_that(j_result_set %instanceof% "java.sql.ResultSet")
   assert_that(is(connection, "JDBCConnection"))
@@ -41,8 +41,7 @@ JDBCQueryResult <- function(j_result_set, connection, statement = "") {
     connection = connection)
 }
 
-#' Fetch records from a previously executed query
-#'
+#' @describeIn JDBCQueryResult fetch n results
 #' @param res an \code{\linkS4class{JDBCQueryResult}} object.
 #' @param n optional maximum number of records to retrieve per fetch. Use \code{-1} to 
 #'    retrieve all pending records; use \code{0} for to fetch the default 
@@ -86,7 +85,7 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
   }
 )
 
-#' @rdname fetch-JDBCQueryResult-numeric-method
+#' @describeIn JDBCQueryResult fetch all results
 #' @export
 setMethod("fetch", signature(res = "JDBCQueryResult", n = "missing"),
   function(res, n, ...) {
@@ -94,9 +93,7 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "missing"),
   }
 )
 
-#' @rdname JDBCQueryResult-class
-#' @param res an \code{\linkS4class{JDBCQueryResult}} object.
-#' @param ... Ignored. Needed for compatibility with generic.
+#' @describeIn JDBCQueryResult Clear results
 #' @export
 setMethod("dbClearResult", signature(res = "JDBCQueryResult"),
   function(res, ...) {
@@ -159,7 +156,7 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
   valueClass = "data.frame"
 )
 
-#' @rdname JDBCQueryResult-class
+#' @describeIn JDBCQueryResult Count roes in result set
 #' @export
 setMethod("dbGetRowCount", signature(res = "JDBCQueryResult"),
   function(res, ...) {
@@ -168,7 +165,7 @@ setMethod("dbGetRowCount", signature(res = "JDBCQueryResult"),
   valueClass = "numeric"
 )
 
-#' @rdname JDBCQueryResult-class
+#' @describeIn JDBCQueryResult Count rows affected by the last update query
 #' @export
 setMethod("dbGetRowsAffected", signature(res = "JDBCQueryResult"),
   function(res, ...) {
@@ -177,7 +174,7 @@ setMethod("dbGetRowsAffected", signature(res = "JDBCQueryResult"),
   valueClass = "numeric"
 )
 
-#' @rdname JDBCQueryResult-class
+#' @describeIn JDBCQueryResult Check if all results have been fetched
 #' @export
 setMethod("dbHasCompleted", signature(res = "JDBCQueryResult"),
   function(res, ...) {
@@ -192,31 +189,7 @@ setMethod("dbHasCompleted", signature(res = "JDBCQueryResult"),
   }
 )
 
-#' Get the names or labels for the columns of the result set.
-#' 
-#' @param conn an \code{\linkS4class{JDBCQueryResult}} object.
-#' @param  name Ignored. Needed for compatiblity with generic.
-#' @param  use_labels if the the method should return the labels or the names of the columns
-#' @param  ... Ignored. Needed for compatiblity with generic.
-#' @export
-setMethod("dbListFields", signature(conn = "JDBCQueryResult", name = "missing"),
-  function(conn, name, use_labels = TRUE, ...) {
-    cols <- jtry(.jcall(conn@j_result_set_meta, "I", "getColumnCount", check = FALSE))
-    if (cols < 1L) {
-      return(character())
-    }
-    method_name <- if (use_labels) "getColumnLabel" else "getColumnName"
-    sapply(seq(cols), function(column_index) {
-      jtry(.jcall(conn@j_result_set_meta, "S", method_name, column_index, check = FALSE))
-    })
-  },
-  valueClass = "character"
-)
-
-#' Get info about the result.
-#' 
-#' @param dbObj an object of class \code{\linkS4class{JDBCQueryResult}}
-#' @param ... Ignored. Needed for compatiblity with generic.
+#' @describeIn JDBCQueryResult Get info
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCQueryResult"),
   function(dbObj, ...) {
@@ -238,10 +211,7 @@ result_info <- function(result_set) {
   )
 }
 
-#' Get info about the result.
-#' 
-#' @param dbObj an object of class \code{\linkS4class{JDBCQueryResult}}
-#' @param ... Ignored. Needed for compatiblity with generic.
+#' @describeIn JDBCQueryResult Is the result valid
 #' @export
 setMethod("dbIsValid", signature(dbObj = "JDBCQueryResult"),
   function(dbObj, ...) {

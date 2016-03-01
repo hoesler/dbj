@@ -7,23 +7,17 @@ NULL
 #' @export
 setClass("JDBCObject", contains = c("DBIObject", "VIRTUAL"))
 
-#' @rdname JDBCObject-class
-#' @param dbObj An object of class \code{\linkS4class{JDBCObject}}
-#' @param ... Ignored. Included for compatibility with generic.
+#' @describeIn JDBCObject Unless overwritten, this method will \code{stop} with an error.
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCObject"),
   function(dbObj, ...) {
-    list(
-      name = "JDBC",
-      driver.version = "0.1-1",
-      DBI.version = "0.2-7",
-      client.version = NA,
-      max.connections = NA)
-  }
+    stop(sprintf("dbGetInfo is not implemented for class %s", class(dbObj)))
+  },
+  valueClass = "list"
 )
 
-#' @rdname JDBCObject-class
-#' @param obj An R object whose SQL type we want to determine.
+#' @describeIn JDBCObject the method is forwarded to the \code{JDBCDriver} object returnd by \code{dbGetDriver(dbObj)}.
+#' @export
 setMethod("dbDataType", signature(dbObj = "JDBCObject"),
   function(dbObj, obj, ...) {
     drv <- dbGetDriver(dbObj)
@@ -33,7 +27,7 @@ setMethod("dbDataType", signature(dbObj = "JDBCObject"),
   valueClass = "character"
 )
 
-#' @rdname JDBCObject-class
+#' @describeIn JDBCObject to get the full list of keywords you must pass a \code{\linkS4class{JDBCConnection}} object. For all other objects not overwriting this method it will forward to the superclass with a warning. 
 #' @export
 setMethod("SQLKeywords", signature(dbObj = "JDBCObject"),
   function(dbObj, ...) {
@@ -42,7 +36,7 @@ setMethod("SQLKeywords", signature(dbObj = "JDBCObject"),
   }
 )
 
-#' @rdname JDBCObject-class
+#' @describeIn JDBCObject Unless overwritten, this method will \code{stop} with an error.
 #' @export
 setMethod("dbIsValid", signature(dbObj = "JDBCObject"),
   function(dbObj, ...) {

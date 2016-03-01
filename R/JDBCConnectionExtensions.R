@@ -2,6 +2,7 @@
 #' 
 #' @param conn An \code{DBIConnection} object.
 #' @param ... Other arguments used by methods
+#' @keywords internal
 #' @export
 setGeneric("dbGetFields",
   function(conn, ...) standardGeneric("dbGetFields"),
@@ -12,6 +13,7 @@ setGeneric("dbGetFields",
 #' 
 #' @param conn An \code{DBIConnection} object.
 #' @param ... Other arguments used by methods
+#' @keywords internal
 #' @export
 setGeneric("dbGetTables",
   function(conn, ...) standardGeneric("dbGetTables"),
@@ -25,6 +27,7 @@ setGeneric("dbGetTables",
 #' @param parameters Optional. Either a named list or a data.frame of statment parameters.
 #'   A data.frame will produce a batch update for each row.
 #' @param ... Other arguments used by methods
+#' @keywords internal
 #' @export
 setGeneric("dbSendUpdate",
   function(conn, statement, parameters, ...) standardGeneric("dbSendUpdate"),
@@ -36,6 +39,7 @@ setGeneric("dbSendUpdate",
 #' @param conn An \code{DBIConnection} object.
 #' @param name The name of the table.
 #' @param ... Other arguments used by methods.
+#' @keywords internal
 #' @export
 setGeneric("dbTruncateTable",
   function(conn, name, ...) standardGeneric("dbTruncateTable"),

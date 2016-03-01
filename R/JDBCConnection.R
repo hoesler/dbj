@@ -9,7 +9,10 @@ NULL
 
 #' Class JDBCConnection
 #' 
-#' @keywords internal
+#' @param conn a \code{\linkS4class{JDBCConnection}} object
+#' @param dbObj a \code{\linkS4class{JDBCConnection}} object
+#' @param ... Arguments passed on to other methods.
+#' 
 #' @export
 setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"),
   slots = c(
@@ -24,10 +27,11 @@ setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"),
 )
 
 #' Create a new \code{\linkS4class{JDBCConnection}} object
+#' 
 #' @param j_connection a jobjRef object with a java.sql.Connection reference
 #' @param driver the full qualified class name of the JDBC Driver to use.
 #' @return a \code{\linkS4class{JDBCConnection}} object
-#' @rdname JDBCConnection-class
+#' @keywords internal
 JDBCConnection <- function(j_connection, driver) {
   assert_that(j_connection %instanceof% "java.sql.Connection")
   new("JDBCConnection",
@@ -51,12 +55,13 @@ setMethod("dbConnect", signature(drv = "JDBCConnection"),
   valueClass = "JDBCConnection"
 )
 
-#' Calls a stored procedure.
+#' Marked as deprecated in DBI
 #'
-#' @param conn a \code{\linkS4class{JDBCConnection}} object
+#' @param conn A \code{\linkS4class{JDBCConnection}} object, as produced by
+#'   \code{\link{dbConnect}}.
+#' @param ... Other parameters passed on to methods.
 #' @param name the name of the procedure
 #' @param parameters a list of procedure arguments.
-#' @param ... Ignored. Included for compatibility with generic.
 #' @export
 setMethod("dbCallProc", signature(conn = "JDBCConnection"),
   function(conn, name, parameters = list(), ...) {
@@ -76,10 +81,11 @@ setMethod("dbCallProc", signature(conn = "JDBCConnection"),
   valueClass = "logical"
 )
 
-#' Disconnect an JDBC connection.
+#' Disconnect (close) a connection
 #' 
-#' @param conn An existing \code{\linkS4class{JDBCConnection}}
-#' @param ... Ignored. Included for compatibility with generic.
+#' @param conn A \code{\linkS4class{JDBCConnection}} object, as produced by
+#'   \code{\link{dbConnect}}.
+#' @param ... Other parameters passed on to methods.
 #' @export
 setMethod("dbDisconnect", signature(conn = "JDBCConnection"),
   function(conn, ...) {
@@ -91,10 +97,11 @@ setMethod("dbDisconnect", signature(conn = "JDBCConnection"),
 
 #' Execute a SQL statement on a database connection
 #'
-#' @param conn An existing \code{\linkS4class{JDBCConnection}}
+#' @param conn A \code{\linkS4class{JDBCConnection}} object, as produced by
+#'   \code{\link{dbConnect}}.
+#' @param ... Other parameters passed on to methods.-JDBCConnection-method
 #' @param statement the statement to send over the connection
-#' @param parameters a list of statment parameters
-#' @param ... Ignored. Needed for compatiblity with generic.
+#' @param parameters a list of statement parameters
 #' @export
 setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "character"),
   function(conn, statement, parameters = list(), ...) {
@@ -117,7 +124,12 @@ setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "charact
   valueClass = "JDBCResult"
 )
 
-#' @rdname dbSendUpdate
+#' @describeIn dbSendUpdate Send update query without parameters
+#' @param conn A \code{\linkS4class{JDBCConnection}} object, as produced by
+#'   \code{\link{dbConnect}}.
+#' @param ... Other parameters passed on to methods.
+#' @param statement the statement to send over the connection
+#' @param parameters a list of statement parameters
 #' @export
 setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "missing"),
   function(conn, statement, parameters, ...) {
@@ -129,7 +141,7 @@ setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "chara
   valueClass = "logical"
 )
 
-#' @rdname dbSendUpdate
+#' @describeIn dbSendUpdate Send update query with parameters given as a named list
 #' @export
 setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "list"),
   function(conn, statement, parameters, ...) {
@@ -140,7 +152,7 @@ setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "chara
 )
 
 
-#' @rdname dbSendUpdate
+#' @describeIn dbSendUpdate Send batch update queries with parameters given as a data.frame
 #' @param partition_size the size which will be used to partition the data into seperate commits
 #' @export
 setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "data.frame"),
@@ -176,8 +188,9 @@ fetch_all <- function(j_result_set, connection, close = TRUE) {
 
 #' List available JDBC tables.
 #' 
-#' @param conn An existing \code{\linkS4class{JDBCConnection}}
-#' @param ... Ignored. Included for compatibility with generic.
+#' @param conn A \code{\linkS4class{JDBCConnection}} object, as produced by
+#'   \code{\link{dbConnect}}.
+#' @param ... Other parameters passed on to methods.
 #' @param pattern the pattern passed to the java method ResultSet.getTables()
 #' @export
 setMethod("dbListTables", signature(conn = "JDBCConnection"),
@@ -189,7 +202,8 @@ setMethod("dbListTables", signature(conn = "JDBCConnection"),
 )
 
 #' @param pattern the pattern for table names
-#' @rdname dbGetTables
+#' @describeIn dbGetTables Get tables for the JDBCConnection
+#' @export
 setMethod("dbGetTables", signature(conn = "JDBCConnection"),
   function(conn, pattern = "%", ...) {
     md <- jtry(.jcall(conn@j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE),
@@ -203,11 +217,8 @@ setMethod("dbGetTables", signature(conn = "JDBCConnection"),
   valueClass = "data.frame"
 )
 
-#' Does the table exist?
-#' 
-#' @param conn An existing \code{\linkS4class{JDBCConnection}}
-#' @param name character vector of length 1 giving name of table
-#' @param ... Ignored. Included for compatibility with generic.
+#' @describeIn JDBCConnection Does a table exist?
+#' @param name A character string specifying a DBMS table name.
 #' @export
 setMethod("dbExistsTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
@@ -217,13 +228,7 @@ setMethod("dbExistsTable", signature(conn = "JDBCConnection", name = "character"
   valueClass = "logical"
 )
 
-#' Remove a table from the database.
-#' 
-#' Executes the SQL \code{DROP TABLE}.
-#' 
-#' @param conn An existing \code{\linkS4class{JDBCConnection}}
-#' @param name character vector of length 1 giving name of table to remove
-#' @param ... Ignored. Included for compatibility with generic.
+#' @describeIn JDBCConnection Executes the SQL \code{DROP TABLE}.
 #' @export
 setMethod("dbRemoveTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
@@ -234,10 +239,11 @@ setMethod("dbRemoveTable", signature(conn = "JDBCConnection", name = "character"
 
 #' List field names in specified table.
 #'
-#' @param conn An existing \code{\linkS4class{JDBCConnection}}
-#' @param name character vector of length 1 giving name of the table
+#' @param conn A \code{\linkS4class{JDBCConnection}} object, as produced by
+#'   \code{\link{dbConnect}}.
+#' @param ... Other parameters passed on to methods.
+#' @param name A character string specifying a DBMS table name.
 #' @param pattern the pattern for the columns to list
-#' @param ... Ignored. Included for compatibility with generic
 #' @export
 setMethod("dbListFields", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, pattern = "%", ...) {
@@ -246,6 +252,9 @@ setMethod("dbListFields", signature(conn = "JDBCConnection", name = "character")
   valueClass = "data.frame"
 )
 
+#' @param conn A \code{\linkS4class{JDBCConnection}} object, as produced by
+#'   \code{\link{dbConnect}}.
+#' @param ... Other parameters passed on to methods.
 #' @param name the pattern for table names
 #' @param pattern the pattern for column names
 #' @rdname dbGetFields
@@ -262,11 +271,7 @@ setMethod("dbGetFields", signature(conn = "JDBCConnection"),
   valueClass = "data.frame"
 )
 
-#' Convenience functions for importing/exporting DBMS tables
-#' @param conn a \code{\linkS4class{JDBCConnection}} object, produced by
-#'   \code{\link[DBI]{dbConnect}}
-#' @param name a character string specifying a table name.
-#' @param ... Ignored. Needed for compatibility with generic.
+#' @describeIn JDBCConnection Copy data frames from database.
 #' @export
 setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
@@ -277,12 +282,13 @@ setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
 
 #' Write a local data frame or file to the database.
 #' 
-#' @param conn An existing \code{\linkS4class{JDBCConnection}}
+#' @param conn A \code{\linkS4class{JDBCConnection}} object, as produced by
+#'   \code{\link{dbConnect}}.
+#' @param ... Other parameters passed on to methods.
 #' @param name character vector of length 1 giving name of table to write to
 #' @param value the date frame to write to the table
 #' @param create a logical specifying whether to create a new table if it does not exist. Its default is TRUE.
 #' @param append a logical specifying whether to append to an existing table. Its default is TRUE.
-#' @param ... Ignored. Included for compatibility with generic.
 #' @export
 setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "data.frame"),
   function(conn, name, value, create = TRUE, append = TRUE, ...) { 
@@ -342,11 +348,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
   valueClass = "logical"
 )
 
-
-#' Begin a transaction.
-#' 
-#' @param conn An existing \code{\linkS4class{JDBCConnection}}
-#' @param ... Ignored. Included for compatibility with generic.
+#' @describeIn JDBCConnection Begin a transaction
 #' @export
 setMethod("dbBegin", signature(conn = "JDBCConnection"),
   function(conn, ...) {
@@ -356,10 +358,7 @@ setMethod("dbBegin", signature(conn = "JDBCConnection"),
   valueClass = "logical"
 )
 
-#' Commit a transaction.
-#' 
-#' @param conn An existing \code{\linkS4class{JDBCConnection}}
-#' @param ... Ignored. Included for compatibility with generic.
+#' @describeIn JDBCConnection Commit a transaction
 #' @export
 setMethod("dbCommit", signature(conn = "JDBCConnection"),
   function(conn, ...) {
@@ -369,10 +368,7 @@ setMethod("dbCommit", signature(conn = "JDBCConnection"),
   valueClass = "logical"
 )
 
-#' Roll back a transaction.
-#' 
-#' @param conn an object of class \code{\linkS4class{JDBCConnection}}
-#' @param ... Ignored. Included for compatibility with generic.
+#' @describeIn JDBCConnection Rollback a transaction
 #' @export
 setMethod("dbRollback", signature(conn = "JDBCConnection"), 
   function(conn, ...) {
@@ -382,10 +378,7 @@ setMethod("dbRollback", signature(conn = "JDBCConnection"),
   valueClass = "logical"
 )
 
-#' Get info about the connection.
-#' 
-#' @param dbObj an object of class \code{\linkS4class{JDBCConnection}}
-#' @param ... Ignored. Needed for compatiblity with generic.
+#' @describeIn JDBCConnection Returns a list with \code{database_product_name}, \code{database_product_version}, \code{driver_name}, \code{driver_version}, \code{url}, \code{username}, \code{identifier_quote_string}, \code{db.version}, \code{dbname}, \code{host} and \code{port}.
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCConnection"),
   function(dbObj, ...) {
@@ -412,10 +405,7 @@ connection_info <- function(j_connection) {
   )
 }
 
-#' Get the last exception from the connection.
-#' 
-#' @param conn an object of class \code{\linkS4class{JDBCConnection}}
-#' @param ... Ignored. Needed for compatiblity with generic.
+#' @describeIn JDBCConnection Not implemented. Returns an empty list.
 #' @export
 setMethod("dbGetException", signature(conn = "JDBCConnection"),
   function(conn, ...) {
@@ -425,20 +415,16 @@ setMethod("dbGetException", signature(conn = "JDBCConnection"),
   valueClass = "list"
 )
 
-#' List available JDBC result sets.
-#' 
-#' @param conn An existing \code{\linkS4class{JDBCConnection}}
-#' @param ... Ignored. Included for compatibility with generic.
+#' @describeIn JDBCConnection Returns an empty \code{list} as JDBC maintains no list of active results.
 #' @export
 setMethod("dbListResults", signature(conn = "JDBCConnection"),
   function(conn, ...) {
-    warning("JDBC maintains no list of active results")
     list()
   },
   valueClass = "list"
 )
 
-#' @rdname JDBCConnection-class
+#' @describeIn JDBCConnection Returns the list of SQL keywords as defined in the DatabaseMetaData Java object of the associated Java Connection object.
 #' @export
 setMethod("SQLKeywords", signature(dbObj = "JDBCConnection"),
   function(dbObj, ...) {
@@ -449,7 +435,7 @@ setMethod("SQLKeywords", signature(dbObj = "JDBCConnection"),
   valueClass = "character"
 )
 
-#' @rdname JDBCConnection-class
+#' @describeIn JDBCConnection Returns the driver for this connection.
 #' @export
 setMethod("dbGetDriver", signature(dbObj = "JDBCConnection"),
   function(dbObj, ...) {
@@ -457,7 +443,8 @@ setMethod("dbGetDriver", signature(dbObj = "JDBCConnection"),
   }
 )
 
-#' Truncate a table
+#' Truncate a table.
+#' 
 #' @inheritParams dbTruncateTable
 #' @param use_delete Send a DELETE FROM query instead of TRUNCATE TABLE. Default is FALSE.
 setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "character"),
@@ -470,10 +457,10 @@ setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "characte
   }
 )
 
-#' @rdname JDBCConnection-class
+#' dbIsValid
 #' @param dbObj A subclass of DBIConnection, representing an active connection to an DBMS.
 #' @param timeout The time in seconds to wait for the database operation used to validate the connection to complete. If the timeout period expires before the operation completes, this method returns false. A value of 0 indicates a timeout is not applied to the database operation.
-#' @param ... Other arguments passed on to methods. Not otherwise used.
+#' @param ... Ignored. Included for compatibility with generic.
 #' @export
 setMethod("dbIsValid", signature(dbObj = "JDBCConnection"),
   function(dbObj, timeout = 0, ...) {
@@ -485,7 +472,7 @@ setMethod("dbIsValid", signature(dbObj = "JDBCConnection"),
 #' Quote identifier
 #' @param conn A subclass of DBIConnection, representing an active connection to an DBMS.
 #' @param x A character vector to label as being escaped SQL.
-#' @param ... Other arguments passed on to methods. Not otherwise used.
+#' @param ... Ignored. Included for compatibility with generic.
 #' @export
 setMethod("dbQuoteIdentifier", signature(conn = "JDBCConnection", x = "character"),
   function(conn, x, ...) {
@@ -498,7 +485,7 @@ setMethod("dbQuoteIdentifier", signature(conn = "JDBCConnection", x = "character
 #' Quote identifier
 #' @param conn A subclass of DBIConnection, representing an active connection to an DBMS.
 #' @param x A character vector to label as being escaped SQL.
-#' @param ... Other arguments passed on to methods. Not otherwise used.
+#' @param ... Ignored. Included for compatibility with generic.
 #' @export
 setMethod("dbQuoteIdentifier", signature(conn = "JDBCConnection", x = "SQL"),
   function(conn, x, ...) {

@@ -1,9 +1,11 @@
 #' Verify that the given \code{j_object} is an object of type \code{jobjRef} but not \code{.jnull()}.
+#' 
 #' An error is thrown if the verification fails, otherwise \code{NULL} is returned.
 #' 
 #' @param  j_object an object of type \code{\linkS4class{jobjRef}}
 #' @param  ... any further message parts passed to \code{stop}
-#' @return NULL if the verification succeded
+#' @return \code{NULL} invisibly.
+#' @keywords internal
 verifyNotNull <- function(j_object, ...) {
   assert_that(is(j_object, "jobjRef"))
   if (is.jnull(j_object)) {
@@ -12,9 +14,12 @@ verifyNotNull <- function(j_object, ...) {
   invisible(NULL)
 }
 
-#' Check for any pending java exception. An error is thrown if one is found, otherwise \code{NULL} is returned.
+#' Check for any pending java exception.
 #' 
-#' @return NULL if no exception was found
+#' An error is thrown if one is found, otherwise \code{NULL} is returned.
+#' 
+#' @return \code{NULL} invisibly.
+#' @keywords internal
 checkException <- function() {
   j_exception <- .jgetEx(clear = TRUE)
   if (!is.null(j_exception)) {
@@ -25,9 +30,10 @@ checkException <- function() {
 
 #' Throw an error with the given \code{j_exception} as the cause.
 #' 
-#' @param  j_exception a java Throwable which is converted to a part of the message
+#' @param j_exception a java Throwable which is converted to a part of the message
 #' @param expression a R expression to evaluate
 #' @param  ... any further message parts passed to \code{stop}
+#' @keywords internal
 jstop <- function(j_exception, expression, ...) {
   assert_that(j_exception %instanceof% "java.lang.Throwable")
   exception_message <- expression
@@ -39,6 +45,8 @@ jstop <- function(j_exception, expression, ...) {
   stop(..., "Caused by: ", paste0(exception_message, collapse = " "), call. = FALSE)
 }
 
+#' Wrap an R expression which calls rJava functions.
+#' 
 #' Execute the given \code{expression} and check for a Java exception afterwards.
 #' If an exception was found throw an error.
 #' Make sure that the expression, which is usually a .jcall or a .jnew function, is called with the check = FALSE option.
@@ -48,6 +56,7 @@ jstop <- function(j_exception, expression, ...) {
 #' @param  onError the callback which will be called if a java exception was thrown with the exception as the first argument
 #' @param  ... any further arguments to the \code{onError} function
 #' @return the result of the \code{expression}
+#' @keywords internal
 jtry <- function(expression, onError = jstop, ...) {
   assert_that(is.function(onError))
   .jcheck()

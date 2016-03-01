@@ -19,7 +19,3 @@ test_that("has method dbColumnInfo(res, ...)", {
 test_that("has method dbGetInfo(dbObj, ...)", {
   expect_that(hasMethod("dbGetInfo", signature(dbObj = "JDBCQueryResult")), is_true())
 })
-
-test_that("has method dbListFields(conn, name, ...)", {
-  expect_that(hasMethod("dbListFields", signature(conn = "JDBCQueryResult", name = "missing")), is_true())
-})

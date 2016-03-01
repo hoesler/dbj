@@ -25,7 +25,7 @@ JDBCUpdateResult <- function(update_count, connection, statement = "") {
   new("JDBCUpdateResult", update_count = update_count, connection = connection, statement = statement)
 }
 
-#' Fetch records from a previously executed query
+#' @describeIn JDBCQueryResult Unsupported
 #'
 #' @param res an \code{\linkS4class{JDBCUpdateResult}} object.
 #' @param n optional maximum number of records to retrieve per fetch. Use \code{-1} to 
@@ -39,7 +39,7 @@ setMethod("fetch", signature(res = "JDBCUpdateResult", n = "numeric"),
   }
 )
 
-#' @rdname fetch-JDBCUpdateResult-numeric-method
+#' @describeIn JDBCQueryResult Unsupported
 #' @export
 setMethod("fetch", signature(res = "JDBCUpdateResult", n = "missing"),
   function(res, n, ...) {
@@ -47,9 +47,7 @@ setMethod("fetch", signature(res = "JDBCUpdateResult", n = "missing"),
   }
 )
 
-#' @rdname JDBCUpdateResult-class
-#' @param res an \code{\linkS4class{JDBCUpdateResult}} object.
-#' @param ... Ignored. Needed for compatibility with generic.
+#' @describeIn JDBCQueryResult Has no effect. Returns always \code{TRUE}.
 #' @export
 setMethod("dbClearResult", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
@@ -58,7 +56,7 @@ setMethod("dbClearResult", signature(res = "JDBCUpdateResult"),
   valueClass = "logical"
 )
 
-#' @rdname JDBCUpdateResult-class
+#' @describeIn JDBCQueryResult Unsupported
 #' @export
 setMethod("dbColumnInfo", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
@@ -67,7 +65,7 @@ setMethod("dbColumnInfo", signature(res = "JDBCUpdateResult"),
   valueClass = "data.frame"
 )
 
-#' @rdname JDBCUpdateResult-class
+#' @describeIn JDBCQueryResult Unsupported
 #' @export
 setMethod("dbGetRowCount", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
@@ -76,24 +74,7 @@ setMethod("dbGetRowCount", signature(res = "JDBCUpdateResult"),
   valueClass = "numeric"
 )
 
-#' Get the names or labels for the columns of the result set.
-#' 
-#' @param conn an \code{\linkS4class{JDBCUpdateResult}} object.
-#' @param  name Ignored. Needed for compatiblity with generic.
-#' @param  use_labels if the the method should return the labels or the names of the columns
-#' @param  ... Ignored. Needed for compatiblity with generic.
-#' @export
-setMethod("dbListFields", signature(conn = "JDBCUpdateResult", name = "missing"),
-  function(conn, name, use_labels = TRUE, ...) {
-    stop("dbListFields is unsupported in JDBCUpdateResult")
-  },
-  valueClass = "character"
-)
-
-#' Get info about the result.
-#' 
-#' @param dbObj an object of class \code{\linkS4class{JDBCUpdateResult}}
-#' @param ... Ignored. Needed for compatiblity with generic.
+#' @describeIn JDBCQueryResult Get info
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCUpdateResult"),
   function(dbObj, ...) {
@@ -107,10 +88,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCUpdateResult"),
   valueClass = "list"
 )
 
-#' Check if \code{dbObj} is valid, which is always true for objects of type \code{\linkS4class{JDBCUpdateResult}}.
-#' 
-#' @param dbObj an object of class \code{\linkS4class{JDBCUpdateResult}}
-#' @param ... Ignored. Needed for compatiblity with generic.
+#' @describeIn JDBCQueryResult Is always \code{TRUE}.
 #' @export
 setMethod("dbIsValid", signature(dbObj = "JDBCUpdateResult"),
   function(dbObj, ...) {

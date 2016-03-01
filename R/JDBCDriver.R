@@ -7,8 +7,6 @@ NULL
 #'
 #' \code{JDBCDriver} objects are usually created by 
 #' \code{\link[dbj]{driver}}.
-#' 
-#' @keywords internal
 #' @export
 setClass("JDBCDriver",
   contains = c("DBIDriver", "JDBCObject"),
@@ -18,19 +16,21 @@ setClass("JDBCDriver",
     read_conversions = "list",
     write_conversions = "list"))
 
-#' Deprecated
+#' Legacy JDBCDriver constructor.
+#' 
+#' This function is present for \code{RJDBC} compatibility. Use \code{\link{driver}} instead. 
 #' @param driverClass the java class name of the JDBC driver to use
-#' @param classPath a string of paths seperated by : which should get added to the classpath (see \link[rJava]{.jaddClassPath})
-#' @param read_conversions a list of JDBCReadConversion objects.
-#' @param write_conversions a list of JDBCWriteConversion objects.
-#' @rdname JDBCDriver-class-deprecated
+#' @param classPath a string of paths seperated by the \code{path.sep} variable in \code{\link{.Platform}} which should get added to the classpath (see \link[rJava]{.jaddClassPath})
+#' @param ... Ignored.
+#' @rdname JDBCDriver-class-legacy
 #' @export
-JDBC <- function(driverClass = '', classPath = '', read_conversions = default_read_conversions, write_conversions = default_write_conversions) {  
-  driver(driverClass, classPath, read_conversions, write_conversions)
+#' @keywords internal
+JDBC <- function(driverClass = '', classPath = '', ...) {  
+  driver(driverClass, classPath, read_conversions = default_read_conversions, write_conversions = default_write_conversions)
 }
 
 #' @param driverClass the java class name of the JDBC driver to use
-#' @param classPath a string of paths seperated by : which should get added to the classpath (see \link[rJava]{.jaddClassPath})
+#' @param classPath a string of paths seperated by \code{path.sep} variable in \code{\link{.Platform}} which should get added to the classpath (see \link[rJava]{.jaddClassPath})
 #' @param read_conversions a list of JDBCReadConversion objects.
 #' @param write_conversions a list of JDBCWriteConversion objects.
 #' @rdname JDBCDriver-class
@@ -52,27 +52,20 @@ driver <- function(driverClass = '', classPath = '', read_conversions = default_
   new("JDBCDriver", driverClass = driverClass, jdrv = jdrv, read_conversions = read_conversions, write_conversions = write_conversions)
 }
 
-#' List active connections
-#' 
+#' @describeIn JDBCDriver JDBC maintains no list of acitve connections. Returns an empty list.
 #' @param drv An object of class \code{\linkS4class{JDBCDriver}}
-#' @param ... Ignored. Needed for compatibility with generic.
+#' @param ... Ignored.
 #' @export
 setMethod("dbListConnections", signature(drv = "JDBCDriver"),
   function(drv, ...) {
-    warning("JDBC driver maintains no list of acitve connections.")
     list()
   }
 )
 
-#' Unload \code{\linkS4class{JDBCDriver}} driver.
-#' 
-#' @param drv An object of class \code{\linkS4class{JDBCDriver}}
-#' @param ... Ignored. Needed for compatibility with generic.
-#' @return A logical indicating whether the operation succeeded or not.
+#' @describeIn JDBCDriver Unloading has no effect but returns always \code{TRUE}.
 #' @export
 setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
   function(drv, ...) {
-    warning("Unloading a JDBCDriver has no effect")
     invisible(TRUE)
   },
   valueClass = "logical"
@@ -106,11 +99,8 @@ setMethod("dbConnect", signature(drv = "JDBCDriver"),
   valueClass = "JDBCConnection"
 )
 
-#' Get meta information about the driver
-#'
+#' @describeIn JDBCDriver Returns a list with \code{driver.version}, \code{client.version} and \code{max.connections}.
 #' @param dbObj An object of class \code{\linkS4class{JDBCDriver}}
-#' @param ... Ignored. Needed for compatibility with generic.
-#' @return A list with information about the driver
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCDriver"),
   function(dbObj, ...) {
@@ -125,7 +115,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCDriver"),
   }
 )
 
-#' @rdname JDBCDriver-class
+#' @describeIn JDBCDriver returns the JDBCDriver object.
 #' @export
 setMethod("dbGetDriver", signature(dbObj = "JDBCDriver"),
   function(dbObj, ...) {
@@ -133,7 +123,8 @@ setMethod("dbGetDriver", signature(dbObj = "JDBCDriver"),
   }
 )
 
-#' @rdname JDBCDriver-class
+#' @describeIn JDBCDriver returns the DB data type as defined in the \code{write_conversions}.
+#' @param obj An R object whose SQL type we want to determine.
 #' @export
 setMethod("dbDataType", signature(dbObj = "JDBCDriver"),
   function(dbObj, obj, ...) {
@@ -150,10 +141,7 @@ setMethod("dbDataType", signature(dbObj = "JDBCDriver"),
   valueClass = "character"
 )
 
-#' Check if \code{dbObj} is valid, which is always true for objects of type \code{\linkS4class{JDBCDriver}}.
-#' 
-#' @param dbObj an object of class \code{\linkS4class{JDBCDriver}}
-#' @param ... Ignored. Needed for compatiblity with generic.
+#' @describeIn JDBCDriver always \code{TRUE}.
 #' @export
 setMethod("dbIsValid", signature(dbObj = "JDBCDriver"),
   function(dbObj, ...) {

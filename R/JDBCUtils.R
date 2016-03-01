@@ -9,6 +9,7 @@ NULL
 #' @param  j_statement a java reference object to a java.sql.PreparedStatement
 #' @param  parameter_list a list of parameter values to fill the statement with
 #' @param write_conversions a list of \code{JDBCWriteConversion} objects
+#' @keywords internal
 insert_parameters <- function(j_statement, parameter_list, write_conversions) {
   #assert_that(j_statement %instanceof% "java.sql.PreparedStatement")
   assert_that(is.list(parameter_list))
@@ -54,9 +55,11 @@ add_batch <- function(j_statement) {
 }
 
 #' Transform a data frame into a java reference to a com/github/hoesler/dbj/Table
+#' 
 #' @param j_statement a jobjRef to a java.sql.PreparedStatement
 #' @param data a data.frame
 #' @param write_conversions a list of JDBCWriteConversion objects
+#' @keywords internal
 create_j_table <- function(j_statement, data, write_conversions) {
   #assert_that(j_statement %instanceof% "java.sql.PreparedStatement")
   assert_that(is.data.frame(data))
@@ -127,6 +130,7 @@ batch_insert <- function(j_statement, data, write_conversions) {
 #' 
 #' @param  j_statement a jobjRef object to a java.sql.PreparedStatement object
 #' @return integer vector with update counts containing one element for each command in the batch
+#' @keywords internal
 execute_batch <- function(j_statement) {
   #assert_that(j_statement %instanceof% "java.sql.PreparedStatement")
   jtry(.jcall(j_statement, "[I", "executeBatch", check = FALSE))

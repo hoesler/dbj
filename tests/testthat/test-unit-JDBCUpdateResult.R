@@ -36,10 +36,6 @@ test_that("dbHasCompleted returns TRUE", {
   expect_that(dbHasCompleted(new("JDBCUpdateResult")), is_true())
 })
 
-test_that("has method dbListFields(conn, name, ...)", {
-  expect_that(hasMethod("dbListFields", signature(conn = "JDBCUpdateResult", name = "missing")), is_true())
-})
-
 test_that("dbIsValid returns TRUE", {
   expect_that(dbIsValid(new("JDBCUpdateResult")), is_true())
 })

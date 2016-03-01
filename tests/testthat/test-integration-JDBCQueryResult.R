@@ -81,22 +81,6 @@ test_that("dbHasCompleted is true after fetching", {
   expect_that(completed, is_true())
 })
 
-test_that("dbListFields returns the column labels", {
-  # given
-  h2_drv <- dbj::driver('org.h2.Driver', getOption("h2_jar"))
-  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
-  on.exit(dbDisconnect(con))
-  data(iris)
-  dbWriteTable(con, "iris", iris)
-  res <- dbSendQuery(con, "SELECT * FROM \"iris\"")
-
-  # when
-  fields <- dbListFields(res)
-
-  # then
-  expect_that(fields, equals(names(iris)))
-})
-
 test_that("dbGetStatement returns the statement", {
   # given
   statement <- 'SELECT 1 + 1'

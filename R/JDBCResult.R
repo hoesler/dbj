@@ -1,9 +1,10 @@
 #' @include JDBCObject.R
 NULL
 
-#' Class JDBCResult
+#' JDBCResult class.
+#' 
+#' Base class for \code{linkS4class{JDBCQueryResult}} and \code{linkS4class{JDBCUpdateResult}}.
 #'
-#' @keywords internal
 #' @export
 setClass("JDBCResult",
   contains = c("DBIResult", "JDBCObject", "VIRTUAL"),

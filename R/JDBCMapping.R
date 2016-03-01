@@ -7,6 +7,7 @@ NULL
 #' @param conversion a function which accepts a data frame column vector and returns it transformed into a vector of a transfer data type.
 #' 
 #' @export
+#' @family conversion functions
 read_conversion <- function(condition, conversion) {
   assert_that(is.function(condition))
   assert_that(is.function(conversion))
@@ -29,6 +30,8 @@ sqltype_read_conversion <- function(sql_types, conversion) {
   }, conversion)
 }
 
+#' The dafault read conversions
+#' @format The default conversions
 #' @export
 #' @rdname read_conversion
 default_read_conversions <- list(
@@ -69,6 +72,7 @@ default_read_conversions <- list(
 #' @param create_type a character vector of length 1 which holds a sql type name used to store data which sattisfies the given condition.
 #' 
 #' @export
+#' @family conversion functions
 write_conversion <- function(condition, conversion, create_type) {
   assert_that(is.function(condition))
   assert_that(is.function(conversion))
@@ -93,6 +97,7 @@ mapped_write_conversion <- function(class_names, conversion, create_type) {
   }, conversion, create_type)
 }
 
+#' @format The default conversions
 #' @export
 #' @rdname write_conversion
 default_write_conversions <- list(
@@ -138,6 +143,7 @@ default_write_conversions <- list(
 #' @param conversions a list of JDBCReadConversion objects
 #' @param data the data vector to convert
 #' @param data_attributes a named list of attributes of data
+#' @keywords internal
 convert_from <- function(conversions, data, data_attributes) {
   assert_that(is.list(conversions) && all(sapply(conversions, class) == "JDBCReadConversion"))
   assert_that(is.list(data_attributes) && "sql_type" %in% names(data_attributes))
@@ -157,6 +163,7 @@ convert_from <- function(conversions, data, data_attributes) {
 #' @param conversions a list of JDBCWriteConversion objects
 #' @param data the data object to convert
 #' @param data_attributes a named list of attributes
+#' @keywords internal
 convert_to <- function(conversions, data, data_attributes) {
   assert_that(is.list(conversions))
   assert_that(all(sapply(conversions, class) == "JDBCWriteConversion"))
