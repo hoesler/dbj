@@ -59,7 +59,7 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
       return(NULL)
     }
        
-    column_info <- dbColumnInfo(res, c("label", "nullable", "sql_type"))
+    column_info <- dbColumnInfo(res, c("label", "nullable", "field.type"))
 
     infinite_pull <- (n == -1)
     stride <- if (infinite_pull) {
@@ -112,11 +112,16 @@ setMethod("dbClearResult", signature(res = "JDBCQueryResult"),
 #' 
 #' @param res an \code{\linkS4class{JDBCQueryResult}} object.
 #' @param what a character vector indicating which info to return.
-#'   Expected is a subset of \code{c("label", "sql_type", "type_name", "nullable")}.
+#'   Expected is a subset of \code{c("name", "field.type", "data.type", "label", "nullable")}.
 #' @param ... Ignored. Needed for compatiblity with generic.
+#' @return A data.frame with one row per output field in \code{res}.
+#'   Includes \code{name}, \code{field.type} (the SQL type)
+#'   and \code{data.type} (the R data type) columns for the default what.
+#'   Additionally, \code{label} (The field label)
+#'   and \code{nullable} (0 = disallows NULL, 1 = allows NULL, 2 = unknown) can be fetched.
 #' @export
 setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
-  function(res, what = c("label", "sql_type", "type_name", "nullable"), ...) {
+  function(res, what = c("name", "field.type", "data.type"), ...) {
     assert_that(is.character(what))
 
     if (length(what) == 0) {
@@ -127,21 +132,28 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
     
     column_info <- list()
 
-    if ("label" %in% what) {
-      column_info <- c(column_info, list(label = vapply(seq(column_count), function(i) {
-        jtry(.jcall(res@j_result_set_meta, "S", "getColumnLabel", i, check = FALSE))
+    if ("name" %in% what) { # TODO: return lables as names?
+      column_info <- c(column_info, list(name = vapply(seq(column_count), function(i) {
+        jtry(.jcall(res@j_result_set_meta, "S", "getColumnName", i, check = FALSE))
       }, "")))
     }
 
-    if ("sql_type" %in% what) {
-      column_info <- c(column_info, list(sql_type = vapply(seq(column_count), function(i) {
-        jtry(.jcall(res@j_result_set_meta, "I", "getColumnType", i, check = FALSE)) 
-      }, as.integer(0))))
+    if ("field.type" %in% what) {
+      column_info <- c(column_info, list(field.type = vapply(seq(column_count), function(i) {
+        jtry(.jcall(res@j_result_set_meta, "S", "getColumnTypeName", i, check = FALSE))
+      }, "")))
     }
 
-    if ("type_name" %in% what) {
-      column_info <- c(column_info, list(type_name = vapply(seq(column_count), function(i) {
-        jtry(.jcall(res@j_result_set_meta, "S", "getColumnTypeName", i, check = FALSE))
+    if ("data.type" %in% what) {
+      read_conversions <- dbGetDriver(res)@read_conversions
+      column_info <- c(column_info, list(data.type = vapply(seq(column_count), function(i) {
+        "" # TODO: Implement
+      }, "")))
+    }
+
+    if ("label" %in% what) {
+      column_info <- c(column_info, list(label = vapply(seq(column_count), function(i) {
+        jtry(.jcall(res@j_result_set_meta, "S", "getColumnLabel", i, check = FALSE))
       }, "")))
     }
     
@@ -151,7 +163,7 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
       }, as.integer(0))))
     }
 
-    as.data.frame(column_info, row.names = seq(column_count))   
+    as.data.frame(column_info, row.names = seq(column_count), stringsAsFactors = FALSE)   
   },
   valueClass = "data.frame"
 )
@@ -218,4 +230,18 @@ setMethod("dbIsValid", signature(dbObj = "JDBCQueryResult"),
     jtry(.jcall(dbObj@j_result_set, "Z", "isClosed", check = FALSE))
   },
   valueClass = "logical"
+)
+
+#' Deprecated! Use dbColumnInfo instead. 
+#' 
+#' @param conn an \code{\linkS4class{JDBCQueryResult}} object.
+#' @param  name Ignored. Needed for compatiblity with generic.
+#' @param  ... Ignored. Needed for compatiblity with generic.
+#' @keywords internal
+#' @export
+setMethod("dbListFields", signature(conn = "JDBCQueryResult", name = "missing"),
+  function(conn, name, ...) {
+    dbColumnInfo(conn, "name")$name
+  },
+  valueClass = "character"
 )

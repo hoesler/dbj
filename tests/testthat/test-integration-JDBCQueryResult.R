@@ -14,6 +14,25 @@ test_that("column info can be fetched", {
   
   # then
   expect_that(info, is_a("data.frame"))
+  expect_that(c("name", "field.type", "data.type"), is_contained_in(names(info)))
+  expect_that(names(iris), equals(info$name))
+})
+
+test_that("dbListFields returns filed names", {
+  # given
+  h2_drv <- dbj::driver('org.h2.Driver', getOption("h2_jar"))
+  con <- dbConnect(h2_drv, "jdbc:h2:mem:", 'sa')
+  on.exit(dbDisconnect(con))
+  data(iris)
+  dbWriteTable(con, "iris", iris)
+  res <- dbSendQuery(con, "SELECT * FROM \"iris\"")
+
+  # when
+  info <- dbListFields(res)
+  
+  # then
+  expect_that(info, is_a("character"))
+  expect_that(names(iris), equals(info))
 })
 
 test_that("data can be fetched", {

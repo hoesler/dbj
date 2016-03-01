@@ -25,8 +25,8 @@ sqltype_read_conversion <- function(sql_types, conversion) {
   assert_that(is.numeric(sql_types))
 
   read_conversion(function(attributes) {
-    assert_that(is.list(attributes) && c("sql_type") %in% names(attributes))
-    with(JDBC_SQL_TYPES, attributes$sql_type %in% sql_types)
+    assert_that(is.list(attributes) && c("field.type") %in% names(attributes))
+    with(JDBC_SQL_TYPES, JDBC_SQL_TYPES[names(JDBC_SQL_TYPES) == attributes$field.type] %in% sql_types)
   }, conversion)
 }
 
@@ -146,7 +146,7 @@ default_write_conversions <- list(
 #' @keywords internal
 convert_from <- function(conversions, data, data_attributes) {
   assert_that(is.list(conversions) && all(sapply(conversions, class) == "JDBCReadConversion"))
-  assert_that(is.list(data_attributes) && "sql_type" %in% names(data_attributes))
+  assert_that(is.list(data_attributes) && "field.type" %in% names(data_attributes))
 
   for (i in seq_along(conversions)) {
     if (conversions[[i]]$condition(data_attributes)) {

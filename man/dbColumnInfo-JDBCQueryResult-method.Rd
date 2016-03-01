@@ -5,16 +5,23 @@
 \alias{dbColumnInfo,JDBCQueryResult-method}
 \title{Get info about the result set data types.}
 \usage{
-\S4method{dbColumnInfo}{JDBCQueryResult}(res, what = c("label", "sql_type",
-  "type_name", "nullable"), ...)
+\S4method{dbColumnInfo}{JDBCQueryResult}(res, what = c("name", "field.type",
+  "data.type"), ...)
 }
 \arguments{
 \item{res}{an \code{\linkS4class{JDBCQueryResult}} object.}
 
 \item{what}{a character vector indicating which info to return.
-Expected is a subset of \code{c("label", "sql_type", "type_name", "nullable")}.}
+Expected is a subset of \code{c("name", "field.type", "data.type", "label", "nullable")}.}
 
 \item{...}{Ignored. Needed for compatiblity with generic.}
+}
+\value{
+A data.frame with one row per output field in \code{res}.
+  Includes \code{name}, \code{field.type} (the SQL type)
+  and \code{data.type} (the R data type) columns for the default what.
+  Additionally, \code{label} (The field label)
+  and \code{nullable} (0 = disallows NULL, 1 = allows NULL, 2 = unknown) can be fetched.
 }
 \description{
 Get info about the result set data types.

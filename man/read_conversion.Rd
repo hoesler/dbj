@@ -12,7 +12,7 @@ read_conversion(condition, conversion)
 
 sqltype_read_conversion(sql_types, conversion)
 
-default_read_conversions
+'default_read_conversions'
 }
 \arguments{
 \item{condition}{a function which accepts a list and returns a logical}
