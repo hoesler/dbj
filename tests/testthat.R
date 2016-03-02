@@ -22,3 +22,4 @@ source("expectations-contained.R")
 
 test_check("dbj", filter = "unit-.*")
 test_check("dbj", filter = "integration-.*")
+test_check("dbj", filter = "DBItest")
