@@ -108,7 +108,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCDriver"),
     minor_version = jtry(.jcall(dbObj@jdrv, "I", "getMinorVersion", check = FALSE))
 
     list(
-      driver.version = "0.1",
+      driver.version = packageVersion("dbj"),
       client.version = paste(major_version, minor_version, sep = "."),
       max.connections = NA # TODO: Is there a way to get this information from JDBC?     
     )
