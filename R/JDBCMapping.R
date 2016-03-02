@@ -112,8 +112,8 @@ mapped_write_conversion <- function(class_names, conversion, create_type) {
 #' @rdname write_conversion
 default_write_conversions <- list(
   mapped_write_conversion(
-    c("integer", "factor"),
-    as.integer,
+    c("integer"),
+    identity,
     "INTEGER"
   ),
   mapped_write_conversion(
@@ -142,8 +142,8 @@ default_write_conversions <- list(
     "TIMESTAMP"
   ),
   mapped_write_conversion(
-    "character",
-    identity,
+    c("character", "factor"),
+    as.character,
     "VARCHAR(255)"
   )
 )
