@@ -4,16 +4,19 @@ NULL
 #' Create a JDBCReadConversion object. 
 #' 
 #' @param condition a function which accepts a list and returns a logical
+#' @param r_class the target class of the conversion
 #' @param conversion a function which accepts a data frame column vector and returns it transformed into a vector of a transfer data type.
 #' 
 #' @export
 #' @family conversion functions
-read_conversion <- function(condition, conversion) {
+read_conversion <- function(condition, r_class, conversion) {
   assert_that(is.function(condition))
+  assert_that(is.character(r_class))
   assert_that(is.function(conversion))
 
   structure(list(
     condition = condition,
+    r_class = r_class,
     conversion = conversion
   ), class = "JDBCReadConversion")
 }
@@ -21,13 +24,13 @@ read_conversion <- function(condition, conversion) {
 #' @param sql_types a numeric vector of JDBC_SQL_TYPES
 #' @export
 #' @rdname read_conversion
-sqltype_read_conversion <- function(sql_types, conversion) {
+sqltype_read_conversion <- function(sql_types, r_class, conversion) {
   assert_that(is.numeric(sql_types))
-
+  
   read_conversion(function(attributes) {
     assert_that(is.list(attributes) && c("field.type") %in% names(attributes))
     with(JDBC_SQL_TYPES, JDBC_SQL_TYPES[names(JDBC_SQL_TYPES) == attributes$field.type] %in% sql_types)
-  }, conversion)
+  }, r_class, conversion)
 }
 
 #' The dafault read conversions
@@ -37,30 +40,37 @@ sqltype_read_conversion <- function(sql_types, conversion) {
 default_read_conversions <- list(
   sqltype_read_conversion(
     with(JDBC_SQL_TYPES, c(TINYINT, SMALLINT, INTEGER)),
+    "integer",
     identity
   ),
   sqltype_read_conversion(
     with(JDBC_SQL_TYPES, c(FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL, BIGINT)),
+    "numeric",
     identity
   ),
   sqltype_read_conversion(
     with(JDBC_SQL_TYPES, c(BIT, BOOLEAN)),
+    "logical",
     identity
   ),
   sqltype_read_conversion(
     with(JDBC_SQL_TYPES, c(CHAR, VARCHAR, LONGVARCHAR, NCHAR, NVARCHAR, LONGNVARCHAR)),
+    "character",
     identity
   ),
   sqltype_read_conversion(
     with(JDBC_SQL_TYPES, c(TIME)),
+    "numeric",
     identity
   ),
   sqltype_read_conversion(
     with(JDBC_SQL_TYPES, c(DATE)),
+    "Date",
     function(data) as.Date(data / 1000 / 60 / 60 / 24, origin = "1970-01-01", tz = "GMT")
   ),
   sqltype_read_conversion(
     with(JDBC_SQL_TYPES, c(TIMESTAMP)),
+    "POSIXct",
     function(data) as.POSIXct(data / 1000, origin = "1970-01-01", tz = "GMT")
   )
 )

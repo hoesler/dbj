@@ -3,7 +3,7 @@ context("JDBCTypeConversion")
 test_that("the default mapping can be overwritten", {
   # given
   read_conversions <- c(list(
-    sqltype_read_conversion(JDBC_SQL_TYPES$DOUBLE, function(x) x + 1)
+    sqltype_read_conversion(JDBC_SQL_TYPES$DOUBLE, "numeric", function(x) x + 1)
   ), default_read_conversions)
 
   write_conversions <- c(list(
@@ -27,7 +27,7 @@ test_that("I can map Duration to DOUBLE", {
   # given
   library(lubridate)
   read_conversions <- c(list(
-    sqltype_read_conversion(JDBC_SQL_TYPES$DOUBLE, function(x) duration(x))
+    sqltype_read_conversion(JDBC_SQL_TYPES$DOUBLE, "Duration", function(x) duration(x))
   ), default_read_conversions)
 
   write_conversions <- c(list(

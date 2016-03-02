@@ -12,7 +12,7 @@ write_conversion(condition, conversion, create_type)
 
 mapped_write_conversion(class_names, conversion, create_type)
 
-'default_write_conversions'
+default_write_conversions
 }
 \arguments{
 \item{condition}{a function which accepts a list and returns a logical.}

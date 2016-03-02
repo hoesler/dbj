@@ -147,7 +147,13 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
     if ("data.type" %in% what) {
       read_conversions <- dbGetDriver(res)@read_conversions
       column_info <- c(column_info, list(data.type = vapply(seq(column_count), function(i) {
-        "" # TODO: Implement
+        field.type <- ""
+        if ("field.type" %in% names(column_info)) {
+          field.type <- column_info$field.type[i]
+        } else {
+          field.type <- jtry(.jcall(res@j_result_set_meta, "S", "getColumnTypeName", i, check = FALSE))
+        }
+        read_conversions[sapply(read_conversions, function (x) { x$condition(list("field.type" = field.type)) })][[1]]$r_class
       }, "")))
     }
 

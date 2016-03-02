@@ -8,14 +8,16 @@
 \title{Create a JDBCReadConversion object.}
 \format{The default conversions}
 \usage{
-read_conversion(condition, conversion)
+read_conversion(condition, r_class, conversion)
 
-sqltype_read_conversion(sql_types, conversion)
+sqltype_read_conversion(sql_types, r_class, conversion)
 
-'default_read_conversions'
+default_read_conversions
 }
 \arguments{
 \item{condition}{a function which accepts a list and returns a logical}
+
+\item{r_class}{the target class of the conversion}
 
 \item{conversion}{a function which accepts a data frame column vector and returns it transformed into a vector of a transfer data type.}
 

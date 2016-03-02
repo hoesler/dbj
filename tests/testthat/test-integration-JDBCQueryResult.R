@@ -16,6 +16,8 @@ test_that("column info can be fetched", {
   expect_that(info, is_a("data.frame"))
   expect_that(c("name", "field.type", "data.type"), is_contained_in(names(info)))
   expect_that(names(iris), equals(info$name))
+  expect_that(c("DOUBLE", "DOUBLE", "DOUBLE", "DOUBLE", "INTEGER"), equals(info$field.type))
+  expect_that(c("numeric", "numeric", "numeric", "numeric", "integer"), equals(info$data.type))
 })
 
 test_that("dbListFields returns filed names", {
