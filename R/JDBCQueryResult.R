@@ -97,11 +97,14 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "missing"),
 #' @export
 setMethod("dbClearResult", signature(res = "JDBCQueryResult"),
   function(res, ...) {
-    j_statement <- jtry(.jcall(res@j_result_set, "Ljava/sql/Statement;", "getStatement", check = FALSE))
-    if (!is.jnull(j_statement)) {
-      close_statement(j_statement)
-    } else {
-      close_result_set(res@j_result_set)
+    closed <- jtry(.jcall(res@j_result_set, "Z", "isClosed", check = FALSE))
+    if (!closed) {
+      j_statement <- jtry(.jcall(res@j_result_set, "Ljava/sql/Statement;", "getStatement", check = FALSE))
+      if (!is.jnull(j_statement)) {
+        close_statement(j_statement)
+      } else {
+        close_result_set(res@j_result_set)
+      }
     }
     invisible(TRUE)
   },
