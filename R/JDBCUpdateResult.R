@@ -25,7 +25,7 @@ JDBCUpdateResult <- function(update_count, connection, statement = "") {
   new("JDBCUpdateResult", update_count = update_count, connection = connection, statement = statement)
 }
 
-#' @describeIn JDBCQueryResult Unsupported
+#' @describeIn JDBCQueryResult Returns an empty data frame.
 #'
 #' @param res an \code{\linkS4class{JDBCUpdateResult}} object.
 #' @param n optional maximum number of records to retrieve per fetch. Use \code{-1} to 
@@ -35,15 +35,15 @@ JDBCUpdateResult <- function(update_count, connection, statement = "") {
 #' @export
 setMethod("fetch", signature(res = "JDBCUpdateResult", n = "numeric"),
   function(res, n, ...) {
-    stop("fetch is unsupported in JDBCUpdateResult")
+    data.frame()
   }
 )
 
-#' @describeIn JDBCQueryResult Unsupported
+#' @describeIn JDBCQueryResult Returns an empty data frame.
 #' @export
 setMethod("fetch", signature(res = "JDBCUpdateResult", n = "missing"),
   function(res, n, ...) {
-    stop("fetch is unsupported in JDBCUpdateResult")
+    data.frame()
   }
 )
 
