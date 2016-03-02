@@ -104,7 +104,7 @@ public final class JDBCResultPull {
         }
 
         int rowCount = 0;
-        while (resultSet.next() && rowCount < atMost) {
+        while (rowCount < atMost && resultSet.next()) {
             for (int i = 0; i < columnBuilders.size(); i++) {
                 final ColumnBuilder<?> columnBuilder = columnBuilders.get(i);
                 columnBuilder.addFromResultSet(resultSet, i + 1);

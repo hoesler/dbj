@@ -128,6 +128,33 @@ public class JDBCResultPullTest {
     }
 
     @Test
+    public void testFetchIntegerChunks() throws Exception {
+        // given
+        final Connection connection = database.getConnection();
+        connection.createStatement().execute(
+                "CREATE TABLE \"test_table\" (" +
+                        "\"a\" INTEGER)");
+        for (int i = 0; i < 10; i++) {
+            connection.createStatement().execute(
+                    "INSERT INTO \"test_table\" (\"a\")" +
+                            " VALUES (" + i + ")");
+        }
+
+        final ResultSet resultSet = connection.createStatement().executeQuery("SELECT * FROM \"test_table\"");
+        final JDBCResultPull pull = new JDBCResultPull(resultSet);
+
+        // when
+        final Table table1 = pull.fetch(5);
+        final Table table2 = pull.fetch(3);
+        final Table table3 = pull.fetch(5);
+
+        // then
+        assertThat(table1.rowCount(), is(5));
+        assertThat(table2.rowCount(), is(3));
+        assertThat(table3.rowCount(), is(2));
+    }
+
+    @Test
     public void testFetchString() throws Exception {
         // given
         final Connection connection = database.getConnection();
