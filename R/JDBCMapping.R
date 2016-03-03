@@ -29,6 +29,7 @@ sqltype_read_conversion <- function(sql_types, r_class, conversion) {
   
   read_conversion(function(attributes) {
     assert_that(is.list(attributes) && c("field.type") %in% names(attributes))
+    assert_that(attributes$field.type %in% names(JDBC_SQL_TYPES))
     with(JDBC_SQL_TYPES, JDBC_SQL_TYPES[names(JDBC_SQL_TYPES) == attributes$field.type] %in% sql_types)
   }, r_class, conversion)
 }
@@ -39,7 +40,7 @@ sqltype_read_conversion <- function(sql_types, r_class, conversion) {
 #' @rdname read_conversion
 default_read_conversions <- list(
   sqltype_read_conversion(
-    with(JDBC_SQL_TYPES, c(NULL_)),
+    with(JDBC_SQL_TYPES, get("NULL")),
     "integer",
     identity
   ),
