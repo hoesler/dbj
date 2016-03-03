@@ -39,6 +39,11 @@ sqltype_read_conversion <- function(sql_types, r_class, conversion) {
 #' @rdname read_conversion
 default_read_conversions <- list(
   sqltype_read_conversion(
+    with(JDBC_SQL_TYPES, c(NULL_)),
+    "integer",
+    identity
+  ),
+  sqltype_read_conversion(
     with(JDBC_SQL_TYPES, c(TINYINT, SMALLINT, INTEGER)),
     "integer",
     identity
