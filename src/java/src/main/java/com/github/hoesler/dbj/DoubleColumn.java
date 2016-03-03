@@ -75,12 +75,7 @@ public final class DoubleColumn extends ForwardingList<Optional<Double>> impleme
 
     @Override
     public boolean[] getNA() {
-        return Booleans.toArray(Lists.transform(data, new Function<Optional<Double>, Boolean>() {
-            @Override
-            public Boolean apply(final Optional<Double> dateOptional) {
-                return !dateOptional.isPresent();
-            }
-        }));
+        return Columns.getOptionalStates(this);
     }
 
     @Override

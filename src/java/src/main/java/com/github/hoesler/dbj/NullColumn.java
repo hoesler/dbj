@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.AbstractList;
-import java.util.Arrays;
 
 public class NullColumn extends AbstractList<Optional<Void>> implements Column<Optional<Void>> {
 
@@ -21,9 +20,7 @@ public class NullColumn extends AbstractList<Optional<Void>> implements Column<O
 
     @Override
     public boolean[] getNA() {
-        final boolean[] booleans = new boolean[columnLength];
-        Arrays.fill(booleans, false);
-        return booleans;
+        return new boolean[size()];
     }
 
     @Override
@@ -45,7 +42,7 @@ public class NullColumn extends AbstractList<Optional<Void>> implements Column<O
         return sqlType == Types.NULL;
     }
 
-    public static ColumnBuilder<NullColumn> builder(final int sqlType) {
+    public static ColumnBuilder<NullColumn> builder() {
         return new NullColumnBuilder();
     }
 

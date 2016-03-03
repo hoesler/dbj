@@ -73,12 +73,7 @@ public final class LongColumn extends ForwardingList<Optional<Long>> implements 
 
     @Override
     public boolean[] getNA() {
-        return Booleans.toArray(Lists.transform(data, new Function<Optional<Long>, Boolean>() {
-            @Override
-            public Boolean apply(final Optional<Long> dateOptional) {
-                return !dateOptional.isPresent();
-            }
-        }));
+        return Columns.getOptionalStates(this);
     }
 
     @Override

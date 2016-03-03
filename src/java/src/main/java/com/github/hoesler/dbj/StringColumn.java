@@ -60,12 +60,7 @@ public final class StringColumn extends ForwardingList<Optional<String>> impleme
 
     @Override
     public boolean[] getNA() {
-        return Booleans.toArray(Lists.transform(data, new Function<Optional<String>, Boolean>() {
-            @Override
-            public Boolean apply(final Optional<String> dateOptional) {
-                return !dateOptional.isPresent();
-            }
-        }));
+        return Columns.getOptionalStates(this);
     }
 
     @Override

@@ -5,7 +5,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Booleans;
 import com.google.common.primitives.Ints;
 
 import java.sql.PreparedStatement;
@@ -65,12 +64,7 @@ public final class IntegerColumn extends ForwardingList<Optional<Integer>> imple
 
     @Override
     public boolean[] getNA() {
-        return Booleans.toArray(Lists.transform(data, new Function<Optional<Integer>, Boolean>() {
-            @Override
-            public Boolean apply(final Optional<Integer> dateOptional) {
-                return !dateOptional.isPresent();
-            }
-        }));
+        return Columns.getOptionalStates(this);
     }
 
     @Override
