@@ -29,6 +29,8 @@ fetch_resultpull <- function(j_result_pull, rows, column_info, read_conversions,
     column_data <- c()
     if (column_class_name == "UnsupportedTypeColumn") {
       column_data <- rep(NA, row_count)
+    } else if (column_class_name == "NullColumn") {
+      column_data <- rep(NA, row_count)
     } else if (column_class_name == "BooleanColumn") {
       column_data <- jtry(.jcall(j_column, "[Z", "toBooleans", check = FALSE))
     } else if (column_class_name == "IntegerColumn") {

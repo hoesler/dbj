@@ -208,4 +208,20 @@ public class JDBCResultPullTest {
         assertThat(Doubles.asList(((DoubleColumn) table.getColumn(0)).toDoubles()), Matchers.contains(value));
     }
 
+    @Test
+    public void testFetchNULL() throws Exception {
+        // given
+        final Connection connection = database.getConnection();
+        final ResultSet resultSet = connection.createStatement().executeQuery("SELECT NULL");
+        final JDBCResultPull pull = new JDBCResultPull(resultSet);
+
+        // when
+        final Table table = pull.fetch(1);
+
+        // then
+        assertThat(table, is(notNullValue()));
+        assertThat(table.columnCount(), is(1));
+        assertThat(table.rowCount(), is(1));
+        assertThat(table.getColumn(0), is(instanceOf(NullColumn.class)));
+    }
 }
