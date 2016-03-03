@@ -46,7 +46,8 @@ fetch_resultpull <- function(j_result_pull, rows, column_info, read_conversions,
     }
 
     # set NA values
-    if (column_info[column_index, "nullable"] > 0 && column_class_name != "UnsupportedTypeColumn") {
+    if (column_info[column_index, "nullable"] > 0
+      && ! column_class_name %in% c("UnsupportedTypeColumn", "NullColumn")) {
       na <- jtry(.jcall(j_column, "[Z", "getNA", check = FALSE))
       if (length(na) != length(column_data)) {
         stop("NA length mismatch")
