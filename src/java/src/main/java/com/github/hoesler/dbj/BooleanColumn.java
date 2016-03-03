@@ -64,12 +64,7 @@ public final class BooleanColumn extends ForwardingList<Optional<Boolean>> imple
 
     @Override
     public boolean[] getNA() {
-        return Booleans.toArray(Lists.transform(data, new Function<Optional<Boolean>, Boolean>() {
-            @Override
-            public Boolean apply(final Optional<Boolean> dateOptional) {
-                return !dateOptional.isPresent();
-            }
-        }));
+        return Columns.getOptionalStates(this);
     }
 
     @Override

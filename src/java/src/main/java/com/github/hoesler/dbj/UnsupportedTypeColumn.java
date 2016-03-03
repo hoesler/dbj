@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public class UnsupportedTypeColumn extends ForwardingList<Optional<Object>> implements Column<Optional<Object>> {
+public final class UnsupportedTypeColumn extends ForwardingList<Optional<Object>> implements Column<Optional<Object>> {
     private final int sqlType;
     private final List<Optional<Object>> data;
 
@@ -31,7 +31,7 @@ public class UnsupportedTypeColumn extends ForwardingList<Optional<Object>> impl
 
     @Override
     public String getSimpleClassName() {
-        return UnsupportedTypeColumn.class.getSimpleName();
+        return getClass().getSimpleName();
     }
 
     @Override

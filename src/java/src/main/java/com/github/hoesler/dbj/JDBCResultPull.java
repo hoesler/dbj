@@ -55,7 +55,7 @@ public final class JDBCResultPull {
 
     private static ColumnBuilder<?> createColumnBuilder(final int sqlType) {
         if (NullColumn.handles(sqlType)) {
-            return NullColumn.builder(sqlType);
+            return NullColumn.builder();
         } else if (BooleanColumn.handles(sqlType)) {
             return BooleanColumn.builder(sqlType);
         } else if (IntegerColumn.handles(sqlType)) {
