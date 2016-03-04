@@ -112,7 +112,7 @@ create_j_colum <- function(column_data, sql_type, is_nullable, write_conversions
       "create", sql_type, .jarray(j_column_data), .jarray(is.na(j_column_data)), check = FALSE))
   } else {
     if (NA %in% j_column_data) {
-      stop("Parameter ", column_index, " is not nullable but data contains NA")
+      stop("Column is not nullable but data contains NA")
     }
     jtry(.jcall(j_column_classname, sprintf("L%s;", j_column_classname),
       "create", sql_type, .jarray(j_column_data), check = FALSE))
