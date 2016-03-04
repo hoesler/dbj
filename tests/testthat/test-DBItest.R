@@ -12,12 +12,12 @@ DBItest::test_connection(skip = c(
 DBItest::test_result(skip = c(
 	"get_query_empty_single_column", "get_query_empty_multi_column", # default implementation of dbGetQuery in 0.3.1 returns NULL for empty results
 	"stale_result_warning", # Currently I have no simple soulution how to keep track of results
-	"data_logical_int($|_.+)", # I don't understand these tests. Why and when should logical be ints?
+	"data_logical_int($|_.+)", # I don't understand these tests. Why and when should logicals be ints?
 	"data_date($|_.+)", # date() is undefined in H2.
 	"data_time($|_.+)", # why should time be returned as character?
 	"data_timestamp_parens($|_.+)", # datetime is an unsupported function in H2
 	"data_timestamp_utc($|_.+)", # If we store timestamp as SQL TIMESTAMP we have to discard timezone information.
-	"data_raw($|_.+)", # to be implemented
+	"data_raw($|_.+)", # TODO: to be implemented
 	"data_64_bit($|_.+)", # don't understand the rational behind the test
 	"data_type_connection" # What should be the data type for structure(.(value), class = "unknown1")?
 ))
@@ -28,7 +28,7 @@ DBItest::test_sql(skip = c(
 	"temporary_table", # this is a post 0.3.1 DBI feature
 	"roundtrip_logical_int", # logicals are currently mapped to BOOLEAN not INT
 	"roundtrip_64_bit", # dbWriteTable does not support a field.types argument
-	"roundtrip_raw", # raw is not yet implemented
+	"roundtrip_raw", # TODO: raw is not yet implemented
 	"roundtrip_rownames", # this is a post 0.3.1 DBI feature
 	"roundtrip_date", # TODO: storing dates as DATE seems unsafe as there might be conflicts with the timezone. H2 to Java Date is -1h. Seems like H2 is storing the date at local UTC+1 and Date is UTC
 	"roundtrip_timestamp" # TODO: How can I differentiate between POSIXct and POSIXlt?

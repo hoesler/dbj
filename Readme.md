@@ -20,12 +20,15 @@ The source compilation requires that you haven [maven](https://maven.apache.org/
 con <- dbConnect(dbj::driver('org.h2.Driver', classPath = '~/h2.jar'), jdbc:h2:mem:', user = '', password = '')
 ```
 
+## Status
+dbj is tested against the [H2 Database Engine](http://h2database.com) and passes most tests defined by [DBItest](https://github.com/rstats-db/DBItest) (See tests/testthat/test-DBItest.R).
+
 ##	Type mapping
-Type mapping in dbj has four data type units: The R working type, The R transfer type, the Java transfer type and the SQL storage Type. The working type is the type of a data.frame column you work with on the front end. For data transfer, these data types must be converted into a R transfer type, which is associated with one of the Java transfer types. Both transfer types are used to send data from R to Java and vice versa. Due to rJava and performance reasons this must be one of the Java raw types (boolean, byte, int, long, float, double) or String.
+Type mapping in dbj has four data type units: The R working type, The R transfer type, the Java transfer type and the SQL storage Type. The working type is the type of a data.frame column you work with on the front end. For data transfer, these data types must be converted into an R transfer type, which is associated with one of the Java transfer types. Both transfer types are used to send data from R to Java and vice versa. Due to rJava and performance reasons this must be one of the Java raw types (boolean, byte, int, long, float, double) or String.
 
-The way the data transfer is implemented, requires that all data that can possibly be transferred must be convertible to one of these transfer types.
+The way the data transfer is implemented, it is required that all data that should be transferred must be convertible to one of these transfer types.
 
-The default mapping is defined in the following way:
+The default mapping is defined as follows:
 
 ##### Transfer unit
 R Transfer Type | Java Transfer Type | SQL Types
@@ -37,15 +40,14 @@ integer         | int                | TINYINT, SMALLINT, INTEGER
 character       | String             | CHAR, VARCHAR, LONGVARCHAR, NCHAR, NVARCHAR, LONGNVARCHAR
 
 ##### JDBC -> R
-SQL Types                                                 | Transfer unit conversion
-----------------------------------------------------------|--------------------------------------------------------------------
-BIT, BOOLEAN                                              | identity             
-FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL, BIGINT             | identity
-TINYINT, SMALLINT, INTEGER                                | identity
-DATE                                                      | as.Date(x / 1000 / 60 / 60 / 24, origin = "1970-01-01", tz = "GMT")
-TIMESTAMP                                                 | as.POSIXct(x / 1000, origin = "1970-01-01", tz = "GMT")
-TIME                                                      | identity
-CHAR, VARCHAR, LONGVARCHAR, NCHAR, NVARCHAR, LONGNVARCHAR | identity
+SQL Types                                                 | R Type     | Transfer unit conversion
+----------------------------------------------------------|------------|--------------------------------------------------------------------
+BIT, BOOLEAN                                              | logical    | identity             
+FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL, BIGINT             | numeric    | identity
+TINYINT, SMALLINT, INTEGER                                | integer    | identity
+DATE                                                      | Date       | as.Date(x / 1000 / 60 / 60 / 24, origin = "1970-01-01", tz = "GMT")
+TIMESTAMP                                                 | POSIXct    | as.POSIXct(x / 1000, origin = "1970-01-01", tz = "GMT"                                                     | numeric    | identity
+CHAR, VARCHAR, LONGVARCHAR, NCHAR, NVARCHAR, LONGNVARCHAR | character  | identity
 
 ##### R -> JDBC
 R Working Type | Colum created as | Transfer unit conversion
