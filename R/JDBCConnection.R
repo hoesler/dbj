@@ -89,7 +89,11 @@ setMethod("dbCallProc", signature(conn = "JDBCConnection"),
 #' @export
 setMethod("dbDisconnect", signature(conn = "JDBCConnection"),
   function(conn, ...) {
-    jtry(.jcall(conn@j_connection, "V", "close", check = FALSE))
+    if (!jtry(.jcall(conn@j_connection, "Z", "isClosed", check = FALSE))) {
+      jtry(.jcall(conn@j_connection, "V", "close", check = FALSE))
+    } else {
+      stop("Connection has already been closed") # required by DBItest
+    }
     invisible(TRUE)
   },
   valueClass = "logical"
@@ -288,10 +292,11 @@ setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
 #' @param name character vector of length 1 giving name of table to write to
 #' @param value the date frame to write to the table
 #' @param create a logical specifying whether to create a new table if it does not exist. Its default is TRUE.
-#' @param append a logical specifying whether to append to an existing table. Its default is TRUE.
+#' @param append a logical specifying whether to append to an existing table. Its default is FALSE
+#' @param truncate a logical specifying whether to truncate an existing table before appending. Its default is FALSE
 #' @export
 setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "data.frame"),
-  function(conn, name, value, create = TRUE, append = TRUE, ...) { 
+  function(conn, name, value, create = TRUE, append = FALSE, truncate = FALSE, ...) { 
     assert_that(ncol(value) > 0)
     assert_that(!is.null(names(value)))
     assert_that(!any(is.na(names(value))))
@@ -299,6 +304,10 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     assert_that(is(append, "logical"))   
     
     table_exists <- dbExistsTable(conn, name)
+
+    if (table_exists && !append) {
+      stop("Table `", name, "' exists and append is FALSE")
+    }
 
     if (!table_exists && !create) {
       stop("Table `", name, "' does not exist and create is FALSE")
@@ -323,7 +332,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
       }
     }
 
-    if (!append) {
+    if (table_exists && truncate) {
       truncated <- dbTruncateTable(conn, name, use_delete = TRUE)
       if (!truncated) {
         stop(sprintf("Table %s could not be truncated", name))
@@ -410,7 +419,7 @@ connection_info <- function(j_connection) {
 setMethod("dbGetException", signature(conn = "JDBCConnection"),
   function(conn, ...) {
     warning("Not implemented. Returns an empty list.")
-    list()
+    list(errNum = "", errMsg = "")
   },
   valueClass = "list"
 )
