@@ -181,6 +181,7 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
 #' @export
 setMethod("dbGetRowCount", signature(res = "JDBCQueryResult"),
   function(res, ...) {
+    # This method returns 0 before the first and after the last row.
     jtry(.jcall(res@j_result_set, "I", "getRow", check = FALSE))
   },
   valueClass = "numeric"
@@ -224,7 +225,7 @@ result_info <- function(result_set) {
   list(
     statement = result_set@statement,
     col.count = jtry(.jcall(result_set@j_result_set_meta, "I", "getColumnCount", check = FALSE)),
-    row.count = jtry(.jcall(result_set@j_result_set, "I", "getRow", check = FALSE)),
+    row.count = dbGetRowCount(result_set),
     has.completed = dbHasCompleted(result_set),
     is.select = TRUE,
     # TODO: total number of records to be fetched
@@ -236,7 +237,8 @@ result_info <- function(result_set) {
 #' @export
 setMethod("dbIsValid", signature(dbObj = "JDBCQueryResult"),
   function(dbObj, ...) {
-    jtry(.jcall(dbObj@j_result_set, "Z", "isClosed", check = FALSE))
+    closed <- jtry(.jcall(dbObj@j_result_set, "Z", "isClosed", check = FALSE))
+    return(!closed)
   },
   valueClass = "logical"
 )
