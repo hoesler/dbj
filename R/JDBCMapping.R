@@ -72,6 +72,7 @@ default_read_conversions <- list(
   sqltype_read_conversion(
     with(JDBC_SQL_TYPES, c(DATE)),
     "Date",
+    # data is point in time that is time milliseconds after January 1, 1970 00:00:00 GMT
     function(data) as.Date(data / 1000 / 60 / 60 / 24, origin = "1970-01-01", tz = "GMT")
   ),
   sqltype_read_conversion(
@@ -139,12 +140,12 @@ default_write_conversions <- list(
   ),
   mapped_write_conversion(
     "Date",
-    function(data) as.numeric(data) * 24 * 60 * 60 * 1000, # days to milliseconds
+    function(data) as.numeric(data) * 24 * 60 * 60 * 1000, # days to milliseconds after January 1, 1970 00:00:00 GMT
     "DATE"
   ),
   mapped_write_conversion(
     "POSIXt",
-    function(data) as.numeric(data) * 1000, # seconds to milliseconds
+    function(data) as.numeric(data) * 1000, # seconds to milliseconds after January 1, 1970 00:00:00 GMT
     "TIMESTAMP"
   ),
   mapped_write_conversion(
