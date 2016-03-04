@@ -67,53 +67,58 @@ create_j_table <- function(j_statement, data, write_conversions) {
   j_statement_meta <- jtry(.jcall(j_statement, "Ljava/sql/ParameterMetaData;", "getParameterMetaData", check = FALSE))
 
   j_columns <- unlist(lapply(seq_along(data), function(column_index) {
-    column_data <- unlist(data[,column_index])
+    column_data <- data[,column_index]
     sql_type <- jtry(.jcall(j_statement_meta, "I", "getParameterType", column_index, check = FALSE))
     is_nullable <- jtry(.jcall(j_statement_meta, "I", "isNullable", column_index, check = FALSE))
-
-    converted_column_data <- convert_to(write_conversions, column_data, list(sql_type = sql_type, class_names = class(column_data)))
-    
-    j_column_classname <- NULL
-    j_column_data <- NULL
-
-    with(JDBC_SQL_TYPES,
-      if (sql_type %in% c(BIT, BOOLEAN)) {
-        j_column_classname <<- "com/github/hoesler/dbj/BooleanColumn"
-        j_column_data <<- as.logical(converted_column_data)
-      } else if (sql_type %in% c(TINYINT, SMALLINT, INTEGER)) {
-        j_column_classname <<- "com/github/hoesler/dbj/IntegerColumn"
-        j_column_data <<- as.integer(converted_column_data)
-      } else if (sql_type %in% c(FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL)) {
-        j_column_classname <<- "com/github/hoesler/dbj/DoubleColumn"
-        j_column_data <<- as.numeric(converted_column_data)
-      } else if (sql_type %in% c(BIGINT, DATE, TIME, TIMESTAMP)) {
-        j_column_classname <<- "com/github/hoesler/dbj/LongColumn"
-        j_column_data <<- .jlong(as.numeric(converted_column_data))
-      } else if (sql_type %in% c(VARCHAR, CHAR, LONGVARCHAR, NVARCHAR, NCHAR, LONGNVARCHAR)) {
-        j_column_classname <<- "com/github/hoesler/dbj/StringColumn"
-        j_column_data <<- as.character(converted_column_data)
-      } else {
-        stop("Unsupported SQL type '", sql_type, "'", " for column ", column_index, " named ", names(data)[column_index])
-      }
-    )
-
-    assert_that(!any(is.null(c(j_column_classname, j_column_data))))    
-
-    if (is_nullable > 0 && NA %in% j_column_data) {
-      jtry(.jcall(j_column_classname, sprintf("L%s;", j_column_classname),
-        "create", sql_type, .jarray(j_column_data), .jarray(is.na(j_column_data)), check = FALSE))
-    } else {
-      if (NA %in% j_column_data) {
-        stop("Parameter ", column_index, " is not nullable but data contains NA")
-      }
-      jtry(.jcall(j_column_classname, sprintf("L%s;", j_column_classname),
-        "create", sql_type, .jarray(j_column_data), check = FALSE))
-    }
-
+    create_j_colum(column_data, sql_type, is_nullable, write_conversions)
   }))
 
   jtry(.jcall("com/github/hoesler/dbj/ArrayListTable", "Lcom/github/hoesler/dbj/ArrayListTable;",
     "create", .jarray(j_columns, contents.class = "com/github/hoesler/dbj/Column"), check = FALSE))
+}
+
+create_j_colum <- function(column_data, sql_type, is_nullable, write_conversions) {
+  converted_column_data <- convert_to(write_conversions, column_data, list(sql_type = sql_type, class_names = class(column_data)))
+  
+  j_column_classname <- NULL
+  j_column_data <- NULL
+
+  with(JDBC_SQL_TYPES,
+    if (sql_type %in% c(BIT, BOOLEAN)) {
+      j_column_classname <<- "com/github/hoesler/dbj/BooleanColumn"
+      j_column_data <<- as.logical(converted_column_data)
+    } else if (sql_type %in% c(TINYINT, SMALLINT, INTEGER)) {
+      j_column_classname <<- "com/github/hoesler/dbj/IntegerColumn"
+      j_column_data <<- as.integer(converted_column_data)
+    } else if (sql_type %in% c(FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL)) {
+      j_column_classname <<- "com/github/hoesler/dbj/DoubleColumn"
+      j_column_data <<- as.numeric(converted_column_data)
+    } else if (sql_type %in% c(BIGINT, DATE, TIME, TIMESTAMP)) {
+      j_column_classname <<- "com/github/hoesler/dbj/LongColumn"
+      j_column_data <<- .jlong(as.numeric(converted_column_data))
+    } else if (sql_type %in% c(VARCHAR, CHAR, LONGVARCHAR, NVARCHAR, NCHAR, LONGNVARCHAR)) {
+      j_column_classname <<- "com/github/hoesler/dbj/StringColumn"
+      j_column_data <<- as.character(converted_column_data)
+    } else {
+      stop("Unsupported SQL type '", sql_type, "'")
+    }
+  )
+
+  assert_that(!any(is.null(c(j_column_classname, j_column_data))))    
+
+  j_column <-
+  if (is_nullable > 0 && NA %in% j_column_data) {
+    jtry(.jcall(j_column_classname, sprintf("L%s;", j_column_classname),
+      "create", sql_type, .jarray(j_column_data), .jarray(is.na(j_column_data)), check = FALSE))
+  } else {
+    if (NA %in% j_column_data) {
+      stop("Parameter ", column_index, " is not nullable but data contains NA")
+    }
+    jtry(.jcall(j_column_classname, sprintf("L%s;", j_column_classname),
+      "create", sql_type, .jarray(j_column_data), check = FALSE))
+  }
+
+  return(j_column)
 }
 
 batch_insert <- function(j_statement, data, write_conversions) {
