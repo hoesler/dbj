@@ -6,7 +6,7 @@
 \title{Write a local data frame or file to the database.}
 \usage{
 \S4method{dbWriteTable}{JDBCConnection,character,data.frame}(conn, name, value,
-  create = TRUE, append = TRUE, ...)
+  create = TRUE, append = FALSE, truncate = FALSE, ...)
 }
 \arguments{
 \item{conn}{A \code{\linkS4class{JDBCConnection}} object, as produced by
@@ -18,7 +18,9 @@
 
 \item{create}{a logical specifying whether to create a new table if it does not exist. Its default is TRUE.}
 
-\item{append}{a logical specifying whether to append to an existing table. Its default is TRUE.}
+\item{append}{a logical specifying whether to append to an existing table. Its default is FALSE}
+
+\item{truncate}{a logical specifying whether to truncate an existing table before appending. Its default is FALSE}
 
 \item{...}{Other parameters passed on to methods.}
 }

@@ -103,9 +103,9 @@ JDBCQueryResult class.
 
 \item \code{dbIsValid}: Is the result valid
 
-\item \code{fetch}: Unsupported
+\item \code{fetch}: Returns an empty data frame.
 
-\item \code{fetch}: Unsupported
+\item \code{fetch}: Returns an empty data frame.
 
 \item \code{dbClearResult}: Has no effect. Returns always \code{TRUE}.
 
