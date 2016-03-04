@@ -128,6 +128,11 @@ setMethod("dbGetDriver", signature(dbObj = "JDBCDriver"),
 #' @export
 setMethod("dbDataType", signature(dbObj = "JDBCDriver"),
   function(dbObj, obj, ...) {
+    # remove AsIs
+    if ("AsIs" %in% class(obj)) {
+        class(obj) <- class(obj)[-match("AsIs", class(obj))]
+    }
+
     write_conversions <- dbObj@write_conversions
     for (i in seq(length(write_conversions))) {
       if (write_conversions[[i]]$condition(list(class_names = class(obj)))) {
