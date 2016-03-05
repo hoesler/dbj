@@ -12,7 +12,7 @@ This version is a rewrite of [Simon Urbanek's RJDBC packge](https://github.com/s
 ## Installation
 dbj can be installed most easily using the [devtools](https://github.com/hadley/devtools) package. After you have installed devtools, just run `devtools::install_github("hoesler/dbj")`.
 
-The source compilation requires that you haven [maven](https://maven.apache.org/) installed.
+The source compilation requires that you have [maven](https://maven.apache.org/) installed.
 
 ## Usage
 ```R
