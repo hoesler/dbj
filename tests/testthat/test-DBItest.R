@@ -1,5 +1,4 @@
 test_h2 <- function(ctx) {
-	# DBItest should use dbQuoteIdentifier instead of using DATABASE_TO_UPPER=FALSE
 	DBItest::test_getting_started(ctx = ctx)
 	DBItest::test_driver(skip = c(
 		"constructor_strict", "constructor", # too restrictive
@@ -50,6 +49,8 @@ requireOption <- function(x) {
 
 message("Testing H2 context")
 h2_ctx <- DBItest::make_context(
+	# DBItest isn't quoting identifiers with dbQuoteIdentifier().
+	# So we have to use experimantal feature DATABASE_TO_UPPER=FALSE instead.
 	JDBC('org.h2.Driver', requireOption("h2_jar")), list(url = "jdbc:h2:mem:dbi-test;DATABASE_TO_UPPER=FALSE", user = 'sa'),
 	set_as_default = FALSE
 )
