@@ -1,20 +1,29 @@
 library("testthat")
 
+maven_jar <- function(group_id, artifact_id, version) {
+	sprintf("http://search.maven.org/remotecontent?filepath=%s/%s/%s/%s-%s.jar",
+		gsub("\\.", "/", group_id), artifact_id, version, artifact_id, version)
+}
+
+rsync_file <- function(source, dest) {
+	if (!file.exists(dest)) {
+	  message(paste("Downloading", source))
+	  failed <- download.file(source, dest, "wget") # internal fails because of a 302 response
+	  if (failed) {
+	    stop("File could not be downloaded")
+	  } else {
+	    if (!file.exists(dest)) {
+	      stop(sprintf("File was downloaded but %s is missing", dest))
+	    }
+	  }
+	}
+}
+
 # Ensure database creation done before tests
 h2_version <- "1.3.176"
-h2_jar_src <- sprintf("http://search.maven.org/remotecontent?filepath=com/h2database/h2/%s/h2-%s.jar", h2_version, h2_version)
+h2_jar_src <- maven_jar('com.h2database', 'h2', h2_version)
 h2_jar_dest <- sprintf("h2-%s.jar", h2_version)
-if (!file.exists(h2_jar_dest)) {
-  print("Downloading H2 jar")
-  failed <- download.file(h2_jar_src, h2_jar_dest, "wget") # internal fails because of a 302 response
-  if (failed) {
-    stop("H2 Database Jar could not be downloaded")
-  } else {
-    if (!file.exists(h2_jar_dest)) {
-      stop("H2 file was downloaded but is missing")
-    }
-  }
-}
+rsync_file(h2_jar_src, h2_jar_dest)
 options(h2_jar = file.path(getwd(), h2_jar_dest))
 if (!is.character(getOption("h2_jar"))) stop("Path to h2 jar could not be resolved")
 

@@ -155,4 +155,12 @@ public final class IntegerColumn extends ForwardingList<Optional<Integer>> imple
             data.clear();
         }
     }
+
+    @Override
+    public String toString() {
+        return "IntegerColumn{" +
+                "data=" + data +
+                ", sqlType=" + sqlType +
+                '}';
+    }
 }

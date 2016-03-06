@@ -224,4 +224,31 @@ public class JDBCResultPullTest {
         assertThat(table.rowCount(), is(1));
         assertThat(table.getColumn(0), is(instanceOf(NullColumn.class)));
     }
+
+    @Test
+    public void testFetchBlob() throws Exception {
+        // given
+        final Connection connection = database.getConnection();
+        connection.createStatement().execute(
+                "CREATE TABLE \"test_table\" (" +
+                        "\"a\" BLOB)");
+        final int value = 65535;
+        connection.createStatement().execute(
+                "INSERT INTO \"test_table\" (\"a\")" +
+                        " VALUES ( CAST (" + value + " AS BINARY))");
+        final ResultSet resultSet = connection.createStatement().executeQuery("SELECT * FROM \"test_table\"");
+        final JDBCResultPull pull = new JDBCResultPull(resultSet);
+
+        // when
+        final Table table = pull.fetch(1);
+
+        // then
+        assertThat(table, is(notNullValue()));
+        assertThat(table.columnCount(), is(1));
+        assertThat(table.rowCount(), is(1));
+        assertThat(table.getColumn(0), is(instanceOf(BinaryColumn.class)));
+        assertThat(((BinaryColumn) table.getColumn(0)).get(0).isPresent(), is(true));
+        assertThat(((BinaryColumn) table.getColumn(0)).get(0).get(), is(equalTo(Ints.toByteArray(value))));
+        assertThat(Arrays.asList(((BinaryColumn) table.getColumn(0)).toByteArrays()), Matchers.contains(Ints.toByteArray(value)));
+    }
 }

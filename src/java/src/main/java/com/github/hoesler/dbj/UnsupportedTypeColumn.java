@@ -74,4 +74,12 @@ public final class UnsupportedTypeColumn extends ForwardingList<Optional<Object>
             data.clear();
         }
     }
+
+    @Override
+    public String toString() {
+        return "UnsupportedTypeColumn{" +
+                "sqlType=" + sqlType +
+                ", data=" + data +
+                '}';
+    }
 }

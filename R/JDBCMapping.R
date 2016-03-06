@@ -79,6 +79,11 @@ default_read_conversions <- list(
     with(JDBC_SQL_TYPES, c(TIMESTAMP)),
     "POSIXct",
     function(data) as.POSIXct(data / 1000, origin = "1970-01-01", tz = "GMT")
+  ),
+  sqltype_read_conversion(
+    with(JDBC_SQL_TYPES, c(BINARY, BLOB)),
+    "list",
+    function(data) { lapply(data, function(field) { if (all(is.na(field))) NA else as.raw(field) }) }
   )
 )
 
@@ -152,6 +157,11 @@ default_write_conversions <- list(
     c("character", "factor"),
     as.character,
     "VARCHAR(255)"
+  ),
+  mapped_write_conversion(
+    c("list"),
+    function(data) { lapply(data, function(field) { if (all(is.na(field))) NA else as.raw(field) }) },
+    "BLOB"
   )
 )
 
@@ -187,8 +197,10 @@ convert_to <- function(conversions, data, data_attributes) {
   assert_that(is.list(data_attributes) && "class_names" %in% names(data_attributes))
 
   for (i in seq_along(conversions)) {
-    if (conversions[[i]]$condition(data_attributes)) {
-      return(conversions[[i]]$conversion(data))
+    conversion <- conversions[[i]]
+    if (conversion$condition(data_attributes)) {
+      ret <- conversion$conversion(data)
+      return(ret)
     }
   }
 

@@ -5,26 +5,26 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Booleans;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class BooleanColumn extends ForwardingList<Optional<Boolean>> implements Column<Optional<Boolean>> {
+public final class BinaryColumn extends ForwardingList<Optional<byte[]>> implements Column<Optional<byte[]>> {
 
-    private final static Boolean NA = Boolean.FALSE;
-    private final List<Optional<Boolean>> data;
+    private final static byte[] NA = new byte[0];
+    private final List<Optional<byte[]>> data;
     private final int sqlType;
 
-    private BooleanColumn(final int sqlType, final Collection<Optional<Boolean>> values) {
+    private BinaryColumn(final int sqlType, final Collection<Optional<byte[]>> values) {
         this.sqlType = sqlType;
         data = ImmutableList.copyOf(values);
     }
@@ -35,17 +35,17 @@ public final class BooleanColumn extends ForwardingList<Optional<Boolean>> imple
     }
 
     @Override
-    protected List<Optional<Boolean>> delegate() {
+    protected List<Optional<byte[]>> delegate() {
         return data;
     }
 
     @Override
-    public Optional<Boolean> get(final int i) {
+    public Optional<byte[]> get(final int i) {
         return data.get(i);
     }
 
-    public boolean[] toBooleans() {
-        final boolean[] booleans = new boolean[size()];
+    public byte[][] toByteArrays() {
+        final byte[][] booleans = new byte[size()][];
         for (int i = 0; i < data.size(); i++) {
             booleans[i] = data.get(i).or(NA);
         }
@@ -54,11 +54,11 @@ public final class BooleanColumn extends ForwardingList<Optional<Boolean>> imple
 
     @Override
     public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
-        final Optional<Boolean> aBoolean = data.get(columnIndex);
+        final Optional<byte[]> aBoolean = data.get(columnIndex);
         if (!aBoolean.isPresent()) {
             statement.setNull(statementIndex, sqlType);
         } else {
-            statement.setBoolean(statementIndex, aBoolean.get());
+            statement.setBytes(statementIndex, aBoolean.get());
         }
     }
 
@@ -77,15 +77,15 @@ public final class BooleanColumn extends ForwardingList<Optional<Boolean>> imple
         return getClass().getSimpleName();
     }
 
-    public static BooleanColumn create(final int sqlType, final boolean[] booleans) {
-        checkNotNull(booleans);
+    public static BinaryColumn create(final int sqlType, final Object[] byteArrayArray) {
+        checkNotNull(byteArrayArray);
         checkArgument(handles(sqlType));
 
-        return new BooleanColumn(sqlType, Lists.transform(Booleans.asList(booleans),
-                new Function<Boolean, Optional<Boolean>>() {
+        return new BinaryColumn(sqlType, Lists.transform(Arrays.asList(byteArrayArray),
+                new Function<Object, Optional<byte[]>>() {
                     @Override
-                    public Optional<Boolean> apply(final Boolean aDouble) {
-                        return Optional.of(aDouble);
+                    public Optional<byte[]> apply(final Object aDouble) {
+                        return Optional.of((byte[]) aDouble);
                     }
                 }));
     }
@@ -93,58 +93,58 @@ public final class BooleanColumn extends ForwardingList<Optional<Boolean>> imple
     /**
      * Create a new BooleanColumn from an array of boolean values.
      *
-     * @param sqlType  the {@link java.sql.Types sql type} for this column
-     * @param booleans Boolean values
-     * @param na       NA indicators
+     * @param sqlType        the {@link Types sql type} for this column
+     * @param byteArrayArray byte array values
+     * @param na             NA indicators
      * @return a new Date column
      */
-    public static BooleanColumn create(final int sqlType, final boolean[] booleans, final boolean[] na) {
-        checkNotNull(booleans);
+    public static BinaryColumn create(final int sqlType, final Object[] byteArrayArray, final boolean[] na) {
+        checkNotNull(byteArrayArray);
         checkNotNull(na);
-        checkArgument(booleans.length == na.length);
+        checkArgument(byteArrayArray.length == na.length);
         checkArgument(handles(sqlType));
 
-        final ArrayList<Optional<Boolean>> optionals = new ArrayList<Optional<Boolean>>(booleans.length);
-        for (int i = 0; i < booleans.length; i++) {
-            optionals.add(na[i] ? Optional.<Boolean>absent() : Optional.of(booleans[i]));
+        final ArrayList<Optional<byte[]>> optionals = new ArrayList<Optional<byte[]>>(byteArrayArray.length);
+        for (int i = 0; i < byteArrayArray.length; i++) {
+            optionals.add(na[i] ? Optional.<byte[]>absent() : Optional.of((byte[]) byteArrayArray[i]));
         }
-        return new BooleanColumn(sqlType, optionals);
+        return new BinaryColumn(sqlType, optionals);
     }
 
-    public static ColumnBuilder<BooleanColumn> builder(final int sqlType) {
+    public static ColumnBuilder<BinaryColumn> builder(final int sqlType) {
         checkArgument(handles(sqlType));
-        return new BooleanColumnBuilder(sqlType);
+        return new BinaryColumnBuilder(sqlType);
     }
 
     public static boolean handles(final int sqlType) {
         switch (sqlType) {
-            case Types.BIT:
-            case Types.BOOLEAN:
+            case Types.BINARY:
+            case Types.BLOB:
                 return true;
             default:
                 return false;
         }
     }
 
-    private static class BooleanColumnBuilder implements ColumnBuilder<BooleanColumn> {
-        private final List<Optional<Boolean>> data = Lists.newArrayList();
+    private static class BinaryColumnBuilder implements ColumnBuilder<BinaryColumn> {
+        private final List<Optional<byte[]>> data = Lists.newArrayList();
         private final int sqlType;
 
-        private BooleanColumnBuilder(final int sqlType) {this.sqlType = sqlType;}
+        private BinaryColumnBuilder(final int sqlType) {this.sqlType = sqlType;}
 
         @Override
         public void addFromResultSet(final ResultSet resultSet, final int i) throws SQLException {
-            final Boolean aBoolean = resultSet.getBoolean(i);
+            final byte[] aBoolean = resultSet.getBytes(i);
             if (resultSet.wasNull()) {
-                data.add(Optional.<Boolean>absent());
+                data.add(Optional.<byte[]>absent());
             } else {
                 data.add(Optional.of(aBoolean));
             }
         }
 
         @Override
-        public BooleanColumn build() {
-            return new BooleanColumn(sqlType, data);
+        public BinaryColumn build() {
+            return new BinaryColumn(sqlType, data);
         }
 
         @Override
@@ -155,7 +155,7 @@ public final class BooleanColumn extends ForwardingList<Optional<Boolean>> imple
 
     @Override
     public String toString() {
-        return "BooleanColumn{" +
+        return "BinaryColumn{" +
                 "data=" + data +
                 ", sqlType=" + sqlType +
                 '}';

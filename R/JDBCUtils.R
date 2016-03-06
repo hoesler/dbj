@@ -70,6 +70,9 @@ create_j_table <- function(j_statement, data, write_conversions) {
     column_data <- data[,column_index]
     sql_type <- jtry(.jcall(j_statement_meta, "I", "getParameterType", column_index, check = FALSE))
     is_nullable <- jtry(.jcall(j_statement_meta, "I", "isNullable", column_index, check = FALSE))
+    if (is_nullable == 0 && any(is.na(column_data))) {
+      stop("Column is not nullable but data contains NA")
+    }
     create_j_colum(column_data, sql_type, is_nullable, write_conversions)
   }))
 
@@ -77,6 +80,10 @@ create_j_table <- function(j_statement, data, write_conversions) {
     "create", .jarray(j_columns, contents.class = "com/github/hoesler/dbj/Column"), check = FALSE))
 }
 
+#' @param column_data the data to insert
+#' @param sql_type the type of the column
+#' @param is_nullable is the column nullable? 0 = disallows NULL, 1 = allows NULL, 2 = unknown
+#' @param write_conversions a list of JDBCWriteConversion objects
 create_j_colum <- function(column_data, sql_type, is_nullable, write_conversions) {
   converted_column_data <- convert_to(write_conversions, column_data, list(sql_type = sql_type, class_names = class(column_data)))
   
@@ -99,21 +106,21 @@ create_j_colum <- function(column_data, sql_type, is_nullable, write_conversions
     } else if (sql_type %in% c(VARCHAR, CHAR, LONGVARCHAR, NVARCHAR, NCHAR, LONGNVARCHAR)) {
       j_column_classname <<- "com/github/hoesler/dbj/StringColumn"
       j_column_data <<- as.character(converted_column_data)
+    } else if (sql_type %in% c(BINARY, BLOB)) {
+      j_column_classname <<- "com/github/hoesler/dbj/BinaryColumn"
+      j_column_data <<- lapply(converted_column_data, .jarray)
     } else {
       stop("Unsupported SQL type '", sql_type, "'")
     }
   )
 
-  assert_that(!any(is.null(c(j_column_classname, j_column_data))))    
-
+  assert_that(all(!is.null(c(j_column_classname, j_column_data))))    
+  
   j_column <-
-  if (is_nullable > 0 && NA %in% j_column_data) {
+  if (is_nullable > 0 && any(is.na(column_data))) {
     jtry(.jcall(j_column_classname, sprintf("L%s;", j_column_classname),
-      "create", sql_type, .jarray(j_column_data), .jarray(is.na(j_column_data)), check = FALSE))
+      "create", sql_type, .jarray(j_column_data), .jarray(is.na(column_data)), check = FALSE))
   } else {
-    if (NA %in% j_column_data) {
-      stop("Column is not nullable but data contains NA")
-    }
     jtry(.jcall(j_column_classname, sprintf("L%s;", j_column_classname),
       "create", sql_type, .jarray(j_column_data), check = FALSE))
   }

@@ -74,4 +74,11 @@ public class NullColumn extends AbstractList<Optional<Void>> implements Column<O
             count++;
         }
     }
+
+    @Override
+    public String toString() {
+        return "NullColumn{" +
+                "columnLength=" + columnLength +
+                '}';
+    }
 }

@@ -66,6 +66,8 @@ public final class JDBCResultPull {
             return DoubleColumn.builder(sqlType);
         } else if (StringColumn.handles(sqlType)) {
             return StringColumn.builder(sqlType);
+        } else if (BinaryColumn.handles(sqlType)) {
+            return BinaryColumn.builder(sqlType);
         } else {
             return UnsupportedTypeColumn.builder(sqlType);
         }

@@ -278,4 +278,12 @@ public final class LongColumn extends ForwardingList<Optional<Long>> implements 
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return "LongColumn{" +
+                "sqlType=" + sqlType +
+                ", data=" + data +
+                '}';
+    }
 }

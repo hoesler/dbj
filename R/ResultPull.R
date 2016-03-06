@@ -41,6 +41,8 @@ fetch_resultpull <- function(j_result_pull, rows, column_info, read_conversions,
       column_data <- jtry(.jcall(j_column, "[D", "toDoubles", check = FALSE))
     } else if (column_class_name == "StringColumn"){
       column_data <- jtry(.jcall(j_column, "[S", "toStrings", check = FALSE))    
+    } else if (column_class_name == "BinaryColumn"){
+      column_data <- jtry(.jcall(j_column, "[[B", "toByteArrays", simplify = TRUE, check = FALSE))  
     } else {
       stop("Unexpeted type")
     }

@@ -251,4 +251,12 @@ public final class DoubleColumn extends ForwardingList<Optional<Double>> impleme
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return "DoubleColumn{" +
+                "sqlType=" + sqlType +
+                ", data=" + data +
+                '}';
+    }
 }

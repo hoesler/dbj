@@ -1,6 +1,9 @@
 package com.github.hoesler.dbj;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 
@@ -17,17 +20,29 @@ public final class ArrayListTable implements Table {
 
     public ArrayListTable(final List<Column<?>> columns) {
         this.columns = columns;
-        int rowCount = 0;
-        for (Column<?> column : columns) {
-            if (rowCount == 0) {
-                rowCount = column.size();
-            } else {
-                if (column.size() != rowCount) {
-                    throw new IllegalArgumentException("Columns have unequal size");
-                }
+        this.rowCount = rows(columns);
+    }
+
+    private static int rows(final Collection<? extends Column<?>> columns) {
+        if (columns.size() == 0) {
+            return 0;
+        } else {
+            final Iterable<Integer> columnSizes = Iterables.transform(
+                    columns, new Function<Column<?>, Integer>() {
+                        @Override
+                        public Integer apply(final Column<?> objects) {
+                            return objects.size();
+                        }
+                    }
+            );
+            final ImmutableSet<Integer> sizesSet = ImmutableSet.copyOf(columnSizes);
+
+            if (sizesSet.size() > 1) {
+                throw new IllegalArgumentException("Columns have unequal size: " + columns);
             }
+
+            return Iterables.getOnlyElement(sizesSet);
         }
-        this.rowCount = rowCount;
     }
 
     public int rowCount() {
