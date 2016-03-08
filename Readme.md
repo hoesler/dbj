@@ -1,6 +1,7 @@
 # dbj
 
 [![Build Status](https://travis-ci.org/hoesler/dbj.svg?branch=master)](https://travis-ci.org/hoesler/dbj)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/hoesler/dbj?branch=master&svg=true)](https://ci.appveyor.com/project/hoesler/dbj)
 
 dbj is a [R](http://cran.r-project.org/) package implementing the [DBI](https://github.com/rstats-db/DBI) interface (version 0.3.1) using [JDBC](http://www.oracle.com/technetwork/java/javase/jdbc/index.html) via [rJava](http://www.rforge.net/rJava/).
 
