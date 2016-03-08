@@ -91,7 +91,7 @@ setMethod("dbDisconnect", signature(conn = "JDBCConnection"),
     if (!jtry(.jcall(conn@j_connection, "Z", "isClosed", check = FALSE))) {
       jtry(.jcall(conn@j_connection, "V", "close", check = FALSE))
     } else {
-      stop("Connection has already been closed") # required by DBItest
+      warning("Connection has already been closed") # required by DBItest
     }
     invisible(TRUE)
   },

@@ -5,17 +5,17 @@ Title: Provides access to databases through the JDBC interface
 Author: Christoph Hösler <christoph.hoesler@gmail.com>
 Maintainer: Christoph Hösler <christoph.hoesler@gmail.com>
 Depends:
-    DBI (== 0.3.1),
-    R (>= 3.0)
+    R (>= 3.1.0),
+    methods
 Imports:
-    methods (>= 3.0.3),
+    DBI (== 0.3.1),
     assertthat (>= 0.1),
-    rJava (>= 0.4-15)
+    rJava (>= 0.9-8)
 Suggests:
     testthat (>= 0.8.1),
     lubridate (>= 1.3.3),
     Lahman (>= 3.0-1),
-    DBItest (== 1.0)
+    DBItest (>= 1.0)
 Description: dbj is an implementation of R's DBI interface using JDBC as a
     back-end. This allows R to connect to any DBMS that has a JDBC driver.
 License: MIT + file LICENSE

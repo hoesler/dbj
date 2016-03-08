@@ -1,5 +1,8 @@
 test_h2 <- function(ctx) {
-	DBItest::test_getting_started(ctx = ctx)
+	DBItest::test_getting_started(ctx = ctx, skip = c(
+		"package_name", # too restrictive
+		"package_dependencies" # 'methods' must be listed in 'Depends' for R <= 3.1.1
+	))
 	DBItest::test_driver(skip = c(
 		"constructor_strict", "constructor", # too restrictive
 		"stress_load_unload" # substitute in make_context does not substitute (getOption("h2_jar") is passed on unevaluated)
