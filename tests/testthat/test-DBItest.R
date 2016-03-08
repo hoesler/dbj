@@ -37,7 +37,7 @@ test_h2 <- function(ctx) {
 		"bind($|_.+)" # dbBind is not defined in DBI 0.3.1
 	), ctx = ctx)
 	DBItest::test_compliance(skip = c(
-		"compliance", # class count missmach and check for undefind dbBind method
+		#"compliance", # class count missmach and check for undefind dbBind method
 		"read_only" # Why should writing to the database fail?
 	), ctx = ctx)
 }
