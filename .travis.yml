@@ -2,7 +2,7 @@ language: r
 cache: packages
 
 r_github_packages:
-  - hoesler/DBItest@1.1-dbi-0.3.1
+  - hoesler/DBItest@dbi-0.3.1/1.1
 
 branches:
   except:

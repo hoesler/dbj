@@ -28,7 +28,7 @@ cache:
 
 build_script:
   - travis-tool.sh install_deps
-  - travis-tool.sh install_github hoesler/DBItest@1.1-dbi-0.3.1
+  - travis-tool.sh install_github hoesler/DBItest@dbi-0.3.1/1.1
 
 test_script:
   - travis-tool.sh run_tests
