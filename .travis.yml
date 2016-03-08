@@ -2,4 +2,4 @@ language: r
 cache: packages
 
 r_github_packages:
-  - rstats-db/DBItest@v1.0
+  - hoesler/DBItest@dbi-0.3.1
