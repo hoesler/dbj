@@ -2,6 +2,7 @@
 % Please edit documentation in R/JDBCUtils.R
 \name{create_j_colum}
 \alias{create_j_colum}
+\title{Create a Java Column class for given column_data}
 \usage{
 create_j_colum(column_data, sql_type, is_nullable, write_conversions)
 }
@@ -13,5 +14,8 @@ create_j_colum(column_data, sql_type, is_nullable, write_conversions)
 \item{is_nullable}{is the column nullable? 0 = disallows NULL, 1 = allows NULL, 2 = unknown}
 
 \item{write_conversions}{a list of JDBCWriteConversion objects}
+}
+\description{
+Create a Java Column class for given column_data
 }
 

@@ -79,6 +79,8 @@ create_j_table <- function(j_statement, data, write_conversions) {
     "create", .jarray(j_columns, contents.class = "com/github/hoesler/dbj/Column"), check = FALSE))
 }
 
+#' Create a Java Column class for given column_data
+#' 
 #' @param column_data the data to insert
 #' @param sql_type the type of the column
 #' @param is_nullable is the column nullable? 0 = disallows NULL, 1 = allows NULL, 2 = unknown
