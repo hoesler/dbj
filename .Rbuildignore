@@ -4,3 +4,4 @@ Readme.md
 ^.*.sublime-*
 src/java/.idea/
 .travis.yml
+^appveyor\.yml$

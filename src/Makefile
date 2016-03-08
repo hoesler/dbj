@@ -7,7 +7,7 @@ all: inst
 create_jar:
 	mkdir -p java/target
 	find java/target -name *.jar -delete
-	mvn -f java/pom.xml package
+	env mvn -f java/pom.xml package
 
 inst: create_jar
 	mkdir -p $(PACKAGE_ROOT)/inst/java
@@ -16,7 +16,7 @@ inst: create_jar
 clean: clean_target clean_inst
 
 clean_target:
-	mvn -f java/pom.xml clean
+	env mvn -f java/pom.xml clean
 
 clean_inst:
 	rm -rf $(PACKAGE_ROOT)/inst/java

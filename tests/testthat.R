@@ -8,6 +8,12 @@ maven_jar <- function(group_id, artifact_id, version) {
 rsync_file <- function(source, dest) {
 	if (!file.exists(dest)) {
 	  message(paste("Downloading", source))
+	  
+	  # appveyor cannot verify repo1.maven.org's certificate
+	  if (.Platform$OS.type == "windows") {
+	  	options("download.file.extra" = "--no-check-certificate")
+	  }
+	  
 	  failed <- download.file(source, dest, "wget") # internal fails because of a 302 response
 	  if (failed) {
 	    stop("File could not be downloaded")

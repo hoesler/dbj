@@ -1,0 +1,71 @@
+init:
+  - ps: |
+        $ErrorActionPreference = "Stop"
+        Invoke-WebRequest http://raw.github.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
+        Import-Module '..\appveyor-tool.ps1'
+        
+install:
+  - ps: Bootstrap
+  - ps: |
+      Add-Type -AssemblyName System.IO.Compression.FileSystem
+      if (!(Test-Path -Path "C:\apache-maven-3.3.9" )) {
+        (new-object System.Net.WebClient).DownloadFile(
+          'http://www.us.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.zip',
+          'C:\maven-bin.zip'
+        )
+        [System.IO.Compression.ZipFile]::ExtractToDirectory("C:\maven-bin.zip", "C:\")
+      }
+  - set PATH=%JAVA_HOME%\bin;%PATH%
+  # http://stackoverflow.com/questions/7019912/using-the-rjava-package-on-win7-64-bit-with-r
+  - set PATH=%JAVA_HOME%\jre\bin\server;%PATH%
+  - set PATH=C:\apache-maven-3.3.9\bin;%PATH%
+  - setx PATH "%PATH%"
+  - mvn --version
+
+cache:
+  - C:\apache-maven-3.3.9
+  - C:\Users\appveyor\.m2
+
+build_script:
+  - travis-tool.sh install_deps
+  - travis-tool.sh install_github hoesler/DBItest@dbi-0.3.1
+
+test_script:
+  - travis-tool.sh run_tests
+
+on_failure:
+  - 7z a failure.zip *.Rcheck\*
+  - appveyor PushArtifact failure.zip
+
+environment:
+  WARNINGS_ARE_ERRORS: 1
+  _R_CHECK_FORCE_SUGGESTS_: 0
+  R_VERSION: stable
+    
+  # R and JDK architecure must be equal for rJava to work:
+  # http://stackoverflow.com/questions/7019912/using-the-rjava-package-on-win7-64-bit-with-r
+  matrix:
+  # R Bootstrap fails on x86
+  # - R_ARCH: x86
+  #   JAVA_HOME: C:\Program Files (x86)\Java\jdk1.8.0
+  - R_ARCH: x64
+    JAVA_HOME: C:\Program Files\Java\jdk1.8.0
+
+artifacts:
+  - path: '*.Rcheck\**\*.log'
+    name: Logs
+
+  - path: '*.Rcheck\**\*.out'
+    name: Logs
+
+  - path: '*.Rcheck\**\*.fail'
+    name: Logs
+
+  - path: '*.Rcheck\**\*.Rout'
+    name: Logs
+
+  - path: '\*_*.tar.gz'
+    name: Bits
+
+  - path: '\*_*.zip'
+    name: Bits
