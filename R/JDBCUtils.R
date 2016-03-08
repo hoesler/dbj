@@ -1,5 +1,4 @@
 #' @include JavaUtils.R
-#' @include SQLUtils.R
 #' @include JDBCSQLTypes.R
 #' @include JDBCMapping.R
 NULL

@@ -2,7 +2,6 @@
 #' @include JDBCDriver.R
 #' @include JDBCConnectionExtensions.R
 #' @include JavaUtils.R
-#' @include SQLUtils.R
 #' @include JDBCUtils.R
 #' @include RUtils.R
 NULL

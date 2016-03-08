@@ -24,7 +24,6 @@ Collate:
     'RUtils.R'
     'JDBCSQLTypes.R'
     'JDBCMapping.R'
-    'SQLUtils.R'
     'JavaUtils.R'
     'JDBCUtils.R'
     'JDBCConnectionExtensions.R'
