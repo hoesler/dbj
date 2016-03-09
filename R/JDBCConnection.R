@@ -33,9 +33,13 @@ setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"),
 #' @keywords internal
 JDBCConnection <- function(j_connection, driver) {
   assert_that(j_connection %instanceof% "java.sql.Connection")
+
+  md <- jtry(.jcall(j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE))
+  identifier_quote_string <- jtry(.jcall(md, "S", "getIdentifierQuoteString", check = FALSE))
+
   new("JDBCConnection",
     j_connection = j_connection,
-    identifier_quote_string = connection_info(j_connection)$identifier_quote_string,
+    identifier_quote_string = identifier_quote_string,
     driver = driver)
 }
 
@@ -48,7 +52,7 @@ JDBCConnection <- function(j_connection, driver) {
 #' @export
 setMethod("dbConnect", signature(drv = "JDBCConnection"),
   function(drv, password = "", ...) {
-    info <- connection_info(drv@j_connection)
+    info <- dbGetInfo(drv)
     dbConnect(dbGetDriver(drv), info$url, info$user_name, password)
   },
   valueClass = "JDBCConnection"
@@ -390,28 +394,24 @@ setMethod("dbRollback", signature(conn = "JDBCConnection"),
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCConnection"),
   function(dbObj, ...) {
-    connection_info(dbObj@j_connection)
+    j_connection <- dbObj@j_connection    
+    j_dbmeta <- jtry(.jcall(j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE))
+
+    list(
+      db.version = jtry(.jcall(j_dbmeta, "S", "getDatabaseProductVersion", check = FALSE)),
+      dbname = jtry(.jcall(j_dbmeta, "S", "getDatabaseProductName", check = FALSE)),
+      username = jtry(.jcall(j_dbmeta, "S", "getUserName", check = FALSE)),
+      host = NULL,
+      port = NULL,
+
+      url = jtry(.jcall(j_dbmeta, "S", "getURL", check = FALSE)),
+      jdbc_driver_name = jtry(.jcall(j_dbmeta, "S", "getDriverName", check = FALSE)),
+      jdbc_driver_version = jtry(.jcall(j_dbmeta, "S", "getDriverVersion", check = FALSE)),
+      identifier_quote_string = dbObj@identifier_quote_string
+    )
   },
   valueClass = "list"
 )
-
-connection_info <- function(j_connection) {
-  md <- jtry(.jcall(j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE))
-  list(
-    database_product_name = jtry(.jcall(md, "S", "getDatabaseProductName", check = FALSE)),
-    database_product_version = jtry(.jcall(md, "S", "getDatabaseProductVersion", check = FALSE)),
-    driver_name = jtry(.jcall(md, "S", "getDriverName", check = FALSE)),
-    driver_version = jtry(.jcall(md, "S", "getDriverVersion", check = FALSE)),
-    url = jtry(.jcall(md, "S", "getURL", check = FALSE)),
-    username = jtry(.jcall(md, "S", "getUserName", check = FALSE)),
-    identifier_quote_string = jtry(.jcall(md, "S", "getIdentifierQuoteString", check = FALSE)),
-    # TODO: get data for the folowing keys as required by DBI
-    db.version = "",
-    dbname = "",
-    host = "",
-    port = ""
-  )
-}
 
 #' @describeIn JDBCConnection Not implemented. Returns an empty list.
 #' @export
@@ -487,16 +487,5 @@ setMethod("dbQuoteIdentifier", signature(conn = "JDBCConnection", x = "character
     qs <- conn@identifier_quote_string
     x <- gsub(qs, sprintf("%s%s", qs, qs), x, fixed = TRUE)
     SQL(paste(qs, x, qs, sep = ""))
-  }
-)
-
-#' Quote identifier
-#' @param conn A subclass of DBIConnection, representing an active connection to an DBMS.
-#' @param x A character vector to label as being escaped SQL.
-#' @param ... Ignored. Included for compatibility with generic.
-#' @export
-setMethod("dbQuoteIdentifier", signature(conn = "JDBCConnection", x = "SQL"),
-  function(conn, x, ...) {
-    x
   }
 )
