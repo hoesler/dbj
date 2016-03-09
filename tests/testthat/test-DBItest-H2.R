@@ -9,10 +9,10 @@ DBItest::test_getting_started(skip = c(
 ))
 DBItest::test_driver(skip = c(
 	"constructor_strict", "constructor", # too restrictive
-	"stress_load_unload" # substitute in make_context does not substitute (getOption("h2_jar") is passed on unevaluated)
+	"stress_load_unload" # substitute in make_context does not substitute (h2_jar() is passed on unevaluated)
 ))
 DBItest::test_connection(skip = c(
-	"stress_load_connect_unload" # substitute in make_context does not substitute (getOption("h2_jar") is passed on unevaluated)
+	"stress_load_connect_unload" # substitute in make_context does not substitute (h2_jar() is passed on unevaluated)
 ))
 DBItest::test_result(skip = c(
 	"get_query_empty_single_column", "get_query_empty_multi_column", # default implementation of dbGetQuery in 0.3.1 returns NULL for empty results
