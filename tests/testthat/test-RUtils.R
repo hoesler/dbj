@@ -1,5 +1,5 @@
 # RUtils methods
-context("RUtils unit tests")
+context("RUtils tests")
 
 test_that("partition.data.frame returns a list of data.frames", {
   # given

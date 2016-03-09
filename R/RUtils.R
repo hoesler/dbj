@@ -37,3 +37,8 @@ partition.default <- function(data, size) {
     })
   }
 }
+
+requireOption <- function(x) {
+  if (!x %in% names(options())) stop(sprintf("Option %s is not present", x))
+  getOption(x)
+}
