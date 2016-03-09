@@ -4,6 +4,23 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
   test_suite <- "bdj specific"
   
   tests <- list(
+	
+  	# ajusted version of constructor test in DBItest::test_driver
+	constructor = function() {
+      pkg_name <- package_name(ctx)
+
+      constructor_name <- ctx$tweaks$constructor_name %||%
+        gsub("^R", "", pkg_name)
+
+      pkg_env <- getNamespace(pkg_name)
+      eval(bquote(
+        expect_true(.(constructor_name) %in% getNamespaceExports(pkg_env))))
+      eval(bquote(
+        expect_true(exists(.(constructor_name), mode = "function", pkg_env))))
+      constructor <- get(constructor_name, mode = "function", pkg_env)
+      #expect_that(constructor, all_args_have_default_values())
+    },
+
   	test_keyords = function() {
   	  with_connection({
   	  	# when
