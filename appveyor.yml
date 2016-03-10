@@ -7,7 +7,7 @@ init:
 install:
   - ps: Bootstrap
   - ps: |
-      if (Test-Path $env:GITHUB_PAT) {
+      if (Test-Path variable:env:GITHUB_PAT) {
         Write-Output "GITHUB_PAT=\"$env:GITHUB_PAT\"" | Out-File '$env:USERPROFILE\.Renviron' -Append
       } else {
         Write-Warning "GITHUB_PAT environment variable not set"
