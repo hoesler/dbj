@@ -2,7 +2,7 @@ DBItest::make_context(
 	# DBItest isn't quoting identifiers with dbQuoteIdentifier().
 	# So we have to use experimantal feature DATABASE_TO_UPPER=FALSE instead.
 	dbj::driver(h2_driver_class(), h2_jar()), list(url = "jdbc:h2:mem:dbi-test;DATABASE_TO_UPPER=FALSE", user = 'sa'),
-	tweaks = tweaks(constructor_name = "driver")
+	tweaks = DBItest::tweaks(constructor_name = "driver")
 )
 DBItest::test_getting_started(skip = c(
 	"package_name", # too restrictive
