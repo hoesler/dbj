@@ -6,6 +6,7 @@ init:
         
 install:
   - ps: Bootstrap
+  - if [ -n "$GITHUB_PAT" ]; then echo "GITHUB_PAT=\"$GITHUB_PAT\"" >> ~/.Renviron; else echo "GITHUB_PAT is not set"; fi
   - ps: |
       Add-Type -AssemblyName System.IO.Compression.FileSystem
       if (!(Test-Path -Path "C:\apache-maven-3.3.9" )) {
