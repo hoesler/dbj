@@ -64,7 +64,7 @@ Class JDBCConnection
 
 \item \code{dbRollback}: Rollback a transaction
 
-\item \code{dbGetInfo}: Returns a list with \code{database_product_name}, \code{database_product_version}, \code{driver_name}, \code{driver_version}, \code{url}, \code{username}, \code{identifier_quote_string}, \code{db.version}, \code{dbname}, \code{host} and \code{port}.
+\item \code{dbGetInfo}: Returns a list with \code{dbname}, \code{db.version}, \code{username}, \code{jdbc_driver_name}, \code{jdbc_driver_version}, \code{url}, \code{identifier_quote_string}, \code{host} and \code{port}.
 
 \item \code{dbGetException}: Not implemented. Returns an empty list.
 
