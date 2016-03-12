@@ -21,21 +21,39 @@ insert_parameters <- function(j_statement, parameter_list, write_conversions) {
   invisible(NULL)
 }
 
-create_prepared_statement <- function(conn, statement) {
+create_prepared_statement <- function(conn, statement,
+  result_set_type = RESULT_SET_TYPE$TYPE_SCROLL_INSENSITIVE,
+  result_set_concurrency = RESULT_SET_CONCURRENCY$CONCUR_READ_ONLY) {
   ## if the statement starts with {call or {? = call then we use CallableStatement 
   if (any(grepl("^\\{(call|\\? = *call)", statement))) {
-    return(prepare_call(conn, statement))
+    return(prepare_call(conn, statement, result_set_type, result_set_concurrency))
   } else {
-    return(prepare_statement(conn, statement))
+    return(prepare_statement(conn, statement, result_set_type, result_set_concurrency))
   } 
 }
 
-prepare_call <- function(conn, statement) {
-  jtry(.jcall(conn@j_connection, "Ljava/sql/CallableStatement;", "prepareCall", statement, check = FALSE))
+prepare_call <- function(conn, statement,
+  result_set_type = RESULT_SET_TYPE$TYPE_SCROLL_INSENSITIVE,
+  result_set_concurrency = RESULT_SET_CONCURRENCY$CONCUR_READ_ONLY) {
+
+  assert_that(is.character(statement))
+  assert_that(is.integer(result_set_type))
+  assert_that(is.integer(result_set_concurrency))
+
+  jtry(.jcall(conn@j_connection, "Ljava/sql/CallableStatement;", "prepareCall",
+    statement, result_set_type, result_set_concurrency, check = FALSE))
 }
 
-prepare_statement <- function(conn, statement) {
-  jtry(.jcall(conn@j_connection, "Ljava/sql/PreparedStatement;", "prepareStatement", statement, check = FALSE))
+prepare_statement <- function(conn, statement,
+  result_set_type = RESULT_SET_TYPE$TYPE_SCROLL_INSENSITIVE,
+  result_set_concurrency = RESULT_SET_CONCURRENCY$CONCUR_READ_ONLY) {
+
+  assert_that(is.character(statement))
+  assert_that(is.integer(result_set_type))
+  assert_that(is.integer(result_set_concurrency))
+  
+  jtry(.jcall(conn@j_connection, "Ljava/sql/PreparedStatement;", "prepareStatement",
+    statement, result_set_type, result_set_concurrency, check = FALSE))
 }
 
 execute_query <- function(j_statement) {

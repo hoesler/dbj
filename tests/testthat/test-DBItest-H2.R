@@ -41,7 +41,7 @@ DBItest::test_sql(skip = c(
 ))
 DBItest::test_meta(skip = c(
 	"column_info", # DBI 0.3.1 tells me to return name, field.type, and data.type not "name" and "type"
-	"row_count", # TODO: fix. See comment in function
+	#"row_count", # TODO: fix. See comment in function
 	"bind($|_.+)" # dbBind is not defined in DBI 0.3.1
 ))
 DBItest::test_compliance(skip = c(

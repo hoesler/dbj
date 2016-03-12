@@ -183,8 +183,17 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
 #' @export
 setMethod("dbGetRowCount", signature(res = "JDBCQueryResult"),
   function(res, ...) {
-    # This method returns 0 before the first and after the last row.
-    jtry(.jcall(res@j_result_set, "I", "getRow", check = FALSE))
+    row <- 0
+    if (jtry(.jcall(res@j_result_set, "Z", "isAfterLast", check = FALSE))) {
+      valid <- jtry(.jcall(res@j_result_set, "Z", "last", check = FALSE))
+      if (valid) {
+        row <- jtry(.jcall(res@j_result_set, "I", "getRow", check = FALSE))
+        jtry(.jcall(res@j_result_set, "V", "afterLast", check = FALSE))
+      }
+    } else {
+      row <- jtry(.jcall(res@j_result_set, "I", "getRow", check = FALSE))
+    }
+    return(row)
   },
   valueClass = "numeric"
 )

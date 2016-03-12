@@ -29,3 +29,14 @@ setMethod("SQLKeywords", signature(dbObj = "JDBCResult"),
   },
   valueClass = "character"
 )
+
+RESULT_SET_TYPE <- list(
+  TYPE_FORWARD_ONLY = 1003L,
+  TYPE_SCROLL_INSENSITIVE = 1004L,
+  TYPE_SCROLL_SENSITIVE = 1005L
+)
+
+RESULT_SET_CONCURRENCY <- list(
+  CONCUR_READ_ONLY = 1007L,
+  CONCUR_UPDATABLE = 1008L
+)
