@@ -5,3 +5,4 @@ Readme.md
 src/java/.idea/
 .travis.yml
 ^appveyor\.yml$
+^java/
