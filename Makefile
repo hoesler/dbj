@@ -25,10 +25,10 @@ clean_target:
 clean_inst:
 	rm -rf $(INST_JAVA_PATH)
 
-JAR := $(shell find $(JAVA_BUILD_ROOT) -name '*.jar' -not -name '*proguard*' | head -1)
-TEMPDIR_SOURCE := $(shell mktemp -d /tmp/dbj.XXXX)
-TEMPDIR_INST := $(shell mktemp -d /tmp/dbj.XXXX)
-JAR_BASENAME := $(shell basename $(JAR))
+JAR = $(shell find $(JAVA_BUILD_ROOT) -name '*.jar' -not -name '*proguard*' | head -1)
+TEMPDIR_SOURCE = $(shell mktemp -d /tmp/dbj.XXXX)
+TEMPDIR_INST = $(shell mktemp -d /tmp/dbj.XXXX)
+JAR_BASENAME = $(shell basename $(JAR))
 MD5_SOURCE = $(shell cd $(TEMPDIR_SOURCE) && exec find . -type f -not -name MANIFEST.MF -exec md5 {} \; | sort -k 34 | md5)
 MD5_INST = $(shell cd $(TEMPDIR_INST) && exec find . -type f -not -name MANIFEST.MF -exec md5 {} \; | sort -k 34 | md5)
 	

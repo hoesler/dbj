@@ -1,4 +1,3 @@
-/inst/java
 /tests/*.jar
 
 *.sublime-*
@@ -19,3 +18,5 @@ config.log
 
 # autoconf
 /autom4te.cache/
+
+!/inst/java/*.jar
