@@ -336,33 +336,28 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
       on.exit(jtry(.jcall(conn@j_connection, "V", "setAutoCommit", commit_automatically, check = FALSE)))
     }
     
-    escaped_table_name <- dbQuoteIdentifier(conn, name)
-
     if (!table_exists && create) {
-      data_types <- sapply(value, dbDataType, dbObj = conn)
-      field_definitions <- paste(dbQuoteIdentifier(conn, names(value)), data_types, collapse = ', ')
-      
-      statement <- sprintf("CREATE TABLE %s (%s)", escaped_table_name, field_definitions)
-      table_was_created <- dbSendUpdate(conn, statement)
+      sql <- sql_create_table(conn, name, value)
+      table_was_created <- dbSendUpdate(conn, sql)
       if (!table_was_created) {
         stop("Table could not be created")
       }
     }
 
     if (table_exists && truncate) {
-      truncated <- dbTruncateTable(conn, name, use_delete = TRUE)
+      sql <- sql_truncate_table(conn, name, use_delete = TRUE)
+      truncated <- dbSendUpdate(conn, sql)
       if (!truncated) {
         stop(sprintf("Table %s could not be truncated", name))
       }
     }
     
     if (nrow(value) > 0) {
-      statement <- sprintf("INSERT INTO %s(%s) VALUES(%s)",
-        escaped_table_name,
-        paste(dbQuoteIdentifier(conn, names(value)), collapse = ', '),
-        paste(rep("?", length(value)), collapse = ', '))
-      
-      dbSendUpdate(conn, statement, parameters = value)
+      sql <- sql_append_table(conn, name, value)
+      appended <- dbSendUpdate(conn, sql, value)
+      if (!appended) {
+        stop("Data could not be appended")
+      }
     }
     
     if (commit_automatically) {
@@ -373,6 +368,34 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
   },
   valueClass = "logical"
 )
+
+sql_create_table <- function(conn, table, fields, temporary = FALSE) {
+  data_types <- sapply(fields, dbDataType, dbObj = conn)
+  field_definitions <- paste(dbQuoteIdentifier(conn, names(fields)), data_types, collapse = ', ')
+  statement <- sprintf(
+    "CREATE %s TABLE %s (%s)",
+    ifelse(temporary, "TEMPORARY", ""),
+    dbQuoteIdentifier(conn, table),
+    field_definitions)
+  SQL(statement)
+}
+
+sql_append_table <- function(conn, table, values) {
+  statement <- sprintf(
+    "INSERT INTO %s(%s) VALUES(%s)",
+    dbQuoteIdentifier(conn, table),
+    paste(dbQuoteIdentifier(conn, names(values)), collapse = ', '),
+    paste(rep("?", length(values)), collapse = ', '))
+  SQL(statement)
+}
+
+sql_truncate_table <- function(conn, name, use_delete = FALSE) {
+  if (use_delete) {
+    SQL(sprintf("DELETE FROM %s", dbQuoteIdentifier(conn, name)))
+  } else {
+    SQL(sprintf("TRUNCATE TABLE %s", dbQuoteIdentifier(conn, name)))
+  }
+}
 
 #' @describeIn JDBCConnection Begin a transaction
 #' @export
@@ -457,11 +480,8 @@ setMethod("dbGetDriver", signature(dbObj = "JDBCConnection"),
 #' @param use_delete Send a DELETE FROM query instead of TRUNCATE TABLE. Default is FALSE.
 setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, use_delete = FALSE, ...) {
-    if (use_delete) {
-      dbSendUpdate(conn, sprintf("DELETE FROM %s", dbQuoteIdentifier(conn, name)))
-    } else {
-      dbSendUpdate(conn, sprintf("TRUNCATE TABLE %s", dbQuoteIdentifier(conn, name)))      
-    }
+    sql <- sql_truncate_table(conn, name, use_delete)
+    dbSendUpdate(conn, sql)      
   }
 )
 
