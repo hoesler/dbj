@@ -34,6 +34,7 @@ Collate:
     'JDBCResult.R'
     'JDBCQueryResult.R'
     'JDBCUpdateResult.R'
+    'Maven.R'
     'ResultPull.R'
     'dbj.R'
 RoxygenNote: 5.0.1
