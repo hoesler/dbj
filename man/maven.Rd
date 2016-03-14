@@ -2,7 +2,7 @@
 % Please edit documentation in R/Maven.R
 \docType{data}
 \name{maven}
-\alias{default_local_repository}
+\alias{default_maven_local}
 \alias{maven}
 \alias{maven_central}
 \alias{maven_jar}
@@ -11,11 +11,10 @@
 \usage{
 maven_central
 
-default_local_repository
+default_maven_local
 
 maven_jar(group_id, artifact_id, version,
-  local_repository = default_local_repository,
-  remote_repository = maven_central)
+  local_repository = default_maven_local, remote_repository = maven_central)
 }
 \arguments{
 \item{group_id}{The group id of the artifact}
