@@ -18,7 +18,8 @@ The source compilation requires that you have [maven](https://maven.apache.org/)
 ## Usage
 ```R
 # Connect to an H2 database
-classpath <- maven_jar('com.h2database', 'h2', '1.3.176')
+classpath <- '~/h2-1.3.176.jar' # Use a local download ...
+classpath <- maven_jar('com.h2database', 'h2', '1.3.176') # ... or fetch from maven, if installed.
 drv <- dbj::driver('org.h2.Driver', classpath)
 con <- dbConnect(drv, 'jdbc:h2:mem:', user = '', password = '')
 ```
