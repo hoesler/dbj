@@ -12,6 +12,7 @@ install:
       } else {
         Write-Warning "GITHUB_PAT environment variable not set"
       }
+  # Set up maven
   - ps: |
       Add-Type -AssemblyName System.IO.Compression.FileSystem
       if (!(Test-Path -Path "C:\apache-maven-3.3.9" )) {
@@ -27,6 +28,8 @@ install:
   - set PATH=C:\apache-maven-3.3.9\bin;%PATH%
   - setx PATH "%PATH%"
   - mvn --version
+  # Verify the jar
+  - make verify_inst
 
 cache:
   - C:\apache-maven-3.3.9
