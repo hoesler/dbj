@@ -121,8 +121,6 @@ setMethod("dbClearResult", signature(res = "JDBCQueryResult"),
       } else {
         close_result_set(res$j_result_set)
       }
-    } else {
-      warning("Result has already been closed")
     }
     invisible(TRUE)
   },
