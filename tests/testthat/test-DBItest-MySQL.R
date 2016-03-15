@@ -27,11 +27,41 @@ DBItest::test_all(skip = c(
   "data_timestamp_parens_null_.*",              # syntax not supported
   "roundtrip_logical",                          # not an error: no logical data type
 
-  "data_integer($|_.+)",                        # Arithmetic operations are returned as BIGINT
   "data_date($|_.+)",                           # TODO
+
+  # Not an error: Arithmetic operations are returned as BIGINT: 
+  "data_integer($|_.+)",                        
+  "fetch_single",
+  "fetch_multi_row_single_column",
+  "fetch_progressive",
+  "fetch_more_rows",
+  "fetch_premature_close",
+  "get_query_single",
+  "get_query_multi_row_single_column",
+  "get_query_single_row_multi_column",
+  "get_query_multi",
+  "quote_identifier",
+  "quote_identifier_special",
+
+  # TODO: Driver does not support parameter metadata,
+  # throws java.sql.SQLException: Parameter metadata not available for the given statement
+  "write_table",
+  "read_table",
+  "append_table",
+  "table_visible_in_other_connection",
+  "list_tables",
+  "list_fields",
+  "roundtrip_.+",
+  "rows_affected",
+
   NULL
 ))
 
-test_bdj_extras(skip = c(),
+test_bdj_extras(skip = c(
+  "test_truncate($|_.+)",
+  "test_custom_conversion.*",
+
+  NULL
+  ),
   default_driver_args = list(driverClass = mysql_driver_class, classPath = mysql_classpath)
 )
