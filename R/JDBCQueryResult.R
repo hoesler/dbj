@@ -59,7 +59,7 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
       return(NULL)
     }
        
-    column_info <- dbColumnInfo(res, c("label", "nullable", "field.type"))
+    column_info <- dbColumnInfo(res, c("label", "nullable", "jdbc.type"))
 
     infinite_pull <- (n == -1)
     stride <- if (infinite_pull) {
@@ -126,7 +126,7 @@ setMethod("dbClearResult", signature(res = "JDBCQueryResult"),
 #'   and \code{nullable} (0 = disallows NULL, 1 = allows NULL, 2 = unknown) can be fetched.
 #' @export
 setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
-  function(res, what = c("name", "field.type", "data.type"), ...) {
+  function(res, what = c("name", "field.type", "data.type", "jdbc.type"), ...) {
     assert_that(is.character(what))
 
     if (length(what) == 0) {
@@ -149,16 +149,22 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
       }, "")))
     }
 
+    if ("jdbc.type" %in% what) {
+      column_info <- c(column_info, list(jdbc.type = vapply(seq(column_count), function(i) {
+        jtry(.jcall(res@j_result_set_meta, "I", "getColumnType", i, check = FALSE))
+      }, 0L)))
+    }
+
     if ("data.type" %in% what) {
       read_conversions <- dbGetDriver(res)@read_conversions
       column_info <- c(column_info, list(data.type = vapply(seq(column_count), function(i) {
-        field.type <- ""
-        if ("field.type" %in% names(column_info)) {
-          field.type <- column_info$field.type[i]
+        jdbc.type <-
+        if ("jdbc.type" %in% names(column_info)) {
+          column_info$jdbc.type[i]
         } else {
-          field.type <- jtry(.jcall(res@j_result_set_meta, "S", "getColumnTypeName", i, check = FALSE))
+          jtry(.jcall(res@j_result_set_meta, "I", "getColumnType", i, check = FALSE))
         }
-        read_conversions[sapply(read_conversions, function (x) { x$condition(list("field.type" = field.type)) })][[1]]$r_class
+        read_conversions[sapply(read_conversions, function (x) { x$condition(list("jdbc.type" = jdbc.type)) })][[1]]$r_class
       }, "")))
     }
 
@@ -171,7 +177,7 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
     if ("nullable" %in% what) {
       column_info <- c(column_info, list(nullable = vapply(seq(column_count), function(i) {
         jtry(.jcall(res@j_result_set_meta, "I", "isNullable", i, check = FALSE)) # 0 = disallows NULL, 1 = allows NULL, 2 = unknown
-      }, as.integer(0))))
+      }, 0L)))
     }
 
     as.data.frame(column_info, row.names = seq(column_count), stringsAsFactors = FALSE)   
