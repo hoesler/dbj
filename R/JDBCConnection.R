@@ -370,7 +370,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
 )
 
 sql_create_table <- function(conn, table, fields, temporary = FALSE) {
-  data_types <- sapply(fields, dbDataType, dbObj = conn)
+  data_types <- sapply(fields, dbDataType, dbObj = conn@driver)
   field_definitions <- paste(dbQuoteIdentifier(conn, names(fields)), data_types, collapse = ', ')
   statement <- sprintf(
     "CREATE %s TABLE %s (%s)",
