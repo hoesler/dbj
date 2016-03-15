@@ -459,6 +459,7 @@ setMethod("dbListResults", signature(conn = "JDBCConnection"),
 #' @export
 setMethod("SQLKeywords", signature(dbObj = "JDBCConnection"),
   function(dbObj, ...) {
+    .Deprecated()
     md <- jtry(.jcall(dbObj@j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE))
     keywords <- jtry(.jcall(md, "S", "getSQLKeywords", check = FALSE))
     unique(c(unlist(strsplit(keywords, "\\s*,\\s*")), .SQL92Keywords)) # TODO Java API refers to SQL:2003 keywords
