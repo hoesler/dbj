@@ -39,7 +39,7 @@ JDBC <- function(driverClass = '', classPath = '', ...) {
 #' @param dialect The \code{\link{sql_dialect}} to use. If \code{NULL}, the dialect is guessed, based on the driver class.
 #' @rdname JDBCDriver-class
 #' @export
-driver <- function(driverClass = '', classPath = '',
+driver <- function(driverClass, classPath = '',
   read_conversions = default_read_conversions,
   write_conversions = default_write_conversions,
   dialect = NULL) {  
