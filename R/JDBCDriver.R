@@ -15,19 +15,20 @@ setClass("JDBCDriver",
     j_drv = "jobjRef",
     info = "list",
     read_conversions = "list",
-    write_conversions = "list"))
+    write_conversions = "list",
+    dialect = "list"))
 
 #' Legacy JDBCDriver constructor.
 #' 
 #' This function is present for \code{RJDBC} compatibility. Use \code{\link{driver}} instead. 
 #' @param driverClass the java class name of the JDBC driver to use
 #' @param classPath a string of paths seperated by the \code{path.sep} variable in \code{\link{.Platform}} which should get added to the classpath (see \link[rJava]{.jaddClassPath})
-#' @param ... Ignored.
+#' @param ... Additional arguments passed to driver()
 #' @rdname JDBCDriver-class-legacy
 #' @export
 #' @keywords internal
 JDBC <- function(driverClass = '', classPath = '', ...) {  
-  driver(driverClass, classPath, read_conversions = default_read_conversions, write_conversions = default_write_conversions)
+  driver(driverClass, classPath, ...)
 }
 
 #' @param driverClass the java class name of the JDBC driver to use
@@ -36,9 +37,13 @@ JDBC <- function(driverClass = '', classPath = '', ...) {
 #' @param write_conversions a list of JDBCWriteConversion objects.
 #' @rdname JDBCDriver-class
 #' @export
-driver <- function(driverClass = '', classPath = '', read_conversions = default_read_conversions, write_conversions = default_write_conversions) {  
+driver <- function(driverClass = '', classPath = '',
+  read_conversions = default_read_conversions,
+  write_conversions = default_write_conversions,
+  dialect = generic_sql) {  
   assert_that(is.character(driverClass))
   assert_that(is.character(classPath))
+  assert_that(is.sql_dialect(dialect))
 
   ## expand all paths in the classPath
   expanded_paths <- path.expand(unlist(strsplit(classPath, .Platform$path.sep)))
@@ -55,7 +60,8 @@ driver <- function(driverClass = '', classPath = '', read_conversions = default_
     j_drv = j_drv,
     read_conversions = read_conversions,
     write_conversions = write_conversions,
-    info = driver_info(j_drv)
+    info = driver_info(j_drv),
+    dialect = dialect
   )
 }
 
