@@ -1,6 +1,7 @@
 #' @include JDBCObject.R
 #' @include JavaUtils.R
 #' @include JDBCMapping.R
+#' @include SQLDialect.R
 NULL
 
 #' Class JDBCDriver with factory methods.
@@ -35,15 +36,16 @@ JDBC <- function(driverClass = '', classPath = '', ...) {
 #' @param classPath a string of paths seperated by \code{path.sep} variable in \code{\link{.Platform}} which should get added to the classpath (see \link[rJava]{.jaddClassPath})
 #' @param read_conversions a list of JDBCReadConversion objects.
 #' @param write_conversions a list of JDBCWriteConversion objects.
+#' @param dialect The \code{\link{sql_dialect}} to use. If \code{NULL}, the dialect is guessed, based on the driver class.
 #' @rdname JDBCDriver-class
 #' @export
 driver <- function(driverClass = '', classPath = '',
   read_conversions = default_read_conversions,
   write_conversions = default_write_conversions,
-  dialect = generic_sql) {  
+  dialect = NULL) {  
   assert_that(is.character(driverClass))
   assert_that(is.character(classPath))
-  assert_that(is.sql_dialect(dialect))
+  assert_that(is.null(dialect) || is.sql_dialect(dialect))
 
   ## expand all paths in the classPath
   expanded_paths <- path.expand(unlist(strsplit(classPath, .Platform$path.sep)))
@@ -54,6 +56,10 @@ driver <- function(driverClass = '', classPath = '',
 
   j_drv <- .jnew(driverClass)
   verifyNotNull(j_drv)
+
+  if (is.null(dialect)) {
+    dialect <- guess_dialect(driverClass)
+  }
 
   new("JDBCDriver",
     driverClass = driverClass,

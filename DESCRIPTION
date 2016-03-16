@@ -27,6 +27,7 @@ Collate:
     'JavaUtils.R'
     'JDBCUtils.R'
     'JDBCConnectionExtensions.R'
+    'SQLDialect.R'
     'JDBCObjectExtensions.R'
     'JDBCObject.R'
     'JDBCDriver.R'
@@ -36,6 +37,5 @@ Collate:
     'JDBCUpdateResult.R'
     'Maven.R'
     'ResultPull.R'
-    'SQLDialect.R'
     'dbj.R'
 RoxygenNote: 5.0.1

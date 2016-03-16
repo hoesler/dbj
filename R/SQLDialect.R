@@ -9,6 +9,7 @@
 #' @param data A data.frame
 #' @param temporary If \code{TRUE}, will generate a temporary table statement.
 #' @param use_delete If \code{TRUE}, will use DELETE. If \code{FALSE}, TRUNCATE.
+#' @param driver_class The full classname of a Java Driver class.
 #' @return A new structure with class \code{sql_dialect}.
 #' @name sql_dialect
 NULL
@@ -87,3 +88,21 @@ is.sql_dialect <- function(x) inherits(x, "sql_dialect")
 #' @rdname sql_dialect
 #' @export
 generic_sql <- sql_dialect("generic")
+
+# maps diver classes to a list of arguments to sql_dialect()
+known_sql_dialects = list(
+  'org.h2.Driver' = list('H2')
+)
+
+#' @rdname sql_dialect
+#' @export
+guess_dialect <- function(driver_class) {
+  dialect <-
+  if (driver_class %in% names(known_sql_dialects)) {
+    do.call(sql_dialect, known_sql_dialects[[driver_class]])
+  } else {
+    generic_sql
+  }
+
+  return(dialect)  
+}

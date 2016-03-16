@@ -6,6 +6,7 @@
 \alias{generic_clear_table}
 \alias{generic_create_table}
 \alias{generic_sql}
+\alias{guess_dialect}
 \alias{sql_dialect}
 \title{Create a new SQL dialect environment}
 \format{An object of class \code{sql_dialect} of length 2.}
@@ -21,6 +22,8 @@ sql_dialect(name, sql_create_table = generic_create_table,
   sql_clear_table = generic_clear_table)
 
 generic_sql
+
+guess_dialect(driver_class)
 }
 \arguments{
 \item{conn}{An object of type \code{\linkS4class{JDBCConnection}}}
@@ -40,6 +43,8 @@ generic_sql
 \item{sql_append_table}{A function which generates an SQL statement for adding data to the table}
 
 \item{sql_clear_table}{A function which generates an SQL statement for truncating a table}
+
+\item{driver_class}{The full classname of a Java Driver class.}
 }
 \value{
 A new structure with class \code{sql_dialect}.

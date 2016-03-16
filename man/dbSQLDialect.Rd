@@ -8,6 +8,8 @@ dbSQLDialect(conn, ...)
 }
 \arguments{
 \item{conn}{A \code{\linkS4class{JDBCConnection}} object.}
+
+\item{...}{Other arguments used by methods}
 }
 \description{
 Get the current SQL dialect of the connection

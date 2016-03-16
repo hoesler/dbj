@@ -49,6 +49,7 @@ setGeneric("dbTruncateTable",
 #' Get the current SQL dialect of the connection
 #' 
 #' @param conn A \code{\linkS4class{JDBCConnection}} object.
+#' @param ... Other arguments used by methods
 #' @export
 setGeneric("dbSQLDialect",
   function(conn, ...) standardGeneric("dbSQLDialect"),

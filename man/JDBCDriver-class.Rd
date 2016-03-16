@@ -12,9 +12,9 @@
 \alias{driver}
 \title{Class JDBCDriver with factory methods.}
 \usage{
-driver(driverClass = "", classPath = "",
+driver(driverClass, classPath = "",
   read_conversions = default_read_conversions,
-  write_conversions = default_write_conversions, dialect = generic_sql)
+  write_conversions = default_write_conversions, dialect = NULL)
 
 \S4method{dbListConnections}{JDBCDriver}(drv, ...)
 
@@ -36,6 +36,8 @@ driver(driverClass = "", classPath = "",
 \item{read_conversions}{a list of JDBCReadConversion objects.}
 
 \item{write_conversions}{a list of JDBCWriteConversion objects.}
+
+\item{dialect}{The \code{\link{sql_dialect}} to use. If \code{NULL}, the dialect is guessed, based on the driver class.}
 
 \item{drv}{An object of class \code{\linkS4class{JDBCDriver}}}
 
