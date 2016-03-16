@@ -11,7 +11,7 @@ JDBC(driverClass = "", classPath = "", ...)
 
 \item{classPath}{a string of paths seperated by the \code{path.sep} variable in \code{\link{.Platform}} which should get added to the classpath (see \link[rJava]{.jaddClassPath})}
 
-\item{...}{Ignored.}
+\item{...}{Additional arguments passed to driver()}
 }
 \description{
 This function is present for \code{RJDBC} compatibility. Use \code{\link{driver}} instead.

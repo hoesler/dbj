@@ -1,6 +1,6 @@
 #' Generics for getting a description of table columns available in the specified catalog.
 #' 
-#' @param conn An \code{DBIConnection} object.
+#' @param conn A \code{\linkS4class{JDBCConnection}} object.
 #' @param ... Other arguments used by methods
 #' @keywords internal
 #' @export
@@ -11,7 +11,7 @@ setGeneric("dbGetFields",
 
 #' Generics for getting a description of the tables available in the given catalog.
 #' 
-#' @param conn An \code{DBIConnection} object.
+#' @param conn A \code{\linkS4class{JDBCConnection}} object.
 #' @param ... Other arguments used by methods
 #' @keywords internal
 #' @export
@@ -22,7 +22,7 @@ setGeneric("dbGetTables",
 
 #' Generics for sending an update query.
 #' 
-#' @param conn An \code{DBIConnection} object.
+#' @param conn A \code{\linkS4class{JDBCConnection}} object.
 #' @param statement the statement to send
 #' @param parameters Optional. Either a named list or a data.frame of statment parameters.
 #'   A data.frame will produce a batch update for each row.
@@ -36,7 +36,7 @@ setGeneric("dbSendUpdate",
 
 #' Truncate a table
 #' 
-#' @param conn An \code{DBIConnection} object.
+#' @param conn A \code{\linkS4class{JDBCConnection}} object.
 #' @param name The name of the table.
 #' @param ... Other arguments used by methods.
 #' @keywords internal
@@ -44,4 +44,13 @@ setGeneric("dbSendUpdate",
 setGeneric("dbTruncateTable",
   function(conn, name, ...) standardGeneric("dbTruncateTable"),
   valueClass = "logical"
+)
+
+#' Get the current SQL dialect of the connection
+#' 
+#' @param conn A \code{\linkS4class{JDBCConnection}} object.
+#' @export
+setGeneric("dbSQLDialect",
+  function(conn, ...) standardGeneric("dbSQLDialect"),
+  valueClass = "sql_dialect"
 )

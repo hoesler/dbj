@@ -10,32 +10,17 @@
 #' @param temporary If \code{TRUE}, will generate a temporary table statement.
 #' @param use_delete If \code{TRUE}, will use DELETE. If \code{FALSE}, TRUNCATE.
 #' @return A new structure with class \code{sql_dialect}.
-#' @export
-sql_dialect <- function(
-  name,
-  sql_create_table = test(),
-  sql_append_table = test(),
-  sql_clear_table = test()) {
-
-  structure(list(
-    name = name,
-    sql_create_table = sql_create_table,
-    sql_append_table = sql_append_table,
-    sql_clear_table = sql_clear_table
-  ), class = "sql_dialect")
-}
-
-test <- function() {}
-
-is.sql_dialect <- function(x) inherits(x, "sql_dialect")
-
-#' @rdname sql_dialect
-#' @export
-generic_sql <- sql_dialect("generic")
+#' @name sql_dialect
+NULL
 
 #' @rdname sql_dialect
 #' @export
 generic_create_table <- function(conn, table, data, temporary = FALSE) {
+  assert_that(is(conn, "JDBCConnection"))
+  assert_that(is.character(table) && length(table) == 1L)
+  assert_that(is.data.frame(data))
+  assert_that(is.logical(temporary))
+
   data_types <- sapply(data, dbDataType, dbObj = conn@driver)
   field_definitions <- paste(dbQuoteIdentifier(conn, names(data)), data_types, collapse = ', ')
   statement <- sprintf(
@@ -49,6 +34,10 @@ generic_create_table <- function(conn, table, data, temporary = FALSE) {
 #' @rdname sql_dialect
 #' @export
 generic_append_table <- function(conn, table, data) {
+  assert_that(is(conn, "JDBCConnection"))
+  assert_that(is.character(table) && length(table) == 1L)
+  assert_that(is.data.frame(data))
+
   statement <- sprintf(
     "INSERT INTO %s(%s) VALUES(%s)",
     dbQuoteIdentifier(conn, table),
@@ -60,9 +49,41 @@ generic_append_table <- function(conn, table, data) {
 #' @rdname sql_dialect
 #' @export
 generic_clear_table <- function(conn, table, use_delete = FALSE) {
+  assert_that(is(conn, "JDBCConnection"))
+  assert_that(is.character(table) && length(table) == 1L)
+  assert_that(is.logical(use_delete))
+
   if (use_delete) {
     SQL(sprintf("DELETE FROM %s", dbQuoteIdentifier(conn, table)))
   } else {
     SQL(sprintf("TRUNCATE TABLE %s", dbQuoteIdentifier(conn, table)))
   }
 }
+
+#' @rdname sql_dialect
+#' @export
+sql_dialect <- function(
+  name,
+  sql_create_table = generic_create_table,
+  sql_append_table = generic_append_table,
+  sql_clear_table = generic_clear_table) {
+
+  assert_that(is.function(sql_create_table))
+  assert_that(is.function(sql_append_table))
+  assert_that(is.function(sql_clear_table))
+
+  structure(list(
+    name = name,
+    env = list(
+      sql_create_table = sql_create_table,
+      sql_append_table = sql_append_table,
+      sql_clear_table = sql_clear_table
+    )
+  ), class = "sql_dialect")
+}
+
+is.sql_dialect <- function(x) inherits(x, "sql_dialect")
+
+#' @rdname sql_dialect
+#' @export
+generic_sql <- sql_dialect("generic")

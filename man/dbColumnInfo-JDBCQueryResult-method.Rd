@@ -6,7 +6,7 @@
 \title{Get info about the result set data types.}
 \usage{
 \S4method{dbColumnInfo}{JDBCQueryResult}(res, what = c("name", "field.type",
-  "data.type"), ...)
+  "data.type", "jdbc.type"), ...)
 }
 \arguments{
 \item{res}{an \code{\linkS4class{JDBCQueryResult}} object.}

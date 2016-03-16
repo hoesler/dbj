@@ -20,7 +20,7 @@ dbSendUpdate(conn, statement, parameters, ...)
   parameters, partition_size = 10000, ...)
 }
 \arguments{
-\item{conn}{An \code{DBIConnection} object.}
+\item{conn}{A \code{\linkS4class{JDBCConnection}} object.}
 
 \item{statement}{the statement to send}
 

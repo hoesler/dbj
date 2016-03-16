@@ -14,7 +14,7 @@
 \usage{
 driver(driverClass = "", classPath = "",
   read_conversions = default_read_conversions,
-  write_conversions = default_write_conversions)
+  write_conversions = default_write_conversions, dialect = generic_sql)
 
 \S4method{dbListConnections}{JDBCDriver}(drv, ...)
 

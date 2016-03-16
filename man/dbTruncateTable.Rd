@@ -7,7 +7,7 @@
 dbTruncateTable(conn, name, ...)
 }
 \arguments{
-\item{conn}{An \code{DBIConnection} object.}
+\item{conn}{A \code{\linkS4class{JDBCConnection}} object.}
 
 \item{name}{The name of the table.}
 

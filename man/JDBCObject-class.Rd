@@ -4,31 +4,19 @@
 \name{JDBCObject-class}
 \alias{JDBCObject-class}
 \alias{SQLKeywords,JDBCObject-method}
-\alias{dbDataType,JDBCObject-method}
-\alias{dbGetInfo,JDBCObject-method}
-\alias{dbIsValid,JDBCObject-method}
 \title{Class JDBCObject}
 \usage{
-\S4method{dbGetInfo}{JDBCObject}(dbObj, ...)
-
-\S4method{dbDataType}{JDBCObject}(dbObj, obj, ...)
-
 \S4method{SQLKeywords}{JDBCObject}(dbObj, ...)
-
-\S4method{dbIsValid}{JDBCObject}(dbObj, ...)
+}
+\arguments{
+\item{dbObj}{an object of type \code{\linkS4class{JDBCObject}}}
 }
 \description{
 Class JDBCObject
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{dbGetInfo}: Unless overwritten, this method will \code{stop} with an error.
-
-\item \code{dbDataType}: the method is forwarded to the \code{JDBCDriver} object returnd by \code{dbGetDriver(dbObj)}.
-
-\item \code{SQLKeywords}: to get the full list of keywords you must pass a \code{\linkS4class{JDBCConnection}} object. For all other objects not overwriting this method it will forward to the superclass with a warning.
-
-\item \code{dbIsValid}: Unless overwritten, this method will \code{stop} with an error.
+\item \code{SQLKeywords}: Deprecated in DBI
 }}
 \keyword{internal}
 

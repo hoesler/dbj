@@ -14,6 +14,7 @@
 \alias{dbReadTable,JDBCConnection,character-method}
 \alias{dbRemoveTable,JDBCConnection,character-method}
 \alias{dbRollback,JDBCConnection-method}
+\alias{dbSQLDialect,JDBCConnection-method}
 \title{Class JDBCConnection}
 \usage{
 \S4method{dbExistsTable}{JDBCConnection,character}(conn, name, ...)
@@ -21,6 +22,8 @@
 \S4method{dbRemoveTable}{JDBCConnection,character}(conn, name, ...)
 
 \S4method{dbReadTable}{JDBCConnection,character}(conn, name, ...)
+
+\S4method{dbSQLDialect}{JDBCConnection}(conn)
 
 \S4method{dbBegin}{JDBCConnection}(conn, ...)
 
@@ -57,6 +60,8 @@ Class JDBCConnection
 \item \code{dbRemoveTable}: Executes the SQL \code{DROP TABLE}.
 
 \item \code{dbReadTable}: Copy data frames from database.
+
+\item \code{dbSQLDialect}: Get the current dialect
 
 \item \code{dbBegin}: Begin a transaction
 

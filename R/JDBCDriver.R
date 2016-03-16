@@ -16,7 +16,7 @@ setClass("JDBCDriver",
     info = "list",
     read_conversions = "list",
     write_conversions = "list",
-    dialect = "list"))
+    dialect = "ANY"))
 
 #' Legacy JDBCDriver constructor.
 #' 

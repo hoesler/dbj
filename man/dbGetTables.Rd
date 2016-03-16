@@ -11,7 +11,7 @@ dbGetTables(conn, ...)
 \S4method{dbGetTables}{JDBCConnection}(conn, pattern = "\%", ...)
 }
 \arguments{
-\item{conn}{An \code{DBIConnection} object.}
+\item{conn}{A \code{\linkS4class{JDBCConnection}} object.}
 
 \item{...}{Other arguments used by methods}
 

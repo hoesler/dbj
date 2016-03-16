@@ -337,7 +337,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     }
     
     if (!table_exists && create) {
-      sql <- with(conn@driver@dialect, sql_create_table(conn, name, value))
+      sql <- with(dbSQLDialect(conn)$env, sql_create_table(conn, name, value))
       table_was_created <- dbSendUpdate(conn, sql)
       if (!table_was_created) {
         stop("Table could not be created")
@@ -345,7 +345,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     }
 
     if (table_exists && truncate) {
-      sql <- with(conn@driver@dialect, generic_clear_table(conn, name, use_delete = TRUE))
+      sql <- with(dbSQLDialect(conn)$env, sql_clear_table(conn, name, use_delete = TRUE))
       truncated <- dbSendUpdate(conn, sql)
       if (!truncated) {
         stop(sprintf("Table %s could not be truncated", name))
@@ -353,7 +353,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     }
     
     if (nrow(value) > 0) {
-      sql <- with(conn@driver@dialect, sql_append_table(conn, name, value))
+      sql <- with(dbSQLDialect(conn)$env, sql_append_table(conn, name, value))
       appended <- dbSendUpdate(conn, sql, value)
       if (!appended) {
         stop("Data could not be appended")
@@ -367,6 +367,14 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     invisible(TRUE)           
   },
   valueClass = "logical"
+)
+
+#' @describeIn JDBCConnection Get the current dialect
+#' @export
+setMethod("dbSQLDialect", signature(conn = "JDBCConnection"),
+  function(conn) {
+    conn@driver@dialect
+  }
 )
 
 #' @describeIn JDBCConnection Begin a transaction
@@ -453,7 +461,7 @@ setMethod("dbGetDriver", signature(dbObj = "JDBCConnection"),
 #' @param use_delete Send a DELETE FROM query instead of TRUNCATE TABLE. Default is FALSE.
 setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, use_delete = FALSE, ...) {
-    sql <- sql_truncate_table(conn, name, use_delete)
+    sql <- with(dbSQLDialect(conn)$env, sql_clear_table(conn, name, use_delete))
     dbSendUpdate(conn, sql)      
   }
 )
