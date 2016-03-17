@@ -4,9 +4,33 @@
 \name{JDBCUpdateResult-class}
 \alias{JDBCUpdateResult}
 \alias{JDBCUpdateResult-class}
+\alias{dbClearResult,JDBCUpdateResult-method}
+\alias{dbColumnInfo,JDBCUpdateResult-method}
+\alias{dbGetDriver,JDBCUpdateResult-method}
+\alias{dbGetInfo,JDBCUpdateResult-method}
+\alias{dbGetRowCount,JDBCUpdateResult-method}
+\alias{dbIsValid,JDBCUpdateResult-method}
+\alias{fetch,JDBCUpdateResult,missing-method}
+\alias{fetch,JDBCUpdateResult,numeric-method}
 \title{Class JDBCUpdateResult with factory method JDBCUpdateResult.}
 \usage{
 JDBCUpdateResult(update_count, connection, statement = "")
+
+\S4method{fetch}{JDBCUpdateResult,numeric}(res, n = -1, ...)
+
+\S4method{fetch}{JDBCUpdateResult,missing}(res, n = -1, ...)
+
+\S4method{dbClearResult}{JDBCUpdateResult}(res, ...)
+
+\S4method{dbColumnInfo}{JDBCUpdateResult}(res, ...)
+
+\S4method{dbGetRowCount}{JDBCUpdateResult}(res, ...)
+
+\S4method{dbGetInfo}{JDBCUpdateResult}(dbObj, ...)
+
+\S4method{dbIsValid}{JDBCUpdateResult}(dbObj, ...)
+
+\S4method{dbGetDriver}{JDBCUpdateResult}(dbObj, ...)
 }
 \arguments{
 \item{update_count}{the number of affected rows.}
@@ -14,6 +38,18 @@ JDBCUpdateResult(update_count, connection, statement = "")
 \item{connection}{a \code{\linkS4class{JDBCConnection}} object.}
 
 \item{statement}{statement which was used for the query which returned this result}
+
+\item{res}{an \code{\linkS4class{JDBCUpdateResult}} object.}
+
+\item{n}{optional maximum number of records to retrieve per fetch. Use \code{-1} to 
+retrieve all pending records; use \code{0} for to fetch the default 
+number of rows as defined in \code{\link{JDBC}}}
+
+\item{...}{Ignored. Needed for compatibility with generic.}
+
+\item{dbObj}{An object of class \code{\linkS4class{JDBCUpdateResult}}}
+
+\item{...}{Ignored. Included for compatibility with generic.}
 }
 \value{
 a new JDBCUpdateResult object
@@ -21,5 +57,21 @@ a new JDBCUpdateResult object
 \description{
 Class JDBCUpdateResult with factory method JDBCUpdateResult.
 }
+\section{Methods (by generic)}{
+\itemize{
+\item \code{fetch}: Returns an empty data frame.
+
+\item \code{fetch}: Returns an empty data frame.
+
+\item \code{dbClearResult}: Has no effect. Returns always \code{TRUE}.
+
+\item \code{dbColumnInfo}: Unsupported
+
+\item \code{dbGetRowCount}: Unsupported
+
+\item \code{dbGetInfo}: Get info
+
+\item \code{dbIsValid}: Is always \code{TRUE}.
+}}
 \keyword{internal}
 

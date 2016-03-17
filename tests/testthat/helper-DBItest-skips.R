@@ -23,7 +23,6 @@ dbj_skips_global <- c(
   "roundtrip_date", # TODO: storing dates as DATE seems unsafe as there might be conflicts with the timezone. H2 to Java Date is -1h. Seems like H2 is storing the date at local UTC+1 and Date is UTC
   "roundtrip_timestamp", # TODO: How can I differentiate between POSIXct and POSIXlt?
   "column_info", # DBI 0.3.1 tells me to return name, field.type, and data.type not "name" and "type"
-  "row_count", # TODO: Works only if result set is scrollable 
   "bind($|_.+)", # dbBind is not defined in DBI 0.3.1
   "read_only", # Why should writing to the database fail?
   NULL

@@ -10,7 +10,8 @@ setClass("JDBCUpdateResult",
   contains = c("JDBCResult"),
   slots = c(
     statement = "character",
-    update_count = "numeric")
+    update_count = "numeric",
+    connection = "JDBCConnection")
 )
 
 #' @param update_count the number of affected rows.
@@ -22,10 +23,14 @@ setClass("JDBCUpdateResult",
 JDBCUpdateResult <- function(update_count, connection, statement = "") {
   assert_that(is(update_count, "numeric"))
   assert_that(is(connection, "JDBCConnection"))
-  new("JDBCUpdateResult", update_count = update_count, connection = connection, statement = statement)
+  new("JDBCUpdateResult",
+    update_count = update_count,
+    connection = connection,
+    statement = statement
+  )
 }
 
-#' @describeIn JDBCQueryResult Returns an empty data frame.
+#' @describeIn JDBCUpdateResult Returns an empty data frame.
 #'
 #' @param res an \code{\linkS4class{JDBCUpdateResult}} object.
 #' @param n optional maximum number of records to retrieve per fetch. Use \code{-1} to 
@@ -39,7 +44,7 @@ setMethod("fetch", signature(res = "JDBCUpdateResult", n = "numeric"),
   }
 )
 
-#' @describeIn JDBCQueryResult Returns an empty data frame.
+#' @describeIn JDBCUpdateResult Returns an empty data frame.
 #' @export
 setMethod("fetch", signature(res = "JDBCUpdateResult", n = "missing"),
   function(res, n, ...) {
@@ -47,7 +52,7 @@ setMethod("fetch", signature(res = "JDBCUpdateResult", n = "missing"),
   }
 )
 
-#' @describeIn JDBCQueryResult Has no effect. Returns always \code{TRUE}.
+#' @describeIn JDBCUpdateResult Has no effect. Returns always \code{TRUE}.
 #' @export
 setMethod("dbClearResult", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
@@ -56,7 +61,7 @@ setMethod("dbClearResult", signature(res = "JDBCUpdateResult"),
   valueClass = "logical"
 )
 
-#' @describeIn JDBCQueryResult Unsupported
+#' @describeIn JDBCUpdateResult Unsupported
 #' @export
 setMethod("dbColumnInfo", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
@@ -65,7 +70,7 @@ setMethod("dbColumnInfo", signature(res = "JDBCUpdateResult"),
   valueClass = "data.frame"
 )
 
-#' @describeIn JDBCQueryResult Unsupported
+#' @describeIn JDBCUpdateResult Unsupported
 #' @export
 setMethod("dbGetRowCount", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
@@ -74,7 +79,7 @@ setMethod("dbGetRowCount", signature(res = "JDBCUpdateResult"),
   valueClass = "numeric"
 )
 
-#' @describeIn JDBCQueryResult Get info
+#' @describeIn JDBCUpdateResult Get info
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCUpdateResult"),
   function(dbObj, ...) {
@@ -88,7 +93,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCUpdateResult"),
   valueClass = "list"
 )
 
-#' @describeIn JDBCQueryResult Is always \code{TRUE}.
+#' @describeIn JDBCUpdateResult Is always \code{TRUE}.
 #' @export
 setMethod("dbIsValid", signature(dbObj = "JDBCUpdateResult"),
   function(dbObj, ...) {
@@ -96,3 +101,14 @@ setMethod("dbIsValid", signature(dbObj = "JDBCUpdateResult"),
   },
   valueClass = "logical"
 )
+
+#' @rdname JDBCUpdateResult-class
+#' @param dbObj An object of class \code{\linkS4class{JDBCUpdateResult}}
+#' @param ... Ignored. Included for compatibility with generic.
+#' @export
+setMethod("dbGetDriver", signature(dbObj = "JDBCUpdateResult"),
+  function(dbObj, ...) {
+    dbGetDriver(dbObj@connection) # forward
+  }
+)
+
