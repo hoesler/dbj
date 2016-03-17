@@ -59,6 +59,8 @@ driver <- function(driverClass, classPath = '',
   tryCatch(.jfindClass(as.character(driverClass)[1]),
     error = function(e) sprintf("Driver for class '%s' could not be found.", driverClass))
 
+  .jcall("java.lang.System", "S", "setProperty", "rJava.debug", "1")
+
   j_drv <- tryCatch(
     jtry(.jnew(driverClass, check = FALSE), onError = function(j_exception, ...) {
       .jcheck()
