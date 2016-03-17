@@ -22,7 +22,7 @@ insert_parameters <- function(j_statement, parameter_list, write_conversions) {
 }
 
 create_prepared_statement <- function(conn, statement,
-  result_set_type = RESULT_SET_TYPE$TYPE_SCROLL_INSENSITIVE,
+  result_set_type = RESULT_SET_TYPE$TYPE_FORWARD_ONLY,
   result_set_concurrency = RESULT_SET_CONCURRENCY$CONCUR_READ_ONLY) {
   ## if the statement starts with {call or {? = call then we use CallableStatement 
   if (any(grepl("^\\{(call|\\? = *call)", statement))) {
@@ -33,7 +33,7 @@ create_prepared_statement <- function(conn, statement,
 }
 
 prepare_call <- function(conn, statement,
-  result_set_type = RESULT_SET_TYPE$TYPE_SCROLL_INSENSITIVE,
+  result_set_type = RESULT_SET_TYPE$TYPE_FORWARD_ONLY,
   result_set_concurrency = RESULT_SET_CONCURRENCY$CONCUR_READ_ONLY) {
 
   assert_that(is.character(statement))
@@ -45,7 +45,7 @@ prepare_call <- function(conn, statement,
 }
 
 prepare_statement <- function(conn, statement,
-  result_set_type = RESULT_SET_TYPE$TYPE_SCROLL_INSENSITIVE,
+  result_set_type = RESULT_SET_TYPE$TYPE_FORWARD_ONLY,
   result_set_concurrency = RESULT_SET_CONCURRENCY$CONCUR_READ_ONLY) {
 
   assert_that(is.character(statement))
