@@ -49,6 +49,10 @@ driver <- function(driverClass, classPath = '',
 
   ## expand all paths in the classPath
   expanded_paths <- path.expand(unlist(strsplit(classPath, .Platform$path.sep)))
+  paths_exist <- file.exists(expanded_paths)
+  if (!all(paths_exist)) {
+    warning(paste0("Following classpaths do not exist: "), paste(dQuote(expanded_paths[!paths_exist]), collapse = ", "))
+  }
   .jaddClassPath(expanded_paths)
   
   tryCatch(.jfindClass(as.character(driverClass)[1]),
