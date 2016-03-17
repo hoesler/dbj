@@ -14,7 +14,8 @@
 \usage{
 driver(driverClass, classPath = "",
   read_conversions = default_read_conversions,
-  write_conversions = default_write_conversions, dialect = NULL)
+  write_conversions = default_write_conversions,
+  dialect = guess_dialect(driverClass))
 
 \S4method{dbListConnections}{JDBCDriver}(drv, ...)
 
@@ -37,7 +38,7 @@ driver(driverClass, classPath = "",
 
 \item{write_conversions}{a list of JDBCWriteConversion objects.}
 
-\item{dialect}{The \code{\link{sql_dialect}} to use. If \code{NULL}, the dialect is guessed, based on the driver class.}
+\item{dialect}{The \code{\link{sql_dialect}} to use.}
 
 \item{drv}{An object of class \code{\linkS4class{JDBCDriver}}}
 
