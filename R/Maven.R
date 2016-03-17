@@ -43,7 +43,7 @@ maven_jar <- function(group_id, artifact_id, version,
     url <- maven_url(group_id, artifact_id, version, repository = remote_repository)
     dest <- file.path(tempdir(), sprintf("%s-%s.jar", artifact_id, version))
 
-    failed <- download.file(url, dest, quiet = TRUE)
+    failed <- download.file(url, dest)
     if (failed) {
       stop("File could not be downloaded")
     }
