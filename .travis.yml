@@ -1,5 +1,9 @@
 language: r
-cache: packages
+
+cache:
+  - packages
+  - directories:
+    - $HOME/.m2
 
 before_install:
   - if [ -n "$GITHUB_PAT" ]; then echo "GITHUB_PAT=\"$GITHUB_PAT\"" >> ~/.Renviron; else echo "GITHUB_PAT is not set"; fi
