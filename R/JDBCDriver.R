@@ -55,13 +55,20 @@ driver <- function(driverClass, classPath = '',
   }
   .jaddClassPath(expanded_paths)
   
+  # .jfindClass calls Class.forName
   tryCatch(.jfindClass(as.character(driverClass)[1]),
     error = function(e) sprintf("Driver for class '%s' could not be found.", driverClass))
 
-  j_drv <- tryCatch(jtry(.jnew(driverClass, check = FALSE)), error = function(e) {
-    message(paste("Driver Class: ", driverClass, ", Classpath: ", paste0(.jclassPath(), collapse = ", ")))
-    stop(e)
-  })
+  j_drv <- tryCatch(
+    jtry(.jnew(driverClass, check = FALSE), onError = function(j_exception, ...) {
+      .jcheck()
+      j_exception$printStackTrace()
+    }),
+    error = function(e) {
+      message(paste("Driver Class: ", driverClass, ", Classpath: ", paste0(.jclassPath(), collapse = ", ")))
+      stop(e)
+    }
+  )
   verifyNotNull(j_drv)
 
   new("JDBCDriver",
