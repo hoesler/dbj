@@ -59,18 +59,12 @@ driver <- function(driverClass, classPath = '',
   tryCatch(.jfindClass(as.character(driverClass)[1]),
     error = function(e) sprintf("Driver for class '%s' could not be found.", driverClass))
 
-  .jcall("java.lang.System", "S", "setProperty", "rJava.debug", "1")
-
-  j_drv <- tryCatch(
-    jtry(.jnew(driverClass, check = FALSE), onError = function(j_exception, ...) {
-      .jcheck()
-      j_exception$printStackTrace()
-    }),
-    error = function(e) {
-      message(paste("Driver Class: ", driverClass, ", Classpath: ", paste0(.jclassPath(), collapse = ", ")))
-      stop(e)
-    }
-  )
+  j_drv <- jtry(new(J(driverClass)), onError = function(j_exception, ...) {
+    .jcheck()
+    j_exception$printStackTrace()
+    message(paste0("Classpath: ", paste0(.jclassPath(), collapse = ", ")))
+    stop(paste0("Failed to create an object of type ", driverClass))
+  })
   verifyNotNull(j_drv)
 
   new("JDBCDriver",
