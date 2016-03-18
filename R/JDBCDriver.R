@@ -55,10 +55,6 @@ driver <- function(driverClass, classPath = '',
   }
   .jaddClassPath(expanded_paths)
   
-  # .jfindClass calls Class.forName
-  tryCatch(.jfindClass(as.character(driverClass)[1]),
-    error = function(e) sprintf("Driver for class '%s' could not be found.", driverClass))
-
   j_drv <- jtry(new(J(driverClass)), onError = function(j_exception, ...) {
     .jcheck()
     j_exception$printStackTrace()
