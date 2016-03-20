@@ -5,6 +5,8 @@
 \alias{generic_append_table}
 \alias{generic_clear_table}
 \alias{generic_create_table}
+\alias{generic_quote_identifier}
+\alias{generic_quote_string}
 \alias{generic_sql}
 \alias{guess_dialect}
 \alias{sql_dialect}
@@ -17,9 +19,15 @@ generic_append_table(conn, table, data)
 
 generic_clear_table(conn, table, use_delete = FALSE)
 
+generic_quote_identifier(conn, x, ...)
+
+generic_quote_string(conn, x, ...)
+
 sql_dialect(name, sql_create_table = generic_create_table,
   sql_append_table = generic_append_table,
-  sql_clear_table = generic_clear_table)
+  sql_clear_table = generic_clear_table,
+  sql_quote_identifier = generic_quote_identifier,
+  sql_quote_string = generic_quote_string)
 
 generic_sql
 
@@ -36,6 +44,10 @@ guess_dialect(driver_class)
 
 \item{use_delete}{If \code{TRUE}, will use DELETE. If \code{FALSE}, TRUNCATE.}
 
+\item{x}{A character vector to label as being escaped SQL.}
+
+\item{...}{Other parameters passed on to methods.}
+
 \item{name}{The name of the dialect}
 
 \item{sql_create_table}{A function which generates an SQL statement for creating a table}
@@ -43,6 +55,10 @@ guess_dialect(driver_class)
 \item{sql_append_table}{A function which generates an SQL statement for adding data to the table}
 
 \item{sql_clear_table}{A function which generates an SQL statement for truncating a table}
+
+\item{sql_quote_identifier}{The function called by the \code{dbQuoteIdentifier,JDBCConnection-character-method} method}
+
+\item{sql_quote_string}{The function called by the \code{dbQuoteString,JDBCConnection-character-method} method}
 
 \item{driver_class}{The full classname of a Java Driver class.}
 }

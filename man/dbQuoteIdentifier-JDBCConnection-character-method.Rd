@@ -3,18 +3,19 @@
 \docType{methods}
 \name{dbQuoteIdentifier,JDBCConnection,character-method}
 \alias{dbQuoteIdentifier,JDBCConnection,character-method}
-\title{Quote identifier}
+\title{Quote an identifier using the \code{sql_quote_identifier} function defined in the Drivers \code{sql_dialect} evironment.}
 \usage{
 \S4method{dbQuoteIdentifier}{JDBCConnection,character}(conn, x, ...)
 }
 \arguments{
-\item{conn}{A subclass of DBIConnection, representing an active connection to an DBMS.}
+\item{conn}{A \code{\linkS4class{JDBCConnection}} object, as produced by
+\code{\link{dbConnect}}.}
 
 \item{x}{A character vector to label as being escaped SQL.}
 
-\item{...}{Ignored. Included for compatibility with generic.}
+\item{...}{Other parameters passed on to methods.}
 }
 \description{
-Quote identifier
+Quote an identifier using the \code{sql_quote_identifier} function defined in the Drivers \code{sql_dialect} evironment.
 }
 

@@ -52,8 +52,7 @@ connection_info <- function(j_connection) {
 
       url = jtry(.jcall(j_dbmeta, "S", "getURL", check = FALSE)),
       jdbc_driver_name = jtry(.jcall(j_dbmeta, "S", "getDriverName", check = FALSE)),
-      jdbc_driver_version = jtry(.jcall(j_dbmeta, "S", "getDriverVersion", check = FALSE)),
-      identifier_quote_string = jtry(.jcall(j_dbmeta, "S", "getIdentifierQuoteString", check = FALSE))
+      jdbc_driver_version = jtry(.jcall(j_dbmeta, "S", "getDriverVersion", check = FALSE))
     )
 }
 
@@ -407,7 +406,7 @@ setMethod("dbRollback", signature(conn = "JDBCConnection"),
   valueClass = "logical"
 )
 
-#' @describeIn JDBCConnection Returns a list with \code{dbname}, \code{db.version}, \code{username}, \code{jdbc_driver_name}, \code{jdbc_driver_version}, \code{url}, \code{identifier_quote_string}, \code{host} and \code{port}.
+#' @describeIn JDBCConnection Returns a list with \code{dbname}, \code{db.version}, \code{username}, \code{jdbc_driver_name}, \code{jdbc_driver_version}, \code{url}, \code{host} and \code{port}.
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCConnection"),
   function(dbObj, ...) {
@@ -478,15 +477,22 @@ setMethod("dbIsValid", signature(dbObj = "JDBCConnection"),
   valueClass = "logical"
 )
 
-#' Quote identifier
-#' @param conn A subclass of DBIConnection, representing an active connection to an DBMS.
+#' Quote an identifier using the \code{sql_quote_identifier} function defined in the Drivers \code{sql_dialect} evironment.  
+#' @inheritParams dbDisconnect,JDBCConnection-method
 #' @param x A character vector to label as being escaped SQL.
-#' @param ... Ignored. Included for compatibility with generic.
 #' @export
 setMethod("dbQuoteIdentifier", signature(conn = "JDBCConnection", x = "character"),
   function(conn, x, ...) {
-    qs <- dbGetInfo(conn)$identifier_quote_string
-    x <- gsub(qs, sprintf("%s%s", qs, qs), x, fixed = TRUE)
-    SQL(paste(qs, x, qs, sep = ""))
+    with(dbSQLDialect(conn)$env, sql_quote_identifier(conn, x, ...))
+  }
+)
+
+#' Quote a string using the \code{sql_quote_string} function defined in the Drivers \code{sql_dialect} evironment.  
+#' @inheritParams dbDisconnect,JDBCConnection-method
+#' @param x A character vector to label as being escaped SQL.
+#' @export
+setMethod("dbQuoteString", signature(conn = "JDBCConnection", x = "character"),
+  function(conn, x, ...) {
+    with(dbSQLDialect(conn)$env, sql_quote_string(conn, x, ...))
   }
 )

@@ -4,12 +4,16 @@
 #' @param sql_create_table A function which generates an SQL statement for creating a table
 #' @param sql_append_table A function which generates an SQL statement for adding data to the table
 #' @param sql_clear_table A function which generates an SQL statement for truncating a table
+#' @param sql_quote_identifier The function called by the \code{dbQuoteIdentifier,JDBCConnection-character-method} method
+#' @param sql_quote_string The function called by the \code{dbQuoteString,JDBCConnection-character-method} method
 #' @param conn An object of type \code{\linkS4class{JDBCConnection}}
 #' @param table The table name
 #' @param data A data.frame
 #' @param temporary If \code{TRUE}, will generate a temporary table statement.
 #' @param use_delete If \code{TRUE}, will use DELETE. If \code{FALSE}, TRUNCATE.
 #' @param driver_class The full classname of a Java Driver class.
+#' @param x A character vector to label as being escaped SQL.
+#' @param ... Other parameters passed on to methods.
 #' @return A new structure with class \code{sql_dialect}.
 #' @name sql_dialect
 NULL
@@ -63,22 +67,36 @@ generic_clear_table <- function(conn, table, use_delete = FALSE) {
 
 #' @rdname sql_dialect
 #' @export
+generic_quote_identifier <- getMethod("dbQuoteIdentifier", signature = c("DBIConnection", "character"))@.Data
+
+#' @rdname sql_dialect
+#' @export
+generic_quote_string <- getMethod("dbQuoteString", signature = c("DBIConnection", "character"))@.Data
+
+#' @rdname sql_dialect
+#' @export
 sql_dialect <- function(
   name,
   sql_create_table = generic_create_table,
   sql_append_table = generic_append_table,
-  sql_clear_table = generic_clear_table) {
+  sql_clear_table = generic_clear_table,
+  sql_quote_identifier = generic_quote_identifier,
+  sql_quote_string = generic_quote_string) {
 
   assert_that(is.function(sql_create_table))
   assert_that(is.function(sql_append_table))
   assert_that(is.function(sql_clear_table))
+  assert_that(is.function(sql_quote_identifier))
+  assert_that(is.function(sql_quote_string))
 
   structure(list(
     name = name,
     env = list(
       sql_create_table = sql_create_table,
       sql_append_table = sql_append_table,
-      sql_clear_table = sql_clear_table
+      sql_clear_table = sql_clear_table,
+      sql_quote_identifier = sql_quote_identifier,
+      sql_quote_string = sql_quote_string
     )
   ), class = "sql_dialect")
 }
