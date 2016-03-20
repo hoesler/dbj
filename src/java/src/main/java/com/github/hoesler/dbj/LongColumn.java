@@ -9,9 +9,8 @@ import com.google.common.primitives.Booleans;
 import com.google.common.primitives.Longs;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.sql.Date;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -19,6 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class LongColumn extends ForwardingList<Optional<Long>> implements Column<Optional<Long>> {
 
     private final static Long NA = Long.MIN_VALUE;
+    private static final Calendar GMT = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
     private final List<Optional<Long>> data;
     private final int sqlType;
     private final StatementUpdater updater;
@@ -193,7 +193,7 @@ public final class LongColumn extends ForwardingList<Optional<Long>> implements 
         private class DateResultSetTransfer implements ResultSetTransfer<Optional<Long>> {
             @Override
             public void addFromResultSet(final Collection<? super Optional<Long>> collection, final ResultSet resultSet, final int i) throws SQLException {
-                final Date date = resultSet.getDate(i);
+                final Date date = resultSet.getDate(i, GMT);
                 if (resultSet.wasNull()) {
                     collection.add(Optional.<Long>absent());
                 } else {
@@ -231,11 +231,11 @@ public final class LongColumn extends ForwardingList<Optional<Long>> implements 
 
         @Override
         public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
-            final Optional<Long> aDouble = data.get(columnIndex);
-            if (!aDouble.isPresent()) {
+            final Optional<Long> longOptional = data.get(columnIndex);
+            if (!longOptional.isPresent()) {
                 statement.setNull(statementIndex, sqlType);
             } else {
-                statement.setLong(statementIndex, aDouble.get());
+                statement.setLong(statementIndex, longOptional.get());
             }
         }
     }
@@ -244,11 +244,11 @@ public final class LongColumn extends ForwardingList<Optional<Long>> implements 
 
         @Override
         public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
-            final Optional<Long> aDouble = data.get(columnIndex);
-            if (!aDouble.isPresent()) {
+            final Optional<Long> longOptional = data.get(columnIndex);
+            if (!longOptional.isPresent()) {
                 statement.setNull(statementIndex, sqlType);
             } else {
-                statement.setDate(statementIndex, new Date(aDouble.get()));
+                statement.setDate(statementIndex, new Date(longOptional.get()), GMT);
             }
         }
     }
@@ -257,11 +257,11 @@ public final class LongColumn extends ForwardingList<Optional<Long>> implements 
 
         @Override
         public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
-            final Optional<Long> aDouble = data.get(columnIndex);
-            if (!aDouble.isPresent()) {
+            final Optional<Long> longOptional = data.get(columnIndex);
+            if (!longOptional.isPresent()) {
                 statement.setNull(statementIndex, sqlType);
             } else {
-                statement.setTimestamp(statementIndex, new Timestamp(aDouble.get()));
+                statement.setTimestamp(statementIndex, new Timestamp(longOptional.get()));
             }
         }
     }
@@ -270,11 +270,11 @@ public final class LongColumn extends ForwardingList<Optional<Long>> implements 
 
         @Override
         public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
-            final Optional<Long> aDouble = data.get(columnIndex);
-            if (!aDouble.isPresent()) {
+            final Optional<Long> longOptional = data.get(columnIndex);
+            if (!longOptional.isPresent()) {
                 statement.setNull(statementIndex, sqlType);
             } else {
-                statement.setTime(statementIndex, new Time(aDouble.get()));
+                statement.setTime(statementIndex, new Time(longOptional.get()));
             }
         }
     }

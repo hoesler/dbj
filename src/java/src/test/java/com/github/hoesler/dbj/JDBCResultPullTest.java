@@ -8,7 +8,10 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.sql.*;
-import java.util.Arrays;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
@@ -79,11 +82,10 @@ public class JDBCResultPullTest {
         connection.createStatement().execute(
                 "CREATE TABLE \"test_table\" (" +
                         "\"a\" DATE)");
-        final String dateString = "2014-06-03";
-        final Date value = Date.valueOf(dateString);
+        final String dateString = "2015-01-01";
         connection.createStatement().execute(
                 "INSERT INTO \"test_table\" (\"a\")" +
-                        " VALUES ('" + value + "')");
+                        " VALUES ('" + dateString + "')");
         final ResultSet resultSet = connection.createStatement().executeQuery("SELECT * FROM \"test_table\"");
         final JDBCResultPull pull = new JDBCResultPull(resultSet);
 
@@ -96,8 +98,11 @@ public class JDBCResultPullTest {
         assertThat(table.rowCount(), is(1));
         assertThat(table.getColumn(0), is(instanceOf(LongColumn.class)));
         assertThat(((LongColumn) table.getColumn(0)).get(0).isPresent(), is(true));
-        assertThat(((LongColumn) table.getColumn(0)).get(0).get(), is(equalTo(value.getTime())));
-        assertThat(Longs.asList(((LongColumn) table.getColumn(0)).toLongs()), Matchers.contains(value.getTime()));
+        final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+        final Date date = format.parse(dateString);
+        assertThat(((LongColumn) table.getColumn(0)).get(0).get(), is(equalTo(date.getTime())));
+        assertThat(Longs.asList(((LongColumn) table.getColumn(0)).toLongs()), Matchers.contains(date.getTime()));
     }
 
     @Test

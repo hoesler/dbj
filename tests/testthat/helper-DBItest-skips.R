@@ -20,7 +20,6 @@ dbj_skips_global <- c(
   "roundtrip_logical_int", # logicals are currently mapped to BOOLEAN not INT
   "roundtrip_64_bit", # dbWriteTable does not support a field.types argument
   "roundtrip_rownames", # this is a post 0.3.1 DBI feature
-  "roundtrip_date", # TODO: storing dates as DATE seems unsafe as there might be conflicts with the timezone. H2 to Java Date is -1h. Seems like H2 is storing the date at local UTC+1 and Date is UTC
   "roundtrip_timestamp", # TODO: How can I differentiate between POSIXct and POSIXlt?
   "column_info", # DBI 0.3.1 tells me to return name, field.type, and data.type not "name" and "type"
   "bind($|_.+)", # dbBind is not defined in DBI 0.3.1

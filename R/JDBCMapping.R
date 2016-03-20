@@ -73,7 +73,7 @@ default_read_conversions <- list(
     with(JDBC_SQL_TYPES, c(DATE)),
     "Date",
     # data is point in time that is time milliseconds after January 1, 1970 00:00:00 GMT
-    function(data) as.Date(data / 1000 / 60 / 60 / 24, origin = "1970-01-01", tz = "GMT")
+    function(data) structure(as.integer(data / 1000 / 60 / 60 / 24), class = "Date")
   ),
   sqltype_read_conversion(
     with(JDBC_SQL_TYPES, c(TIMESTAMP)),
