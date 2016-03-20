@@ -37,10 +37,10 @@ checkException <- function() {
 jstop <- function(j_exception, expression, ...) {
   assert_that(j_exception %instanceof% "java.lang.Throwable")
   exception_message <- expression
-  throwable <- j_exception
-  while (!is.jnull(throwable)) {
-    exception_message <- c(exception_message, .jcall(throwable, "S", "toString"))
-    throwable <- .jcall(j_exception, "Ljava/lang/Throwable;", "getCause")
+  j_throwable <- j_exception
+  while (!is.jnull(j_throwable)) {
+    exception_message <- c(exception_message, .jcall(j_throwable, "S", "toString"))
+    j_throwable <- .jcall(j_throwable, "Ljava/lang/Throwable;", "getCause")
   }
   stop(..., "Caused by: ", paste0(exception_message, collapse = " "), call. = FALSE)
 }
