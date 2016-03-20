@@ -13,6 +13,18 @@ DBItest::test_all(skip = c(
   dbj_skips_global,
 
   # SQLite specific
+  "data_logical",                               # not an error, no logical data type
+  "data_logical_null_.*",                       # not an error, no logical data type
+  "roundtrip_logical",                          # not an error, no logical data type
+  "data_time",                                  # syntax not supported
+  "data_time_null_.*",                          # syntax not supported
+  "data_timestamp",                             # syntax not supported
+  "data_timestamp_null_.*",                     # syntax not supported
+  "data_timestamp_utc",                         # syntax not supported
+  "data_timestamp_utc_null_.*",                 # syntax not supported
+
+  ".*_null_(above|below)",                      # Driver returns row dependent column type
+
   NULL
 ))
 
