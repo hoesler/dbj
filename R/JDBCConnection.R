@@ -496,3 +496,15 @@ setMethod("dbQuoteString", signature(conn = "JDBCConnection", x = "character"),
     with(dbSQLDialect(conn)$env, sql_quote_string(conn, x, ...))
   }
 )
+
+#' @describeIn JDBCConnection Prints a short info about the connection
+#' @param object An object of class \code{\linkS4class{JDBCConnection}}
+#' @export
+setMethod("show", "JDBCConnection", function(object) {
+  cat("<JDBCConnection>\n")
+  if (dbIsValid(object)) {
+    cat("  URL: ", object@info$url, "\n", sep = "")
+  } else {
+    cat("  DISCONNECTED\n")
+  }
+})

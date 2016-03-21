@@ -185,3 +185,13 @@ setMethod("dbIsValid", signature(dbObj = "JDBCDriver"),
   },
   valueClass = "logical"
 )
+
+#' @describeIn JDBCDriver Prints a short info about the driver.
+#' @param object An object of class \code{\linkS4class{JDBCDriver}}
+#' @export
+setMethod("show", "JDBCDriver", function(object) {
+  cat("<JDBCDriver>\n")
+  if (dbIsValid(object)) {
+    cat("  Driver Class: ", object@driverClass, "\n", sep = "")
+  }
+})

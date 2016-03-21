@@ -15,6 +15,7 @@
 \alias{dbRemoveTable,JDBCConnection,character-method}
 \alias{dbRollback,JDBCConnection-method}
 \alias{dbSQLDialect,JDBCConnection-method}
+\alias{show,JDBCConnection-method}
 \title{Class JDBCConnection}
 \usage{
 \S4method{dbExistsTable}{JDBCConnection,character}(conn, name, ...)
@@ -40,6 +41,8 @@
 \S4method{SQLKeywords}{JDBCConnection}(dbObj, ...)
 
 \S4method{dbGetDriver}{JDBCConnection}(dbObj, ...)
+
+\S4method{show}{JDBCConnection}(object)
 }
 \arguments{
 \item{conn}{a \code{\linkS4class{JDBCConnection}} object}
@@ -49,6 +52,8 @@
 \item{...}{Arguments passed on to other methods.}
 
 \item{dbObj}{a \code{\linkS4class{JDBCConnection}} object}
+
+\item{object}{An object of class \code{\linkS4class{JDBCConnection}}}
 }
 \description{
 Class JDBCConnection
@@ -78,5 +83,7 @@ Class JDBCConnection
 \item \code{SQLKeywords}: Returns the list of SQL keywords as defined in the DatabaseMetaData Java object of the associated Java Connection object.
 
 \item \code{dbGetDriver}: Returns the driver for this connection.
+
+\item \code{show}: Prints a short info about the connection
 }}
 

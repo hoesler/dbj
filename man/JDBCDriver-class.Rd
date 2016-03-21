@@ -10,6 +10,7 @@
 \alias{dbListConnections,JDBCDriver-method}
 \alias{dbUnloadDriver,JDBCDriver-method}
 \alias{driver}
+\alias{show,JDBCDriver-method}
 \title{Class JDBCDriver with factory methods.}
 \usage{
 driver(driverClass, classPath = "",
@@ -28,6 +29,8 @@ driver(driverClass, classPath = "",
 \S4method{dbDataType}{JDBCDriver}(dbObj, obj, ...)
 
 \S4method{dbIsValid}{JDBCDriver}(dbObj, ...)
+
+\S4method{show}{JDBCDriver}(object)
 }
 \arguments{
 \item{driverClass}{the java class name of the JDBC driver to use}
@@ -47,6 +50,8 @@ driver(driverClass, classPath = "",
 \item{dbObj}{An object of class \code{\linkS4class{JDBCDriver}}}
 
 \item{obj}{An R object whose SQL type we want to determine.}
+
+\item{object}{An object of class \code{\linkS4class{JDBCDriver}}}
 }
 \description{
 \code{JDBCDriver} objects are usually created by 
@@ -65,5 +70,7 @@ driver(driverClass, classPath = "",
 \item \code{dbDataType}: returns the DB data type as defined in the \code{write_conversions}.
 
 \item \code{dbIsValid}: always \code{TRUE}.
+
+\item \code{show}: Prints a short info about the driver.
 }}
 
