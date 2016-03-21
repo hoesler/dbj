@@ -12,7 +12,7 @@ DBItest::test_all(skip = c(
 
   # Derby specific
 
-  # No error: Syntax not supported (WHERE clause is mandatory) 
+  # Not an error: Syntax not supported (WHERE clause is mandatory in SELECT expressions) 
   "trivial_query",
   "clear_result_return",
   "command_query",
@@ -24,6 +24,13 @@ DBItest::test_all(skip = c(
   "get_statement",
   "row_count",
   "get_info_result",
+
+  # Not an error: DBItest does not quote identifiers in select expressions. https://github.com/rstats-db/DBItest/issues/64
+  "write_table",
+  "read_table",
+  "table_visible_in_other_connection",
+  "roundtrip_numeric_special",
+  "rows_affected",
 
   NULL
 ))
