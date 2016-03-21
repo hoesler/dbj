@@ -5,11 +5,11 @@ find_expr <- function(name, env = parent.frame()) {
 
 expect_contained <- function(object, expected, ..., info = NULL, label = NULL, expected.label = NULL) {
 	if (is.null(label)) {
-        label <- find_expr("object")
-    }
-    if (is.null(expected.label)) {
-        expected.label <- find_expr("expected")
-    }
+      label <- find_expr("object")
+  }
+  if (is.null(expected.label)) {
+      expected.label <- find_expr("expected")
+  }
 	expect_that(object, is_contained_in(expected, label = expected.label, ...), info = info, label = label)
 }
 

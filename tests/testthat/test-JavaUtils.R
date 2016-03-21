@@ -11,7 +11,7 @@ test_that("jtry returns the evaluation result", {
   result <- jtry(.jcall("java/lang/String", "S", "valueOf", as.integer(42)))
 
   # then
-  expect_that(result, equals("42"))
+  expect_identical(result, "42")
 })
 
 test_that("jtry calls the onError if an exception was thrown", {
@@ -23,7 +23,7 @@ test_that("jtry calls the onError if an exception was thrown", {
   result <- jtry(.jthrow(.jnew("java/lang/NullPointerException")), error_callback)
 
   # then
-  expect_that(callback_counter, equals(1))
+  expect_identical(callback_counter, 1)
 })
 
 
@@ -31,24 +31,27 @@ test_that("jtry calls the onError if an exception was thrown", {
 ################
 
 test_that("verifyNotNull stops at .jnull", {
-  expect_that(verifyNotNull(.jnull()), throws_error())
+  expect_error(verifyNotNull(.jnull()))
 })
 
 test_that("verifyNotNull does nothing if not .jnull java object", {
-  expect_that(verifyNotNull(.jnew("java/lang/String")), not(throws_error()))
+  expect_silent(verifyNotNull(.jnew("java/lang/String")))
 })
 
 test_that("verifyNotNull stops at non java object", {
-  expect_that(verifyNotNull("foo"), throws_error())
+  expect_error(verifyNotNull("foo"))
 })
 
 ## jstop
 ########
 
 test_that("jstop stops at Throwable", {
-  expect_that(jstop(.jnew("java/lang/IllegalArgumentException", "")), throws_error(".*IllegalArgumentException*"))
+  expect_error(
+    jstop(.jnew("java/lang/IllegalArgumentException", "")),
+    ".*IllegalArgumentException*"
+  )
 })
 
 test_that("jstop stops at non java object", {
-  expect_that(jstop(NULL), throws_error(".*is not a java object"))
+  expect_error(jstop(NULL), ".*is not a java object")
 })
