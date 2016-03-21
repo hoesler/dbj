@@ -50,9 +50,9 @@ test_script:
   - travis-tool.sh run_tests
 
 on_failure:
-  - 7z a failure.zip *.Rcheck\* C:\Users\appveyor\.m2\repository\mysql\mysql-connector-java\5.1.38\*
+  - 7z a failure.zip *.Rcheck\*
   - appveyor PushArtifact failure.zip
-  - find C:\Users\appveyor\.m2 -exec ls -l {} +
+  - find  C:\Users\appveyor\.m2\repository\mysql\mysql-connector-java\ -exec ls -l {} +
 
 environment:
   WARNINGS_ARE_ERRORS: 1

@@ -20,12 +20,14 @@ maven_url <- function(group_id, artifact_id, version, suffix = ".jar", repositor
     gsub("\\.", "/", group_id), artifact_id, version, artifact_id, version, suffix)
 }
 
-maven_install <- function(file, group_id, artifact_id, version, local_repository) {
+maven_install <- function(group_id, artifact_id, version, repositories) {
   errno <- system(sprintf(
-    '%s install:install-file -Dfile=%s -DgroupId=%s -DartifactId=%s -Dversion=%s -Dpackaging=jar -DlocalRepositoryPath=%s',
-    Sys.getenv("MAVEN_EXEC", "mvn"), file, group_id, artifact_id, version, path.expand(local_repository)))
+    '%s org.apache.maven.plugins:maven-dependency-plugin:2.10:get -DremoteRepositories=%s -Dartifact=%s',
+    Sys.getenv("MAVEN_EXEC", "mvn"), repositories, paste0(c(group_id, artifact_id, version), collapse = ":")
+  ))
+
   if (errno != 0) {
-    stop(sprintf("Installing file via maven failed"))
+    stop(sprintf("Installing artifact failed"))
   }
 }
 
@@ -34,21 +36,12 @@ maven_install <- function(file, group_id, artifact_id, version, local_repository
 #' @export
 #' @rdname maven
 maven_jar <- function(group_id, artifact_id, version,
-  local_repository = default_maven_local, remote_repository = maven_central ) {
+  local_repository = default_maven_local, remote_repository = maven_central) {
 
-  local_jar <- do.call(file.path,
-    as.list(c(default_maven_local, unlist(strsplit(group_id, "\\.")), artifact_id, version, sprintf("%s-%s.jar", artifact_id, version))))
+  local_jar <- maven_url(group_id, artifact_id, version, local_repository)
   
   if (!file.exists(local_jar)) {
-    url <- maven_url(group_id, artifact_id, version, repository = remote_repository)
-    dest <- file.path(tempdir(), sprintf("%s-%s.jar", artifact_id, version))
-
-    failed <- download.file(url, dest)
-    if (failed) {
-      stop("File could not be downloaded")
-    }
-
-    maven_install(dest, group_id, artifact_id, version, local_repository)
+    maven_install(group_id, artifact_id, version, remote_repository)
 
     if (!file.exists(local_jar)) {
       stop(sprintf("File was installed but %s is missing", local_jar))
