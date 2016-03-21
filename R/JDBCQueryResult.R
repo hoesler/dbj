@@ -20,6 +20,7 @@ JDBCQueryResult <- setRefClass("JDBCQueryResult",
   contains = c("JDBCResult"),
   fields = list(
     row_count = "numeric",
+    completed = "logical",
     statement = "character",
     j_result_set = "jobjRef",
     j_result_set_meta = "jobjRef",
@@ -39,6 +40,7 @@ JDBCQueryResult <- setRefClass("JDBCQueryResult",
       .self$statement <<- statement
       .self$connection <<- connection
       .self$row_count <<- 0
+      .self$completed <<- FALSE
     }
   ),
   validity = function(object) {
@@ -75,17 +77,26 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
     chunks <- list()
     repeat {    
       fetched <- fetch_resultpull(res$j_result_pull, stride, column_info, dbGetDriver(res)@read_conversions, fetch_size) 
-      chunks <- c(chunks, list(fetched))
+      chunks <- c(chunks, list(fetched))  
 
-      if (!infinite_pull || nrow(fetched) < stride) {
-        break
+      if (nrow(fetched) < stride) {
+        res$completed <- TRUE
       }
 
-      stride <- 524288L # 512k
+      if (infinite_pull) {
+        if (res$completed) {
+          break
+        } else {
+          stride <- 524288L # 512k
+        }
+      } else {
+        break
+      }
     }
 
     ret <- do.call(rbind, chunks)
     res$increaseRowCount(nrow(ret))
+
     return(ret)
   }
 )
@@ -214,14 +225,8 @@ setMethod("dbGetRowsAffected", signature(res = "JDBCQueryResult"),
 #' @export
 setMethod("dbHasCompleted", signature(res = "JDBCQueryResult"),
   function(res, ...) {
-    if (jtry(.jcall(res$j_result_set, "I", "getRow", check = FALSE)) > 0) {
-      completed <- jtry(.jcall(res$j_result_set, "Z", "isAfterLast", check = FALSE))
-    } else {      
-      completed <- jtry(.jcall(res$j_result_set, "Z", "isBeforeFirst", check = FALSE)) == FALSE
-      # true if the cursor is before the first row; false if the cursor is at any other position or the result set contains no rows
-    }
-
-    return(completed)
+    checkValid(res)
+    res$completed
   }
 )
 
@@ -260,6 +265,12 @@ setMethod("dbIsValid", signature(dbObj = "JDBCQueryResult"),
   },
   valueClass = "logical"
 )
+
+checkValid <- function(res) {
+  if (!dbIsValid(res)) {
+    stop("The result set has been closed")
+  }
+}
 
 #' Deprecated! Use dbColumnInfo instead. 
 #' 
