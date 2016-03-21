@@ -53,7 +53,10 @@ driver <- function(driverClass, classPath = '',
   if (!all(paths_exist)) {
     warning(paste0("Following classpaths do not exist: "), paste(dQuote(expanded_paths[!paths_exist]), collapse = ", "))
   }
+
+  message(paste0("Classpath before: ", paste0(.jclassPath(), collapse = ", ")))
   .jaddClassPath(expanded_paths)
+  message(paste0("Classpath after: ", paste0(.jclassPath(), collapse = ", ")))
   
   j_drv <- jtry(new(J(driverClass)), onError = function(j_exception, ...) {
     .jcheck()
