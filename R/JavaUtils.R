@@ -31,18 +31,19 @@ checkException <- function() {
 #' Throw an error with the given \code{j_exception} as the cause.
 #' 
 #' @param j_exception a java Throwable which is converted to a part of the message
-#' @param expression a R expression to evaluate
 #' @param  ... any further message parts passed to \code{stop}
 #' @keywords internal
-jstop <- function(j_exception, expression, ...) {
+jstop <- function(j_exception, ...) {
   assert_that(j_exception %instanceof% "java.lang.Throwable")
-  exception_message <- expression
+  
   j_throwable <- j_exception
+  exception_messages <- ""
   while (!is.jnull(j_throwable)) {
-    exception_message <- c(exception_message, .jcall(j_throwable, "S", "toString"))
+    exception_messages <- c(exception_messages, .jcall(j_throwable, "S", "toString"))
     j_throwable <- .jcall(j_throwable, "Ljava/lang/Throwable;", "getCause")
   }
-  stop(..., "Caused by: ", paste0(exception_message, collapse = " "), call. = FALSE)
+
+  stop(..., paste(paste("caused by: ", exception_messages), collapse = " -> "), call. = FALSE)
 }
 
 #' Wrap an R expression which calls rJava functions.
@@ -64,7 +65,7 @@ jtry <- function(expression, onError = jstop, ...) {
   eval_result <- eval(substitute(expression), env)
   j_exception <- .jgetEx(clear = TRUE)
   if (!is.null(j_exception)) {
-    do.call(onError, c(list(j_exception, deparse(substitute(expression))), list(...)), envir = env)
+    do.call(onError, list(j_exception, c(deparse(substitute(expression)), list(...))), envir = env)
   }
   return(eval_result)
 }
