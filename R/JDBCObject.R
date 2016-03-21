@@ -15,3 +15,14 @@ setMethod("SQLKeywords", signature(dbObj = "JDBCObject"),
     callNextMethod()
   }
 )
+
+#' @describeIn JDBCObject the method is forwarded to the \code{JDBCDriver} object returnd by \code{dbGetDriver(dbObj)}.
+#' @export
+setMethod("dbDataType", signature(dbObj = "JDBCObject"),
+  function(dbObj, obj, ...) {
+    drv <- dbGetDriver(dbObj)
+    assert_that(is(drv, "JDBCDriver"))
+    dbDataType(drv, obj)
+  },
+  valueClass = "character"
+)

@@ -4,9 +4,12 @@
 \name{JDBCObject-class}
 \alias{JDBCObject-class}
 \alias{SQLKeywords,JDBCObject-method}
+\alias{dbDataType,JDBCObject-method}
 \title{Class JDBCObject}
 \usage{
 \S4method{SQLKeywords}{JDBCObject}(dbObj, ...)
+
+\S4method{dbDataType}{JDBCObject}(dbObj, obj, ...)
 }
 \arguments{
 \item{dbObj}{an object of type \code{\linkS4class{JDBCObject}}}
@@ -17,6 +20,8 @@ Class JDBCObject
 \section{Methods (by generic)}{
 \itemize{
 \item \code{SQLKeywords}: Deprecated in DBI
+
+\item \code{dbDataType}: the method is forwarded to the \code{JDBCDriver} object returnd by \code{dbGetDriver(dbObj)}.
 }}
 \keyword{internal}
 
