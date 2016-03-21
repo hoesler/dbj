@@ -15,7 +15,7 @@ maven_central <- "http://repo1.maven.org/maven2"
 #' @rdname maven
 default_maven_local <- Sys.getenv("M2_REPO", normalizePath("~/.m2/repository"))
 
-maven_url <- function(group_id, artifact_id, version, suffix = ".jar", repository) {
+maven_url <- function(repository, group_id, artifact_id, version, suffix = ".jar") {
   sprintf("%s/%s/%s/%s/%s-%s%s", repository,
     gsub("\\.", "/", group_id), artifact_id, version, artifact_id, version, suffix)
 }
@@ -38,7 +38,7 @@ maven_install <- function(group_id, artifact_id, version, repositories) {
 maven_jar <- function(group_id, artifact_id, version,
   local_repository = default_maven_local, remote_repository = maven_central) {
 
-  local_jar <- maven_url(group_id, artifact_id, version, local_repository)
+  local_jar <- maven_url(local_repository, group_id, artifact_id, version)
   
   if (!file.exists(local_jar)) {
     maven_install(group_id, artifact_id, version, remote_repository)
