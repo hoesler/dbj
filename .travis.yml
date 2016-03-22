@@ -15,3 +15,10 @@ r_github_packages:
 branches:
   except:
     - appveyor
+
+services:
+  - mysql
+
+before_script:
+  - mysql -uroot -e "CREATE DATABASE IF NOT EXISTS dbi_test; CREATE USER 'dbi_test'@'localhost' IDENTIFIED BY 'dbi_test'; GRANT ALL PRIVILEGES ON dbi_test.* TO 'dbi_test'@'localhost';"
+  
