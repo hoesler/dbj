@@ -1,5 +1,7 @@
 mysql_driver_class <- 'com.mysql.jdbc.Driver'
-mysql_classpath <- maven_jar('mysql', 'mysql-connector-java', '5.1.38')
+mysql_classpath <- java_classpath(
+  module('mysql:mysql-connector-java:5.1.38')
+)
 
 DBItest::make_context(
   # DBItest isn't quoting identifiers with dbQuoteIdentifier().
