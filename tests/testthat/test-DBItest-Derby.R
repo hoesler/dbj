@@ -1,5 +1,7 @@
 derby_driver_class <- 'org.apache.derby.jdbc.EmbeddedDriver'
-derby_classpath <- maven_jar('org.apache.derby', 'derby', '10.12.1.1')
+derby_classpath <- java_classpath(
+  module('org.apache.derby:derby:10.12.1.1')
+)
 
 DBItest::make_context(
   dbj::driver(derby_driver_class, derby_classpath), list(url = "jdbc:derby:memory:dbi-test;create=true", user = 'sa'),
