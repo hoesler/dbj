@@ -1,5 +1,5 @@
 mysql_driver_class <- 'com.mysql.jdbc.Driver'
-mysql_classpath <- java_classpath(
+mysql_classpath <- resolve(
   module('mysql:mysql-connector-java:5.1.38')
 )
 

@@ -1,5 +1,5 @@
 h2_driver_class <- 'org.h2.Driver'
-h2_classpath <- java_classpath(
+h2_classpath <- resolve(
 	module('com.h2database:h2:1.3.176')
 )
 

@@ -3,19 +3,28 @@
 \docType{data}
 \name{maven_repository}
 \alias{maven_central}
+\alias{maven_local}
+\alias{maven_local_repository}
+\alias{maven_remote_repository}
 \alias{maven_repository}
-\title{Create a maven repository definition}
-\format{An object of class \code{maven_repository} (inherits from \code{module_repository}) of length 1.}
+\title{Maven repository}
+\format{An object of class \code{maven_remote_repository} (inherits from \code{maven_repository}, \code{module_repository}) of length 2.}
 \usage{
-maven_repository(url)
+maven_remote_repository(url, install = TRUE)
+
+maven_local_repository(path)
 
 maven_central
+
+maven_local
 }
 \arguments{
-\item{url}{The url of the reopsitory.}
+\item{url, path}{The location of the reopsitory.}
+
+\item{install}{Should the fetched artifact be installed to the local repository?}
 }
 \description{
-Create a maven repository definition
+Use maven repositories to locate modules.
 }
 \keyword{datasets}
 

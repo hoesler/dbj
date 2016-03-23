@@ -1,5 +1,5 @@
 derby_driver_class <- 'org.apache.derby.jdbc.EmbeddedDriver'
-derby_classpath <- java_classpath(
+derby_classpath <- resolve(
   module('org.apache.derby:derby:10.12.1.1')
 )
 

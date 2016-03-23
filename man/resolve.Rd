@@ -2,25 +2,31 @@
 % Please edit documentation in R/Maven.R
 \name{resolve}
 \alias{resolve}
-\alias{resolve.maven_repository}
-\title{Resolve a module in a given repository.}
+\alias{resolve.character}
+\alias{resolve.module}
+\title{Generic to resove a module or file.}
 \usage{
-resolve(repository, module, ...)
+resolve(what, ...)
 
-\method{resolve}{maven_repository}(repository, module, ...)
+\method{resolve}{module}(what, repositories = list(maven_local,
+  maven_central), ...)
+
+\method{resolve}{character}(what, ...)
 }
 \arguments{
-\item{repository}{The repository to search in.}
-
-\item{module}{The module to resolve.}
+\item{what}{The definition to resolve.}
 
 \item{...}{Additional arguments passed to methods.}
+
+\item{repositories}{A list of repositories to search in.}
 }
 \description{
-Resolve a module in a given repository.
+Generic to resove a module or file.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{maven_repository}: Resove in a \code{maven_repository}.
+\item \code{module}: Tries to resolve the module \code{what} in one of the given \code{repositories}, installs it, and returns the local path.
+
+\item \code{character}: Checks if \code{what} is a valid path to a file and returns \code{what}.
 }}
 

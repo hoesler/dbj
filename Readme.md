@@ -18,14 +18,14 @@ The source compilation requires that you have [maven](https://maven.apache.org/)
 ## Usage
 ```R
 # Connect to an H2 database
-classpath <- '~/h2-1.3.176.jar' # Use a local download ...
-classpath <- maven_jar('com.h2database', 'h2', '1.3.176') # ... or fetch from maven, if installed.
+classpath <- '~/h2-1.3.176.jar' # Use a local jar ...
+classpath <- resolve(module('com.h2database:h2:1.3.176'), list(maven_local, maven_central)) # ... or fetch from a maven repository.
 drv <- dbj::driver('org.h2.Driver', classpath)
 con <- dbConnect(drv, 'jdbc:h2:mem:', user = '', password = '')
 ```
 
 ## Status
-dbj is tested against the [H2 Database Engine](http://h2database.com) and passes most tests defined by [DBItest](https://github.com/rstats-db/DBItest) (See [tests/testthat/test-DBItest.R](tests/testthat/test-DBItest.R)).
+dbj is under active development and not production ready. Tests against different database drivers using [DBItest](https://github.com/rstats-db/DBItest) show, however, that it works quite stable. Especially with the [H2 Database Engine](http://h2database.com).
 
 ##	Type mapping
 Type mapping in dbj has four data type units: The R working type, The R transfer type, the Java transfer type and the SQL storage Type. The working type is the type of a data.frame column you work with on the front end. For data transfer, these data types must be converted into an R transfer type, which is associated with one of the Java transfer types. Both transfer types are used to send data from R to Java and vice versa. Due to rJava and performance reasons this must be one of the Java raw types (boolean, byte, int, long, float, double) or String.
