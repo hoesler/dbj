@@ -5,9 +5,9 @@ Title: Provides access to databases through the JDBC interface
 Author: Christoph Hösler <christoph.hoesler@gmail.com>
 Maintainer: Christoph Hösler <christoph.hoesler@gmail.com>
 Depends:
-    R (>= 3.1.0),
-    methods
+    R (>= 3.2.0)
 Imports:
+    methods,
     DBI (== 0.3.1),
     assertthat (>= 0.1),
     rJava (>= 0.9-8)
