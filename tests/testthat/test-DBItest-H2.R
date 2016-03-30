@@ -7,7 +7,8 @@ DBItest::make_context(
 	dbj::driver(h2_driver_class, h2_classpath),
 	# DATABASE_TO_UPPER=FALSE is required because of https://github.com/rstats-db/DBItest/issues/64
 	list(url = "jdbc:h2:mem:dbi-test;DATABASE_TO_UPPER=FALSE", user = 'sa'),
-	tweaks = DBItest::tweaks(constructor_name = "driver")
+	tweaks = DBItest::tweaks(constructor_name = "driver"),
+  name = "H2"
 )
 
 DBItest::test_all(skip = c(

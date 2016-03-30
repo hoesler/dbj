@@ -8,7 +8,8 @@ DBItest::make_context(
   # So we have to use experimantal feature DATABASE_TO_UPPER=FALSE instead.
   dbj::driver(mysql_driver_class, mysql_classpath),
   list(url = "jdbc:mysql://localhost/dbi_test?useSSL=false&generateSimpleParameterMetadata=true", user = 'dbi_test', password = 'dbi_test'),
-  tweaks = DBItest::tweaks(constructor_name = "driver")
+  tweaks = DBItest::tweaks(constructor_name = "driver"),
+  name = "MySQL"
 )
 
 DBItest::test_all(skip = c(

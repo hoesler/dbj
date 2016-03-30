@@ -5,7 +5,8 @@ derby_classpath <- resolve(
 
 DBItest::make_context(
   dbj::driver(derby_driver_class, derby_classpath), list(url = "jdbc:derby:memory:dbi-test;create=true", user = 'sa'),
-  tweaks = DBItest::tweaks(constructor_name = "driver")
+  tweaks = DBItest::tweaks(constructor_name = "driver"),
+  name = "Derby"
 )
 
 DBItest::test_all(skip = c(

@@ -111,7 +111,7 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
   	}
   )
 
-  run_tests(tests, skip, test_suite)
+  run_tests(tests, skip, test_suite, ctx$name)
 
   detach(getNamespace("DBItest"))
 }
