@@ -67,11 +67,11 @@ generic_clear_table <- function(conn, table, use_delete = FALSE) {
 
 #' @rdname sql_dialect
 #' @export
-generic_quote_identifier <- getMethod("dbQuoteIdentifier", signature = c("DBIConnection", "character"))@.Data
+generic_quote_identifier <- getMethod("dbQuoteIdentifier", signature = c("DBIConnection", "character"), where = asNamespace('DBI'))@.Data
 
 #' @rdname sql_dialect
 #' @export
-generic_quote_string <- getMethod("dbQuoteString", signature = c("DBIConnection", "character"))@.Data
+generic_quote_string <- getMethod("dbQuoteString", signature = c("DBIConnection", "character"), where = asNamespace('DBI'))@.Data
 
 #' @rdname sql_dialect
 #' @export
