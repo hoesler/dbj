@@ -52,6 +52,7 @@ maven_local <- maven_local_repository(Sys.getenv("M2_REPO", normalizePath("~/.m2
 module <- function(x) UseMethod("module")
 
 #' @describeIn module Construct from a string like 'group:name:version'.
+#' @export
 module.character <- function(x) {
   match <- regmatches(x, regexec("(.+):(.+):(.+)", x))[[1]]
   stopifnot(length(match) == 4)
@@ -61,6 +62,7 @@ module.character <- function(x) {
 }
 
 #' @describeIn module Construct from a list with character elements named \code{group}, \code{name} and \code{version}.
+#' @export
 module.list <- function(x) {
   structure(
     list(
@@ -76,9 +78,11 @@ module.list <- function(x) {
 #' @param module The module to resolve.
 #' @param ... Additional arguments passed to methods.
 #' @return The path to the local version of the jar file or NULL if the module is not in the repository.
+#' @export
 fetch_module <- function(repository, module, ...) UseMethod("fetch_module")
 
 #' @describeIn fetch_module Get the module from the given \code{maven_remote_repository}.
+#' @export
 fetch_module.maven_remote_repository <- function(repository, module, ...) {
   if (repository$install) {
     success <- maven_install(module$group, module$name, module$version, repository$url)
@@ -97,6 +101,7 @@ fetch_module.maven_remote_repository <- function(repository, module, ...) {
 }
 
 #' @describeIn fetch_module Get the module from the given \code{maven_local_repository}.
+#' @export
 fetch_module.maven_local_repository <- function(repository, module, ...) {
   path <- maven_url(repository$path, module$group, module$name, module$version)
   if (file.exists(path)) {
@@ -148,6 +153,7 @@ resolve.character <- function(what, ...) {
 #' 
 #' @param ... Either local file paths or objects created with \code{module}.
 #' @param repositories A list of repositories to search in.
+#' @export
 resolve_all <- function(..., repositories = list(maven_local, maven_central)) {
   sapply(list(...), function(x) { resolve(x, repositories = repositories) } )
 }
