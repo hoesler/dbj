@@ -15,7 +15,7 @@ Suggests:
     testthat (>= 0.8.1),
     lubridate (>= 1.3.3),
     Lahman (>= 3.0-1),
-    DBItest (>= 1.1)
+    DBItest (>= 1.2)
 Remotes: hadley/testthat, rstats-db/DBItest
 Description: dbj is an implementation of R's DBI interface using JDBC as a
     back-end. This allows R to connect to any DBMS that has a JDBC driver.
