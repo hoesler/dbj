@@ -112,3 +112,12 @@ setMethod("dbGetDriver", signature(dbObj = "JDBCUpdateResult"),
   }
 )
 
+#' @rdname JDBCUpdateResult-class
+#' @section Methods:
+#' \code{dbHasCompleted}: Check if all results have been fetched
+#' @export
+setMethod("dbHasCompleted", signature(res = "JDBCUpdateResult"),
+  function(res, ...) {
+    TRUE
+  }
+)
