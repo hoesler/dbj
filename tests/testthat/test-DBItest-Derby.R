@@ -16,6 +16,7 @@ DBItest::test_all(skip = c(
   # Derby specific
 
   "quote_string", # TODO: What is causing an error here?
+  "temporary_table", # TODO: Derby uses a special syntax for creating temporary tables: DECLARE GLOBAL TEMPORARY TABLE
 
   # Not an error: Syntax not supported (WHERE clause is mandatory in SELECT expressions) 
   "trivial_query",

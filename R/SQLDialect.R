@@ -18,23 +18,27 @@
 #' @name sql_dialect
 NULL
 
+create_table_template <- function(temporary_statement = "TEMPORARY") {
+  function(conn, table, data, temporary = FALSE, ...) {
+    assert_that(is(conn, "JDBCConnection"))
+    assert_that(is.character(table) && length(table) == 1L)
+    assert_that(is.data.frame(data))
+    assert_that(is.logical(temporary))
+
+    data_types <- sapply(data, dbDataType, dbObj = conn@driver)
+    field_definitions <- paste(dbQuoteIdentifier(conn, names(data)), data_types, collapse = ', ')
+    statement <- sprintf(
+      "CREATE %s TABLE %s (%s)",
+      ifelse(temporary, temporary_statement, ""),
+      dbQuoteIdentifier(conn, table),
+      field_definitions)
+    SQL(statement)
+  }
+}
+
 #' @rdname sql_dialect
 #' @export
-generic_create_table <- function(conn, table, data, temporary = FALSE, ...) {
-  assert_that(is(conn, "JDBCConnection"))
-  assert_that(is.character(table) && length(table) == 1L)
-  assert_that(is.data.frame(data))
-  assert_that(is.logical(temporary))
-
-  data_types <- sapply(data, dbDataType, dbObj = conn@driver)
-  field_definitions <- paste(dbQuoteIdentifier(conn, names(data)), data_types, collapse = ', ')
-  statement <- sprintf(
-    "CREATE %s TABLE %s (%s)",
-    ifelse(temporary, "TEMPORARY", ""),
-    dbQuoteIdentifier(conn, table),
-    field_definitions)
-  SQL(statement)
-}
+generic_create_table <- create_table_template()
 
 #' @rdname sql_dialect
 #' @export
@@ -62,6 +66,13 @@ generic_clear_table <- function(conn, table, use_delete = FALSE) {
     SQL(sprintf("DELETE FROM %s", dbQuoteIdentifier(conn, table)))
   } else {
     SQL(sprintf("TRUNCATE TABLE %s", dbQuoteIdentifier(conn, table)))
+  }
+}
+
+quote_identifier_template <- function(quote_character = "\"") {
+  function(conn, x, ...) {
+    x <- gsub(quote_character, paste0(quote_character, quote_character), x, fixed = TRUE)
+    SQL(paste(quote_character, encodeString(x), quote_character, sep = ""))
   }
 }
 
@@ -109,7 +120,8 @@ generic_sql <- sql_dialect("generic")
 
 # maps diver classes to a list of arguments to sql_dialect()
 known_sql_dialects = list(
-  'org.h2.Driver' = list('H2')
+  'org.h2.Driver' = list(name = 'H2', sql_create_table = create_table_template("LOCAL TEMPORARY")),
+  'com.mysql.jdbc.Driver' = list(name = 'MySQL', sql_quote_identifier = quote_identifier_template('`'))
 )
 
 #' @rdname sql_dialect

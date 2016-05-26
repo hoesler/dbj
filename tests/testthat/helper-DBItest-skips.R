@@ -24,7 +24,7 @@ dbj_skips_global <- c(
   "bind($|_.+)",                          # dbBind is not unsupported
 
   "roundtrip_rownames",                   # this is a post 0.3.1 DBI feature
-  "temporary_table",                      # this is a post 0.3.1 DBI feature
+  #"temporary_table",                      # this is a post 0.3.1 DBI feature
 
   NULL
 )
