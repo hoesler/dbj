@@ -41,7 +41,7 @@ build_script:
 before_test:
   - ps: |
       $env:MYSQL_PWD="Password12!"
-      $cmd = '"C:\Program Files\MySql\MySQL Server 5.6\bin\mysql" --user=root -e "CREATE DATABASE dbi_test; CREATE USER dbi_test@localhost IDENTIFIED BY ''dbi_test''; GRANT ALL PRIVILEGES ON dbi_test.* TO dbi_test@localhost;"'
+      $cmd = '"C:\Program Files\MySql\MySQL Server 5.7\bin\mysql" --user=root -e "CREATE DATABASE dbi_test; CREATE USER dbi_test@localhost IDENTIFIED BY ''dbi_test''; GRANT ALL PRIVILEGES ON dbi_test.* TO dbi_test@localhost;"'
       iex "& $cmd"
 
 test_script:
