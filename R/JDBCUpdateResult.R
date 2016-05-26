@@ -84,8 +84,8 @@ setMethod("dbGetRowCount", signature(res = "JDBCUpdateResult"),
 setMethod("dbGetInfo", signature(dbObj = "JDBCUpdateResult"),
   function(dbObj, ...) {
     list(
-      statement = dbObj@statement,
       rows.affected = dbObj@update_count,
+      statement = dbGetStatement(dbObj),
       has.completed = TRUE,
       is.select = FALSE
     )
@@ -119,5 +119,15 @@ setMethod("dbGetDriver", signature(dbObj = "JDBCUpdateResult"),
 setMethod("dbHasCompleted", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
     TRUE
+  }
+)
+
+#' @rdname JDBCUpdateResult-class
+#' @section Methods:
+#' \code{dbGetStatement}: Returns the statement that was passed to dbSendQuery
+#' @export
+setMethod("dbGetStatement", signature(res = "JDBCUpdateResult"),
+  function(res, ...) {
+    res@statement
   }
 )
