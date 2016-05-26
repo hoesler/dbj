@@ -6,12 +6,14 @@
 #' @param sql_clear_table A function which generates an SQL statement for truncating a table
 #' @param sql_quote_identifier The function called by the \code{dbQuoteIdentifier,JDBCConnection-character-method} method
 #' @param sql_quote_string The function called by the \code{dbQuoteString,JDBCConnection-character-method} method
-#' @param conn An object of type \code{\linkS4class{JDBCConnection}}
+#' @param conn,con An object of type \code{\linkS4class{JDBCConnection}}
 #' @param table The table name
-#' @param data A data.frame
+#' @param fields Either a character vector or a data frame.
+#' @param values A data.frame
 #' @param temporary If \code{TRUE}, will generate a temporary table statement.
 #' @param use_delete If \code{TRUE}, will use DELETE. If \code{FALSE}, TRUNCATE.
 #' @param driver_class The full classname of a Java Driver class.
+#' @inheritParams DBI::rownames
 #' @param x A character vector to label as being escaped SQL.
 #' @param ... Other parameters passed on to methods.
 #' @return A new structure with class \code{sql_dialect}.
@@ -19,20 +21,22 @@
 NULL
 
 create_table_template <- function(temporary_statement = "TEMPORARY") {
-  function(conn, table, data, temporary = FALSE, ...) {
-    assert_that(is(conn, "JDBCConnection"))
-    assert_that(is.character(table) && length(table) == 1L)
-    assert_that(is.data.frame(data))
-    assert_that(is.logical(temporary))
+  function(con, table, fields, row.names = NA, temporary = FALSE, ...) {
+    table <- dbQuoteIdentifier(con, table)
 
-    data_types <- sapply(data, dbDataType, dbObj = conn@driver)
-    field_definitions <- paste(dbQuoteIdentifier(conn, names(data)), data_types, collapse = ', ')
-    statement <- sprintf(
-      "CREATE %s TABLE %s (%s)",
-      ifelse(temporary, temporary_statement, ""),
-      dbQuoteIdentifier(conn, table),
-      field_definitions)
-    SQL(statement)
+    if (is.data.frame(fields)) {
+      fields <- sqlRownamesToColumn(fields, row.names)
+      fields <- vapply(fields, function(x) dbDataType(con, x), character(1))
+    }
+
+    field_names <- dbQuoteIdentifier(con, names(fields))
+    field_types <- unname(fields)
+    fields <- paste0(field_names, " ", field_types)
+
+    SQL(paste0(
+      "CREATE ", if (temporary) paste0(temporary_statement, " "), "TABLE ", table, " (\n",
+      "  ", paste(fields, collapse = ",\n  "), "\n)\n"
+    ))
   }
 }
 
@@ -42,17 +46,15 @@ generic_create_table <- create_table_template()
 
 #' @rdname sql_dialect
 #' @export
-generic_append_table <- function(conn, table, data, ...) {
-  assert_that(is(conn, "JDBCConnection"))
-  assert_that(is.character(table) && length(table) == 1L)
-  assert_that(is.data.frame(data))
-
-  statement <- sprintf(
-    "INSERT INTO %s(%s) VALUES(%s)",
-    dbQuoteIdentifier(conn, table),
-    paste(dbQuoteIdentifier(conn, names(data)), collapse = ', '),
-    paste(rep("?", length(data)), collapse = ', '))
-  SQL(statement)
+generic_append_table <- function (con, table, values, row.names = NA, ...) 
+{
+    table <- dbQuoteIdentifier(con, table)
+    values <- sqlRownamesToColumn(values[0, , drop = FALSE], 
+        row.names)
+    fields <- dbQuoteIdentifier(con, names(values))
+    SQL(paste0("INSERT INTO ", table, "\n", "  (", paste(fields, 
+        collapse = ", "), ")\n", "VALUES\n", paste0("  (", paste0(rep('?', length(fields)),
+        collapse = ", "), ")", collapse = ",\n")))
 }
 
 #' @rdname sql_dialect
