@@ -19,3 +19,13 @@ RESULT_SET_CONCURRENCY <- list(
   CONCUR_READ_ONLY = 1007L,
   CONCUR_UPDATABLE = 1008L
 )
+
+#' @rdname JDBCResult-class
+#' @section Methods:
+#' \code{dbBind}: Unsupported. Use parameter binding of \code{\link[JDBCConnection]{dbSendQuery}} instead.
+#' @export
+setMethod("dbBind", signature(res = "JDBCResult"),
+  function(res, params, ...) {
+    stop("Unsupported. Use parameter binding of dbSendQuery instead.")
+  }
+)
