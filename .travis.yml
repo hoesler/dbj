@@ -8,8 +8,6 @@ cache:
 before_install:
   - if [ -n "$GITHUB_PAT" ]; then echo "GITHUB_PAT=\"$GITHUB_PAT\"" >> ~/.Renviron; else echo "GITHUB_PAT is not set"; fi
 
-r_github_packages:
-
 branches:
   except:
     - appveyor
