@@ -84,8 +84,8 @@ setMethod("dbGetRowCount", signature(res = "JDBCUpdateResult"),
 setMethod("dbGetInfo", signature(dbObj = "JDBCUpdateResult"),
   function(dbObj, ...) {
     list(
-      rows.affected = dbObj@update_count,
       statement = dbGetStatement(dbObj),
+      rows.affected = dbGetRowsAffected(update_count),
       has.completed = TRUE,
       is.select = FALSE
     )
@@ -129,5 +129,15 @@ setMethod("dbHasCompleted", signature(res = "JDBCUpdateResult"),
 setMethod("dbGetStatement", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
     res@statement
+  }
+)
+
+#' @rdname JDBCUpdateResult-class
+#' @section Methods:
+#' \code{dbGetRowsAffected}: Returns the number of rows that were added, deleted, or updated
+#' @export
+setMethod("dbGetRowsAffected", signature(res = "JDBCUpdateResult"),
+  function(res, ...) {
+    res@update_count
   }
 )
