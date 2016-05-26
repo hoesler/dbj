@@ -16,8 +16,8 @@
 \alias{dbRollback,JDBCConnection-method}
 \alias{dbSQLDialect,JDBCConnection-method}
 \alias{show,JDBCConnection-method}
-\alias{sqlAppendTable,DBIConnection-method}
-\alias{sqlCreateTable,DBIConnection-method}
+\alias{sqlAppendTable,JDBCConnection-method}
+\alias{sqlCreateTable,JDBCConnection-method}
 \title{Class JDBCConnection}
 \usage{
 \S4method{dbExistsTable}{JDBCConnection,character}(conn, name, ...)
@@ -46,10 +46,10 @@
 
 \S4method{show}{JDBCConnection}(object)
 
-\S4method{sqlCreateTable}{DBIConnection}(con, table, fields, row.names = NA,
+\S4method{sqlCreateTable}{JDBCConnection}(con, table, fields, row.names = NA,
   temporary = FALSE, ...)
 
-\S4method{sqlAppendTable}{DBIConnection}(con, table, values, row.names = NA,
+\S4method{sqlAppendTable}{JDBCConnection}(con, table, values, row.names = NA,
   ...)
 }
 \arguments{
