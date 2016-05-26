@@ -509,14 +509,23 @@ setMethod("show", "JDBCConnection", function(object) {
   }
 })
 
+#' @describeIn JDBCConnection Forwards to sql_create_table in dbSQLDialect
+#' @param table A table name
+#' @param fields Either a character vector or a data frame
+#' @param row.names Either TRUE, FALSE, NA or a string.
+#' @param temporary If TRUE, will generate a temporary table statement.
+#' @export
 setMethod("sqlCreateTable", "DBIConnection",
   function(con, table, fields, row.names = NA, temporary = FALSE, ...) {
-    with(dbSQLDialect(conn)$env, sql_create_table(con, table, fields, row.names, temporary, ...))
+    with(dbSQLDialect(con)$env, sql_create_table(con, table, fields, row.names, temporary, ...))
   }
 )
 
+#' @describeIn JDBCConnection Forwards to sql_create_table in dbSQLDialect
+#' @param values A data frame
+#' @export
 setMethod("sqlAppendTable", "DBIConnection",
   function(con, table, values, row.names = NA, ...) {
-    with(dbSQLDialect(conn)$env, sql_append_table(con, table, values, row.names, ...))
+    with(dbSQLDialect(con)$env, sql_append_table(con, table, values, row.names, ...))
   }
 )
