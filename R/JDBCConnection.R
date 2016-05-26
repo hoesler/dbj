@@ -310,9 +310,10 @@ setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
 #' @param create a logical specifying whether to create a new table if it does not exist. Its default is TRUE.
 #' @param append a logical specifying whether to append to an existing table. Its default is FALSE
 #' @param truncate a logical specifying whether to truncate an existing table before appending. Its default is FALSE
+#' @param temporary \code{TRUE} if the table should be temporary
 #' @export
 setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "data.frame"),
-  function(conn, name, value, create = TRUE, append = FALSE, truncate = FALSE, ...) { 
+  function(conn, name, value, create = TRUE, append = FALSE, truncate = FALSE, temporary = FALSE, ...) { 
     assert_that(ncol(value) > 0)
     assert_that(!is.null(names(value)))
     assert_that(!any(is.na(names(value))))
@@ -336,7 +337,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     }
     
     if (!table_exists && create) {
-      sql <- with(dbSQLDialect(conn)$env, sql_create_table(conn, name, value))
+      sql <- with(dbSQLDialect(conn)$env, sql_create_table(conn, name, value, temporary))
       table_was_created <- dbSendUpdate(conn, sql)
       if (!table_was_created) {
         stop("Table could not be created")
@@ -515,17 +516,17 @@ setMethod("show", "JDBCConnection", function(object) {
 #' @param row.names Either TRUE, FALSE, NA or a string.
 #' @param temporary If TRUE, will generate a temporary table statement.
 #' @export
-setMethod("sqlCreateTable", "DBIConnection",
+setMethod("sqlCreateTable", "JDBCConnection",
   function(con, table, fields, row.names = NA, temporary = FALSE, ...) {
-    with(dbSQLDialect(con)$env, sql_create_table(con, table, fields, row.names, temporary, ...))
+    with(dbSQLDialect(con)$env, sql_create_table(con, table, fields, row.names = row.names, temporary = temporary, ...))
   }
 )
 
 #' @describeIn JDBCConnection Forwards to sql_create_table in dbSQLDialect
 #' @param values A data frame
 #' @export
-setMethod("sqlAppendTable", "DBIConnection",
+setMethod("sqlAppendTable", "JDBCConnection",
   function(con, table, values, row.names = NA, ...) {
-    with(dbSQLDialect(con)$env, sql_append_table(con, table, values, row.names, ...))
+    with(dbSQLDialect(con)$env, sql_append_table(con, table, values, row.names = row.names, ...))
   }
 )

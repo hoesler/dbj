@@ -56,6 +56,7 @@ DBItest::test_all(skip = c(
   "list_fields",
   "roundtrip_.+",
   "rows_affected",
+  "temporary_table",
 
   NULL
 ))
