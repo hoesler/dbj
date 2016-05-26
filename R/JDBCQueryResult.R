@@ -303,3 +303,13 @@ setMethod("dbGetStatement", signature(res = "JDBCQueryResult"),
     res$statement
   }
 )
+
+#' @rdname JDBCQueryResult-class
+#' @section Methods:
+#' \code{dbGetRowsAffected}: Returns 0
+#' @export
+setMethod("dbGetRowsAffected", signature(res = "JDBCQueryResult"),
+  function(res, ...) {
+    0
+  }
+)
