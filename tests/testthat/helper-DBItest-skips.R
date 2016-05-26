@@ -17,15 +17,14 @@ dbj_skips_global <- c(
   "data_logical_int",                     # not an error, full support for boolean data type
   "data_logical_int_null_.*",             # not an error, full support for boolean data type
   "roundtrip_logical_int",                # not an error, full support for boolean data type
+  
+  "quote_identifier_not_vectorized",      # not an error rstats-db/DBI#24
 
-  # The following tests don't apply to DBI 0.3.1
-  "column_info",                          # DBI 0.3.1 tells me to return name, field.type, and data.type not "name" and "type"
-  "bind($|_.+)",                          # dbBind is not defined in DBI 0.3.1
+  "column_info",                          # DBI tells me to return name, field.type, and data.type not "name" and "type"
+  "bind($|_.+)",                          # dbBind is not unsupported
+
   "roundtrip_rownames",                   # this is a post 0.3.1 DBI feature
   "temporary_table",                      # this is a post 0.3.1 DBI feature
-  "quote_string",                         # NA is not converted to NULL in DBI 0.3.1.
-  "quote_identifier_not_vectorized",      # dbQuoteIdentifier does not use encodeString in DBI 0.3.1
-  "get_query_empty_(single|multi)_column",# default implementation of dbGetQuery in DBI 0.3.1 returns NULL for empty results 
 
   NULL
 )
