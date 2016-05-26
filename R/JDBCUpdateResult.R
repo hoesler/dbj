@@ -85,7 +85,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCUpdateResult"),
   function(dbObj, ...) {
     list(
       statement = dbGetStatement(dbObj),
-      rows.affected = dbGetRowsAffected(update_count),
+      rows.affected = dbGetRowsAffected(dbObj),
       has.completed = TRUE,
       is.select = FALSE
     )
