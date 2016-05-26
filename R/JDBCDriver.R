@@ -72,7 +72,7 @@ driver_info <- function(j_drv, dialect, driverClass) {
   minor_version = jtry(.jcall(j_drv, "I", "getMinorVersion", check = FALSE))
 
   list(
-    driver.version = packageVersion("dbj"),
+    driver.version = utils::packageVersion("dbj"),
     client.version = paste(major_version, minor_version, sep = "."),
     max.connections = NA, # TODO: Is there a way to get this information from JDBC?
     driver.class = driverClass,
