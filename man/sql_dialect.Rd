@@ -13,9 +13,9 @@
 \title{Create a new SQL dialect environment}
 \format{An object of class \code{sql_dialect} of length 2.}
 \usage{
-generic_create_table(conn, table, data, temporary = FALSE)
+generic_create_table(conn, table, data, temporary = FALSE, ...)
 
-generic_append_table(conn, table, data)
+generic_append_table(conn, table, data, ...)
 
 generic_clear_table(conn, table, use_delete = FALSE)
 
@@ -42,11 +42,11 @@ guess_dialect(driver_class)
 
 \item{temporary}{If \code{TRUE}, will generate a temporary table statement.}
 
+\item{...}{Other parameters passed on to methods.}
+
 \item{use_delete}{If \code{TRUE}, will use DELETE. If \code{FALSE}, TRUNCATE.}
 
 \item{x}{A character vector to label as being escaped SQL.}
-
-\item{...}{Other parameters passed on to methods.}
 
 \item{name}{The name of the dialect}
 

@@ -3,8 +3,23 @@
 \docType{class}
 \name{JDBCResult-class}
 \alias{JDBCResult-class}
+\alias{dbBind,JDBCResult-method}
 \title{JDBCResult class.}
+\usage{
+\S4method{dbBind}{JDBCResult}(res, params, ...)
+}
+\arguments{
+\item{res}{A \code{\linkS4class{JDBCResult}} object.}
+
+\item{params}{A list of bindings.}
+
+\item{...}{Ignored. Needed for compatibility with generic.}
+}
 \description{
 Base class for \code{linkS4class{JDBCQueryResult}} and \code{linkS4class{JDBCUpdateResult}}.
+}
+\section{Methods}{
+
+\code{dbBind}: Unsupported. Use parameter binding of dbSendQuery-JDBCConnection-character-method instead.
 }
 

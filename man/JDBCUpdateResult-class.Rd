@@ -9,6 +9,9 @@
 \alias{dbGetDriver,JDBCUpdateResult-method}
 \alias{dbGetInfo,JDBCUpdateResult-method}
 \alias{dbGetRowCount,JDBCUpdateResult-method}
+\alias{dbGetRowsAffected,JDBCUpdateResult-method}
+\alias{dbGetStatement,JDBCUpdateResult-method}
+\alias{dbHasCompleted,JDBCUpdateResult-method}
 \alias{dbIsValid,JDBCUpdateResult-method}
 \alias{fetch,JDBCUpdateResult,missing-method}
 \alias{fetch,JDBCUpdateResult,numeric-method}
@@ -31,6 +34,12 @@ JDBCUpdateResult(update_count, connection, statement = "")
 \S4method{dbIsValid}{JDBCUpdateResult}(dbObj, ...)
 
 \S4method{dbGetDriver}{JDBCUpdateResult}(dbObj, ...)
+
+\S4method{dbHasCompleted}{JDBCUpdateResult}(res, ...)
+
+\S4method{dbGetStatement}{JDBCUpdateResult}(res, ...)
+
+\S4method{dbGetRowsAffected}{JDBCUpdateResult}(res, ...)
 }
 \arguments{
 \item{update_count}{the number of affected rows.}
@@ -73,5 +82,15 @@ Class JDBCUpdateResult with factory method JDBCUpdateResult.
 
 \item \code{dbIsValid}: Is always \code{TRUE}.
 }}
+\section{Methods}{
+
+\code{dbHasCompleted}: Check if all results have been fetched
+
+
+\code{dbGetStatement}: Returns the statement that was passed to dbSendQuery
+
+
+\code{dbGetRowsAffected}: Returns the number of rows that were added, deleted, or updated
+}
 \keyword{internal}
 

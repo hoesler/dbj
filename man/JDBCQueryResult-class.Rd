@@ -10,6 +10,7 @@
 \alias{dbGetInfo,JDBCQueryResult-method}
 \alias{dbGetRowCount,JDBCQueryResult-method}
 \alias{dbGetRowsAffected,JDBCQueryResult-method}
+\alias{dbGetStatement,JDBCQueryResult-method}
 \alias{dbHasCompleted,JDBCQueryResult-method}
 \alias{dbIsValid,JDBCQueryResult-method}
 \alias{fetch,JDBCQueryResult,missing-method}
@@ -36,6 +37,10 @@
 \S4method{dbIsValid}{JDBCQueryResult}(dbObj, ...)
 
 \S4method{dbGetDriver}{JDBCQueryResult}(dbObj, ...)
+
+\S4method{dbGetStatement}{JDBCQueryResult}(res, ...)
+
+\S4method{dbGetRowsAffected}{JDBCQueryResult}(res, ...)
 }
 \arguments{
 \item{res, dbObj}{an \code{\linkS4class{JDBCQueryResult}} object.}
@@ -80,6 +85,12 @@ JDBCQueryResult class.
 
 
 \code{dbIsValid}: Is the result valid
+
+
+\code{dbGetStatement}: Returns the statement that was passed to dbSendQuery
+
+
+\code{dbGetRowsAffected}: Returns 0
 }
 \keyword{internal}
 

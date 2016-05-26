@@ -16,6 +16,8 @@
 \alias{dbRollback,JDBCConnection-method}
 \alias{dbSQLDialect,JDBCConnection-method}
 \alias{show,JDBCConnection-method}
+\alias{sqlAppendTable,DBIConnection-method}
+\alias{sqlCreateTable,DBIConnection-method}
 \title{Class JDBCConnection}
 \usage{
 \S4method{dbExistsTable}{JDBCConnection,character}(conn, name, ...)
@@ -43,9 +45,15 @@
 \S4method{dbGetDriver}{JDBCConnection}(dbObj, ...)
 
 \S4method{show}{JDBCConnection}(object)
+
+\S4method{sqlCreateTable}{DBIConnection}(con, table, fields, row.names = NA,
+  temporary = FALSE, ...)
+
+\S4method{sqlAppendTable}{DBIConnection}(con, table, values, row.names = NA,
+  ...)
 }
 \arguments{
-\item{conn}{a \code{\linkS4class{JDBCConnection}} object}
+\item{conn, con}{a \code{\linkS4class{JDBCConnection}} object}
 
 \item{name}{A character string specifying a DBMS table name.}
 
@@ -54,6 +62,16 @@
 \item{dbObj}{a \code{\linkS4class{JDBCConnection}} object}
 
 \item{object}{An object of class \code{\linkS4class{JDBCConnection}}}
+
+\item{table}{A table name}
+
+\item{fields}{Either a character vector or a data frame}
+
+\item{row.names}{Either TRUE, FALSE, NA or a string.}
+
+\item{temporary}{If TRUE, will generate a temporary table statement.}
+
+\item{values}{A data frame}
 }
 \description{
 Class JDBCConnection
@@ -85,5 +103,9 @@ Class JDBCConnection
 \item \code{dbGetDriver}: Returns the driver for this connection.
 
 \item \code{show}: Prints a short info about the connection
+
+\item \code{sqlCreateTable}: Forwards to sql_create_table in dbSQLDialect
+
+\item \code{sqlAppendTable}: Forwards to sql_create_table in dbSQLDialect
 }}
 
