@@ -4,6 +4,9 @@ NULL
 #' JDBCResult class.
 #' 
 #' Base class for \code{linkS4class{JDBCQueryResult}} and \code{linkS4class{JDBCUpdateResult}}.
+#' @param res A \code{\linkS4class{JDBCResult}} object.
+#' @param params A list of bindings.
+#' @param ... Ignored. Needed for compatibility with generic.
 #'
 #' @export
 setClass("JDBCResult",
@@ -22,7 +25,7 @@ RESULT_SET_CONCURRENCY <- list(
 
 #' @rdname JDBCResult-class
 #' @section Methods:
-#' \code{dbBind}: Unsupported. Use parameter binding of \code{\link[JDBCConnection]{dbSendQuery}} instead.
+#' \code{dbBind}: Unsupported. Use parameter binding of dbSendQuery-JDBCConnection-character-method instead.
 #' @export
 setMethod("dbBind", signature(res = "JDBCResult"),
   function(res, params, ...) {
