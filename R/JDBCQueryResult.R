@@ -244,7 +244,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCQueryResult"),
 result_info <- function(result_set) {
   assert_that(is(result_set, "JDBCQueryResult"))
   list(
-    statement = result_set$statement,
+    statement = dbGetStatement(result_set),
     col.count = jtry(.jcall(result_set$j_result_set_meta, "I", "getColumnCount", check = FALSE)),
     row.count = dbGetRowCount(result_set),
     has.completed = dbHasCompleted(result_set),
@@ -291,5 +291,15 @@ setMethod("dbListFields", signature(conn = "JDBCQueryResult", name = "missing"),
 setMethod("dbGetDriver", signature(dbObj = "JDBCQueryResult"),
   function(dbObj, ...) {
     dbGetDriver(dbObj$connection) # forward
+  }
+)
+
+#' @rdname JDBCQueryResult-class
+#' @section Methods:
+#' \code{dbGetStatement}: Returns the statement that was passed to dbSendQuery
+#' @export
+setMethod("dbGetStatement", signature(res = "JDBCQueryResult"),
+  function(res, ...) {
+    res$statement
   }
 )
