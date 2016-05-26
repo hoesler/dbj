@@ -8,7 +8,7 @@ NULL
 
 #' Class JDBCConnection
 #' 
-#' @param conn a \code{\linkS4class{JDBCConnection}} object
+#' @param conn,con a \code{\linkS4class{JDBCConnection}} object
 #' @param dbObj a \code{\linkS4class{JDBCConnection}} object
 #' @param ... Arguments passed on to other methods.
 #' 
@@ -508,3 +508,15 @@ setMethod("show", "JDBCConnection", function(object) {
     cat("  DISCONNECTED\n")
   }
 })
+
+setMethod("sqlCreateTable", "DBIConnection",
+  function(con, table, fields, row.names = NA, temporary = FALSE, ...) {
+    with(dbSQLDialect(conn)$env, sql_create_table(con, table, fields, row.names, temporary, ...))
+  }
+)
+
+setMethod("sqlAppendTable", "DBIConnection",
+  function(con, table, values, row.names = NA, ...) {
+    with(dbSQLDialect(conn)$env, sql_append_table(con, table, values, row.names, ...))
+  }
+)
