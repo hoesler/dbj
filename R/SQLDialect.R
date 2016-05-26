@@ -20,7 +20,7 @@ NULL
 
 #' @rdname sql_dialect
 #' @export
-generic_create_table <- function(conn, table, data, temporary = FALSE) {
+generic_create_table <- function(conn, table, data, temporary = FALSE, ...) {
   assert_that(is(conn, "JDBCConnection"))
   assert_that(is.character(table) && length(table) == 1L)
   assert_that(is.data.frame(data))
@@ -38,7 +38,7 @@ generic_create_table <- function(conn, table, data, temporary = FALSE) {
 
 #' @rdname sql_dialect
 #' @export
-generic_append_table <- function(conn, table, data) {
+generic_append_table <- function(conn, table, data, ...) {
   assert_that(is(conn, "JDBCConnection"))
   assert_that(is.character(table) && length(table) == 1L)
   assert_that(is.data.frame(data))
