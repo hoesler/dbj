@@ -311,9 +311,10 @@ setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
 #' @param append a logical specifying whether to append to an existing table. Its default is FALSE
 #' @param truncate a logical specifying whether to truncate an existing table before appending. Its default is FALSE
 #' @param temporary \code{TRUE} if the table should be temporary
+#' @inheritParams DBI::rownames
 #' @export
 setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "data.frame"),
-  function(conn, name, value, create = TRUE, append = FALSE, truncate = FALSE, temporary = FALSE, ...) { 
+  function(conn, name, value, create = TRUE, append = FALSE, truncate = FALSE, temporary = FALSE, row.names = NA, ...) { 
     assert_that(ncol(value) > 0)
     assert_that(!is.null(names(value)))
     assert_that(!any(is.na(names(value))))
@@ -337,7 +338,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     }
     
     if (!table_exists && create) {
-      sql <- with(dbSQLDialect(conn)$env, sql_create_table(conn, name, value, temporary))
+      sql <- with(dbSQLDialect(conn)$env, sql_create_table(conn, name, value, temporary = temporary, row.names = row.names))
       table_was_created <- dbSendUpdate(conn, sql)
       if (!table_was_created) {
         stop("Table could not be created")
@@ -353,7 +354,8 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     }
     
     if (nrow(value) > 0) {
-      sql <- with(dbSQLDialect(conn)$env, sql_append_table(conn, name, value))
+      value <- sqlRownamesToColumn(value, row.names = row.names)
+      sql <- with(dbSQLDialect(conn)$env, sql_append_table(conn, name, value, row.names = row.names))
       appended <- dbSendUpdate(conn, sql, value)
       if (!appended) {
         stop("Data could not be appended")

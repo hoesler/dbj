@@ -7,7 +7,7 @@
 \usage{
 \S4method{dbWriteTable}{JDBCConnection,character,data.frame}(conn, name, value,
   create = TRUE, append = FALSE, truncate = FALSE, temporary = FALSE,
-  ...)
+  row.names = NA, ...)
 }
 \arguments{
 \item{conn}{A \code{\linkS4class{JDBCConnection}} object, as produced by
@@ -24,6 +24,17 @@
 \item{truncate}{a logical specifying whether to truncate an existing table before appending. Its default is FALSE}
 
 \item{temporary}{\code{TRUE} if the table should be temporary}
+
+\item{row.names}{Either \code{TRUE}, \code{FALSE}, \code{NA} or a string.
+
+  If \code{TRUE}, always translate row names to a column called "row_names".
+  If \code{FALSE}, never translate row names. If \code{NA}, translate
+  rownames only if they're a character vector.
+
+  A string is equivalent to \code{TRUE}, but allows you to override the
+  default name.
+
+  For backward compatibility, \code{NULL} is equivalent to \code{FALSE}.}
 
 \item{...}{Other parameters passed on to methods.}
 }

@@ -17,7 +17,8 @@
 \alias{fetch,JDBCQueryResult,numeric-method}
 \title{JDBCQueryResult class.}
 \usage{
-\S4method{fetch}{JDBCQueryResult,numeric}(res, n, fetch_size = 0, ...)
+\S4method{fetch}{JDBCQueryResult,numeric}(res, n, fetch_size = 0, ...,
+  row.names = NA)
 
 \S4method{fetch}{JDBCQueryResult,missing}(res, n = -1, ...)
 
@@ -53,6 +54,17 @@ number of rows as defined in \code{\link{JDBC}}}
 See \url{http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setFetchSize(int)}.}
 
 \item{...}{Ignored. Needed for compatibility with generic.}
+
+\item{row.names}{Either \code{TRUE}, \code{FALSE}, \code{NA} or a string.
+
+  If \code{TRUE}, always translate row names to a column called "row_names".
+  If \code{FALSE}, never translate row names. If \code{NA}, translate
+  rownames only if they're a character vector.
+
+  A string is equivalent to \code{TRUE}, but allows you to override the
+  default name.
+
+  For backward compatibility, \code{NULL} is equivalent to \code{FALSE}.}
 
 \item{what}{a character vector indicating which info to return.
 Expected is a subset of \code{c("name", "field.type", "data.type", "label", "nullable")}.}

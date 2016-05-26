@@ -13,9 +13,10 @@
 \title{Create a new SQL dialect environment}
 \format{An object of class \code{sql_dialect} of length 2.}
 \usage{
-generic_create_table(conn, table, data, temporary = FALSE, ...)
+generic_create_table(con, table, fields, row.names = NA, temporary = FALSE,
+  ...)
 
-generic_append_table(conn, table, data, ...)
+generic_append_table(con, table, values, row.names = NA, ...)
 
 generic_clear_table(conn, table, use_delete = FALSE)
 
@@ -34,15 +35,28 @@ generic_sql
 guess_dialect(driver_class)
 }
 \arguments{
-\item{conn}{An object of type \code{\linkS4class{JDBCConnection}}}
-
 \item{table}{The table name}
 
-\item{data}{A data.frame}
+\item{fields}{Either a character vector or a data frame.}
+
+\item{row.names}{Either \code{TRUE}, \code{FALSE}, \code{NA} or a string.
+
+  If \code{TRUE}, always translate row names to a column called "row_names".
+  If \code{FALSE}, never translate row names. If \code{NA}, translate
+  rownames only if they're a character vector.
+
+  A string is equivalent to \code{TRUE}, but allows you to override the
+  default name.
+
+  For backward compatibility, \code{NULL} is equivalent to \code{FALSE}.}
 
 \item{temporary}{If \code{TRUE}, will generate a temporary table statement.}
 
 \item{...}{Other parameters passed on to methods.}
+
+\item{values}{A data.frame}
+
+\item{conn, con}{An object of type \code{\linkS4class{JDBCConnection}}}
 
 \item{use_delete}{If \code{TRUE}, will use DELETE. If \code{FALSE}, TRUNCATE.}
 

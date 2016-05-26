@@ -52,11 +52,12 @@ JDBCQueryResult <- setRefClass("JDBCQueryResult",
 )
 
 #' @rdname JDBCQueryResult-class
+#' @inheritParams DBI::sqlColumnToRownames
 #' @section Methods:
 #' \code{fetch}: Fetch n results
 #' @export
 setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
-  function(res, n, fetch_size = 0, ...) {
+  function(res, n, fetch_size = 0, ..., row.names = NA) {
     assert_that(is.numeric(fetch_size))    
 
     cols <- jtry(.jcall(res$j_result_set_meta, "I", "getColumnCount", check = FALSE))
@@ -96,6 +97,8 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
 
     ret <- do.call(rbind, chunks)
     res$increaseRowCount(nrow(ret))
+
+    ret <- sqlColumnToRownames(ret, row.names)
 
     return(ret)
   }
