@@ -23,8 +23,5 @@ dbj_skips_global <- c(
   "column_info",                          # DBI tells me to return name, field.type, and data.type not "name" and "type"
   "bind($|_.+)",                          # dbBind is not unsupported
 
-  #"roundtrip_rownames",                   # this is a post 0.3.1 DBI feature
-  #"temporary_table",                      # this is a post 0.3.1 DBI feature
-
   NULL
 )

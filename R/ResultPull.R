@@ -58,7 +58,7 @@ fetch_resultpull <- function(j_result_pull, rows, column_info, read_conversions,
     }
 
     # convert column data
-    column_data <- convert_from(read_conversions, column_data, as.list(column_info[column_index,]))
+    column_data <- convert_from_transfer(read_conversions, column_data, as.list(column_info[column_index,]))
 
     column_data
   })

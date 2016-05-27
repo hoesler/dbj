@@ -48,15 +48,18 @@ character       | String             | CHAR, VARCHAR, LONGVARCHAR, NCHAR, NVARCH
 list(raw)       | byte[][]           | BINARY, BLOB
 
 ##### JDBC -> R
-SQL Types                                                 | R Type     | Transfer unit conversion
-----------------------------------------------------------|------------|--------------------------------------------------------------------
-BIT, BOOLEAN                                              | logical    | identity             
-FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL, BIGINT             | numeric    | identity
-TINYINT, SMALLINT, INTEGER                                | integer    | identity
-DATE                                                      | Date       | as.Date(x / 1000 / 60 / 60 / 24, origin = "1970-01-01", tz = "GMT")
-TIMESTAMP                                                 | POSIXct    | as.POSIXct(x / 1000, origin = "1970-01-01", tz = "GMT"                                                     | numeric    | identity
-CHAR, VARCHAR, LONGVARCHAR, NCHAR, NVARCHAR, LONGNVARCHAR | character  | identity
-BINARY, BLOB                                              | list(raw)  | lapply(x, as.raw)
+SQL Types                         | R Type     | Transfer unit conversion
+----------------------------------|------------|--------------------------------------------------------------------
+BIT, BOOLEAN                      | logical    | identity             
+FLOAT, REAL, DOUBLE,
+NUMERIC, DECIMAL, BIGINT          | numeric    | identity
+TINYINT, SMALLINT, INTEGER        | integer    | identity
+DATE                              | Date       | as.Date(x / 1000 / 60 / 60 / 24, origin = "1970-01-01", tz = "GMT")
+TIME                              | difftime   | as.difftime(data / 1000, units = "secs")
+TIMESTAMP                         | POSIXct    | as.POSIXct(x / 1000, origin = "1970-01-01", tz = "GMT")
+CHAR, VARCHAR, LONGVARCHAR,
+NCHAR, NVARCHAR, LONGNVARCHAR     | character  | identity
+BINARY, BLOB                      | list(raw)  | lapply(x, as.raw)
 
 ##### R -> JDBC
 R Working Type | Colum created as | Transfer unit conversion
@@ -64,10 +67,11 @@ R Working Type | Colum created as | Transfer unit conversion
 logical        | BOOLEAN          | identity
 numeric        | DOUBLE PRECISION | identity
 integer        | INTEGER          | identity
-factor         | VARCHAR          | as.character
-character      | VARCHAR          | identity
+factor         | VARCHAR(255)     | as.character
+character      | VARCHAR(255)     | identity
 Date           | DATE             | as.numeric(x) * 24 * 60 * 60 * 1000
-POSIXt         | TIMESTAMP        | as.numeric(x) * 1000
+difftime       | TIME             | as.numeric(data, units = "secs") * 1000
+POSIXct        | TIMESTAMP        | as.numeric(x) * 1000
 list(raw)      | BLOB             | lapply(x, as.raw)
 
 ## History

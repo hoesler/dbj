@@ -34,6 +34,14 @@ sqltype_read_conversion <- function(sql_types, r_class, conversion) {
   }, r_class, conversion)
 }
 
+check_raw_list <- function(x) {
+  is_raw <- vapply(x, function(x) { is.raw(x) || is.na(x) }, logical(1))
+  if (!all(is_raw)) {
+    stop("Only lists of raw vectors are currently supported", call. = FALSE)
+  }
+  x
+}
+
 #' The dafault read conversions
 #' @format The default conversions
 #' @export
@@ -66,8 +74,8 @@ default_read_conversions <- list(
   ),
   sqltype_read_conversion(
     with(JDBC_SQL_TYPES, c(TIME)),
-    "numeric",
-    identity
+    "difftime",
+    function(data) as.difftime(data / 1000, units = "secs")
   ),
   sqltype_read_conversion(
     with(JDBC_SQL_TYPES, c(DATE)),
@@ -124,7 +132,7 @@ mapped_write_conversion <- function(class_names, conversion, create_type) {
 #' @rdname write_conversion
 default_write_conversions <- list(
   mapped_write_conversion(
-    c("integer"),
+    "integer",
     identity,
     "INTEGER"
   ),
@@ -139,8 +147,8 @@ default_write_conversions <- list(
     "BOOLEAN"
   ),
   mapped_write_conversion(
-    "numeric",
-    as.numeric,
+    "difftime",
+    function(data) as.numeric(data, units = "secs") * 1000,
     "TIME"
   ),
   mapped_write_conversion(
@@ -149,7 +157,7 @@ default_write_conversions <- list(
     "DATE"
   ),
   mapped_write_conversion(
-    "POSIXt",
+    "POSIXct",
     function(data) as.numeric(data) * 1000, # seconds to milliseconds after January 1, 1970 00:00:00 GMT
     "TIMESTAMP"
   ),
@@ -159,24 +167,24 @@ default_write_conversions <- list(
     "VARCHAR(255)"
   ),
   mapped_write_conversion(
-    c("list"),
-    function(data) { lapply(data, function(field) { if (all(is.na(field))) NA else as.raw(field) }) },
+    "list",
+    check_raw_list,
     "BLOB"
   )
 )
 
 #' Convert from transfer type to client type.
 #' 
-#' @param conversions a list of JDBCReadConversion objects
+#' @param read_conversions a list of JDBCReadConversion objects
 #' @param data the data vector to convert
 #' @param data_attributes a named list of attributes of data
 #' @keywords internal
-convert_from <- function(conversions, data, data_attributes) {
-  assert_that(is.list(conversions) && all(sapply(conversions, class) == "JDBCReadConversion"))
+convert_from_transfer <- function(read_conversions, data, data_attributes) {
+  assert_that(is.list(read_conversions) && all(sapply(read_conversions, class) == "JDBCReadConversion"))
   
-  for (i in seq_along(conversions)) {
-    if (conversions[[i]]$condition(data_attributes)) {
-      return(conversions[[i]]$conversion(data))
+  for (i in seq_along(read_conversions)) {
+    if (read_conversions[[i]]$condition(data_attributes)) {
+      return(read_conversions[[i]]$conversion(data))
     }
   }
 
@@ -186,16 +194,16 @@ convert_from <- function(conversions, data, data_attributes) {
 
 #' Convert from client type to transfer type
 #' 
-#' @param conversions a list of JDBCWriteConversion objects
+#' @param write_conversions a list of JDBCWriteConversion objects
 #' @param data the data object to convert
 #' @param data_attributes a named list of attributes
 #' @keywords internal
-convert_to <- function(conversions, data, data_attributes) {
-  assert_that(is.list(conversions))
-  assert_that(all(sapply(conversions, class) == "JDBCWriteConversion"))
+convert_to_transfer <- function(write_conversions, data, data_attributes) {
+  assert_that(is.list(write_conversions))
+  assert_that(all(sapply(write_conversions, class) == "JDBCWriteConversion"))
 
-  for (i in seq_along(conversions)) {
-    conversion <- conversions[[i]]
+  for (i in seq_along(write_conversions)) {
+    conversion <- write_conversions[[i]]
     if (conversion$condition(data_attributes)) {
       ret <- conversion$conversion(data)
       return(ret)
@@ -205,3 +213,28 @@ convert_to <- function(conversions, data, data_attributes) {
   stop(sprintf("No write conversion rule was defined for attributes %s",
     list(data_attributes)))
 }
+
+setGeneric("toSQLDataType", function(obj, write_conversions) standardGeneric("toSQLDataType"))
+
+setMethod("toSQLDataType", "data.frame", function(obj, write_conversions) {
+  vapply(obj, toSQLDataType, FUN.VALUE = character(1), write_conversions, USE.NAMES = TRUE)
+})
+
+setOldClass("AsIs")
+
+setMethod("toSQLDataType", "AsIs", function(obj, write_conversions) {
+  toSQLDataType(unclass(obj), write_conversions)
+})
+
+setMethod("toSQLDataType", "ANY", function(obj, write_conversions) {
+  for (i in seq_along(write_conversions)) {
+    conversion <- write_conversions[[i]]
+    data_attributes <- list(class_names = class(obj))
+    if (conversion$condition(data_attributes)) {
+      db_data_type <- conversion$create_type
+      assert_that(is.character(db_data_type) && length(db_data_type == 1))
+      return(db_data_type)
+    }
+  }
+  stop("No mapping defined for object of type ", class(obj))
+})

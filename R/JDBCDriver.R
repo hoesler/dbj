@@ -159,20 +159,7 @@ setMethod("dbGetDriver", signature(dbObj = "JDBCDriver"),
 #' @export
 setMethod("dbDataType", signature(dbObj = "JDBCDriver"),
   function(dbObj, obj, ...) {
-    # remove AsIs
-    if ("AsIs" %in% class(obj)) {
-        class(obj) <- class(obj)[-match("AsIs", class(obj))]
-    }
-
-    write_conversions <- dbObj@write_conversions
-    for (i in seq(length(write_conversions))) {
-      if (write_conversions[[i]]$condition(list(class_names = class(obj)))) {
-        db_data_type <- write_conversions[[i]]$create_type
-        assert_that(is.character(db_data_type) && length(db_data_type == 1))
-        return(db_data_type)
-      }
-    }
-    stop("No mapping defined for object of type ", class(obj))
+    toSQLDataType(obj, dbObj@write_conversions)
   },
   valueClass = "character"
 )

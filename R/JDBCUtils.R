@@ -104,7 +104,7 @@ create_j_table <- function(j_statement, data, write_conversions) {
 #' @param is_nullable is the column nullable? 0 = disallows NULL, 1 = allows NULL, 2 = unknown
 #' @param write_conversions a list of JDBCWriteConversion objects
 create_j_colum <- function(column_data, sql_type, is_nullable, write_conversions) {
-  converted_column_data <- convert_to(write_conversions, column_data, list(sql_type = sql_type, class_names = class(column_data)))
+  converted_column_data <- convert_to_transfer(write_conversions, column_data, list(sql_type = sql_type, class_names = class(column_data)))
   
   j_column_classname <- NULL
   j_column_data <- NULL
