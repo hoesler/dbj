@@ -3,9 +3,7 @@
 [![Build Status](https://travis-ci.org/hoesler/dbj.svg?branch=master)](https://travis-ci.org/hoesler/dbj)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/hoesler/dbj?branch=master&svg=true)](https://ci.appveyor.com/project/hoesler/dbj)
 
-dbj is a [R](http://cran.r-project.org/) package implementing the [DBI](https://github.com/rstats-db/DBI) interface (version 0.3.1) using [JDBC](http://www.oracle.com/technetwork/java/javase/jdbc/index.html) via [rJava](http://www.rforge.net/rJava/).
-
-This version is a rewrite of [Simon Urbanek's RJDBC packge](https://github.com/s-u/dbj). It started with only minor code modifications to meet the requirements of the [devtools](https://github.com/hadley/devtools) package development tools and the design guidelines for good R packages (See [R packages](http://r-pkgs.had.co.nz/) by Hadley Wickham). It ended with a more or less complete rewrite of the whole package.
+dbj is an [R](http://cran.r-project.org/) package implementing [DBI](https://github.com/rstats-db/DBI) 0.4 using [JDBC](http://www.oracle.com/technetwork/java/javase/jdbc/index.html) via [rJava](http://www.rforge.net/rJava/).
 
 ## Requirements
 - Java 6+
@@ -25,7 +23,12 @@ con <- dbConnect(drv, 'jdbc:h2:mem:', user = '', password = '')
 ```
 
 ## Status
-dbj is under active development and not production ready. Tests against different database drivers using [DBItest](https://github.com/rstats-db/DBItest) show, however, that it works quite stable. Especially with the [H2 Database Engine](http://h2database.com).
+dbj is under active development and tested agains different database drivers using [DBItest](https://github.com/rstats-db/DBItest):
+
+- [H2](tests/testthat/test-DBItest-H2.R) (Fully functional)
+- [Apache Derby](tests/testthat/test-DBItest-Derby.R) (Functional with minor issues)
+- [MySQL Connector/J](tests/testthat/test-DBItest-MySQL.R) (Currently unsupported, because the driver does not support parameter metadata)
+- more to come...
 
 ##	Type mapping
 Type mapping in dbj has four data type units: The R working type, The R transfer type, the Java transfer type and the SQL storage Type. The working type is the type of a data.frame column you work with on the front end. For data transfer, these data types must be converted into an R transfer type, which is associated with one of the Java transfer types. Both transfer types are used to send data from R to Java and vice versa. Due to rJava and performance reasons this must be one of the Java raw types (boolean, byte, int, long, float, double) or String.
@@ -66,3 +69,6 @@ character      | VARCHAR          | identity
 Date           | DATE             | as.numeric(x) * 24 * 60 * 60 * 1000
 POSIXt         | TIMESTAMP        | as.numeric(x) * 1000
 list(raw)      | BLOB             | lapply(x, as.raw)
+
+## History
+dbj is a rewrite of Simon Urbanek's [RJDBC](https://github.com/s-u/dbj) packge. Development started with only minor code modifications to meet the requirements of the [devtools](https://github.com/hadley/devtools) package development tools and the design guidelines for good R packages (See [R packages](http://r-pkgs.had.co.nz/) by Hadley Wickham). In the end, the code diverged too far to merge it back into RJDBC.
