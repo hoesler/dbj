@@ -83,12 +83,11 @@ setMethod("dbGetRowCount", signature(res = "JDBCUpdateResult"),
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCUpdateResult"),
   function(dbObj, ...) {
-    list(
-      statement = dbGetStatement(dbObj),
-      rows.affected = dbGetRowsAffected(dbObj),
-      has.completed = TRUE,
+    default_list <- callNextMethod(dbObj, ...)
+    supplements <- list(
       is.select = FALSE
     )
+    c(default_list, supplements)
   },
   valueClass = "list"
 )

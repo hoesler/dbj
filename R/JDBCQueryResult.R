@@ -239,23 +239,15 @@ setMethod("dbHasCompleted", signature(res = "JDBCQueryResult"),
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCQueryResult"),
   function(dbObj, ...) {
-    result_info(dbObj)
+    default_list <- callNextMethod(dbObj, ...)
+    supplements <- list(
+      col.count = jtry(.jcall(dbObj$j_result_set_meta, "I", "getColumnCount", check = FALSE)),
+      is.select = TRUE
+    )
+    c(default_list, supplements)
   },
   valueClass = "list"
 )
-
-result_info <- function(result_set) {
-  assert_that(is(result_set, "JDBCQueryResult"))
-  list(
-    statement = dbGetStatement(result_set),
-    col.count = jtry(.jcall(result_set$j_result_set_meta, "I", "getColumnCount", check = FALSE)),
-    row.count = dbGetRowCount(result_set),
-    has.completed = dbHasCompleted(result_set),
-    is.select = TRUE,
-    # TODO: total number of records to be fetched
-    rows.affected = NA
-  )
-}
 
 #' @rdname JDBCQueryResult-class
 #' @section Methods:
