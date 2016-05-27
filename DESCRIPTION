@@ -1,5 +1,5 @@
 Package: dbj
-Version: 0.2
+Version: 0.2.0.9000
 Encoding: UTF-8
 Title: Provides access to databases through the JDBC interface
 Author: Christoph Hösler <christoph.hoesler@gmail.com>
