@@ -74,7 +74,7 @@ setMethod("dbColumnInfo", signature(res = "JDBCUpdateResult"),
 #' @export
 setMethod("dbGetRowCount", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
-    stop("dbGetRowCount is unsupported in JDBCUpdateResult")
+    0
   },
   valueClass = "numeric"
 )
