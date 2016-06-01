@@ -21,4 +21,5 @@ Java Properties object which is passed to the connect method.}
 \description{
 Create a Java JDBC Connection object
 }
+\keyword{internal}
 

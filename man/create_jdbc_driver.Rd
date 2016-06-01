@@ -14,4 +14,5 @@ create_jdbc_driver(driverClass, classPath)
 \description{
 Create a Java JDBC Driver object
 }
+\keyword{internal}
 

@@ -7,6 +7,7 @@ NULL
 #' @param driverClass the java class name of the JDBC driver to use
 #' @param classPath a string of paths seperated by \code{path.sep} variable in \code{\link{.Platform}} which should get added to the classpath (see \link[rJava]{.jaddClassPath})
 #' @export
+#' @keywords internal
 create_jdbc_driver <- function(driverClass, classPath) {
   assert_that(is.character(driverClass))
   assert_that(is.character(classPath))
@@ -32,6 +33,7 @@ create_jdbc_driver <- function(driverClass, classPath) {
 #' @param ... named values which get transformed into key-value pairs of a 
 #'            Java Properties object which is passed to the connect method.
 #' @export
+#' @keywords internal
 create_jdbc_connection <- function(j_drv, url, user, password, ...) {
   j_con <- jtry(
     .jcall("java/sql/DriverManager", "Ljava/sql/Connection;", "getConnection",
