@@ -1,5 +1,6 @@
 #' @include JDBCObject.R
 #' @include JavaUtils.R
+#' @include JDBCUtils.R
 #' @include JDBCMapping.R
 #' @include SQLDialect.R
 NULL
@@ -32,30 +33,21 @@ JDBC <- function(driverClass = '', classPath = '', ...) {
   driver(driverClass, classPath, ...)
 }
 
-#' @param driverClass the java class name of the JDBC driver to use
-#' @param classPath a string of paths seperated by \code{path.sep} variable in \code{\link{.Platform}} which should get added to the classpath (see \link[rJava]{.jaddClassPath})
+#' @inheritParams create_jdbc_driver
 #' @param read_conversions a list of JDBCReadConversion objects.
 #' @param write_conversions a list of JDBCWriteConversion objects.
 #' @param dialect The \code{\link{sql_dialect}} to use.
 #' @rdname JDBCDriver-class
 #' @export
 driver <- function(driverClass, classPath = '',
-  read_conversions = default_read_conversions,
-  write_conversions = default_write_conversions,
-  dialect = guess_dialect(driverClass)) {  
+                  read_conversions = default_read_conversions,
+                  write_conversions = default_write_conversions,
+                  dialect = guess_dialect(driverClass)) {
   assert_that(is.character(driverClass))
   assert_that(is.character(classPath))
   assert_that(is.sql_dialect(dialect))
 
-  ## expand all paths in the classPath
-  expanded_paths <- path.expand(unlist(strsplit(classPath, .Platform$path.sep)))
-  .jaddClassPath(expanded_paths)
-  
-  tryCatch(.jfindClass(as.character(driverClass)[1]),
-    error = function(e) sprintf("Driver for class '%s' could not be found.", driverClass))
-
-  j_drv <- .jnew(driverClass)
-  verifyNotNull(j_drv)
+  j_drv = create_jdbc_driver(driverClass, classPath)
 
   new("JDBCDriver",
     driverClass = driverClass,

@@ -3,6 +3,27 @@
 #' @include JDBCMapping.R
 NULL
 
+#' Create a Java JDBC Driver object
+#' @param driverClass the java class name of the JDBC driver to use
+#' @param classPath a string of paths seperated by \code{path.sep} variable in \code{\link{.Platform}} which should get added to the classpath (see \link[rJava]{.jaddClassPath})
+#' @export
+create_jdbc_driver <- function(driverClass, classPath) {
+  assert_that(is.character(driverClass))
+  assert_that(is.character(classPath))
+  
+  ## expand all paths in the classPath
+  expanded_paths <- path.expand(unlist(strsplit(classPath, .Platform$path.sep)))
+  .jaddClassPath(expanded_paths)
+  
+  tryCatch(.jfindClass(as.character(driverClass)[1]),
+    error = function(e) sprintf("Driver for class '%s' could not be found.", driverClass))
+
+  j_drv <- .jnew(driverClass)
+  verifyNotNull(j_drv)
+
+  j_drv
+}
+
 #' Set the values of prepared statment.
 #' 
 #' @param  j_statement a java reference object to a java.sql.PreparedStatement
