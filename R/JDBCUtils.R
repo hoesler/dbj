@@ -24,6 +24,42 @@ create_jdbc_driver <- function(driverClass, classPath) {
   j_drv
 }
 
+#' Create a Java JDBC Connection object
+#' @param j_drv The Java driver object
+#' @param url the url to connect to
+#' @param user the user to log in
+#' @param password the users password
+#' @param ... named values which get transformed into key-value pairs of a 
+#'            Java Properties object which is passed to the connect method.
+#' @export
+create_jdbc_connection <- function(j_drv, url, user, password, ...) {
+  j_con <- jtry(
+    .jcall("java/sql/DriverManager", "Ljava/sql/Connection;", "getConnection",
+      as.character(url)[1], as.character(user)[1], as.character(password)[1],
+      check = FALSE),
+    onError = function(j_exception, expression, ...) {
+      message <- .jcall(j_exception, "S", "toString")
+      warning("Failed to connect: ", message)
+    }
+  )
+  
+  if (is.jnull(j_con) && !is.jnull(j_drv)) {
+    # ok one reason for this to fail is its interaction with rJava's
+    # class loader. In that case we try to load the driver directly.
+    oex <- .jgetEx(TRUE)
+    p <- .jnew("java/util/Properties")
+    if (length(user) == 1 && nchar(user)) .jcall(p, "Ljava/lang/Object;", "setProperty", "user",user)
+    if (length(password) == 1 && nchar(password)) .jcall(p, "Ljava/lang/Object;", "setProperty", "password",password)
+    l <- list(...)
+    if (length(names(l))) for (n in names(l)) .jcall(p, "Ljava/lang/Object;", "setProperty", n, as.character(l[[n]]))
+    j_con <- jtry(.jcall(j_drv, "Ljava/sql/Connection;", "connect", as.character(url)[1], p, check = FALSE))
+  }
+
+  verifyNotNull(j_con, "Unable to connect JDBC to ", url)
+
+  j_con
+}
+
 #' Set the values of prepared statment.
 #' 
 #' @param  j_statement a java reference object to a java.sql.PreparedStatement
