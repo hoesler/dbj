@@ -2,8 +2,10 @@
 % Please edit documentation in R/SQLDialect.R
 \docType{data}
 \name{sql_dialect}
+\alias{create_table_template}
 \alias{generic_append_table}
 \alias{generic_clear_table}
+\alias{generic_create_statement_generator}
 \alias{generic_create_table}
 \alias{generic_quote_identifier}
 \alias{generic_quote_string}
@@ -13,6 +15,12 @@
 \title{Create a new SQL dialect environment}
 \format{An object of class \code{sql_dialect} of length 2.}
 \usage{
+generic_create_statement_generator(table_name, field_names, field_types,
+  temporary)
+
+
+  create_table_template(statement_generator = generic_create_statement_generator)
+
 generic_create_table(con, table, fields, row.names = NA, temporary = FALSE,
   ...)
 
@@ -35,6 +43,16 @@ generic_sql
 guess_dialect(driver_class)
 }
 \arguments{
+\item{table_name}{The quoted table name}
+
+\item{field_names}{A vector of quoted field names}
+
+\item{field_types}{A vector of the field types}
+
+\item{temporary}{If \code{TRUE}, will generate a temporary table statement.}
+
+\item{statement_generator}{A function which creates an sql create table statement}
+
 \item{table}{The table name}
 
 \item{fields}{Either a character vector or a data frame.}
@@ -49,8 +67,6 @@ guess_dialect(driver_class)
   default name.
 
   For backward compatibility, \code{NULL} is equivalent to \code{FALSE}.}
-
-\item{temporary}{If \code{TRUE}, will generate a temporary table statement.}
 
 \item{...}{Other parameters passed on to methods.}
 
@@ -81,6 +97,8 @@ A new structure with class \code{sql_dialect}.
 }
 \description{
 Create a new SQL dialect environment
+
+A generator function for a generic CREATE TABLE statment
 }
 \keyword{datasets}
 

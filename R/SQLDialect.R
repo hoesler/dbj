@@ -20,7 +20,23 @@
 #' @name sql_dialect
 NULL
 
-create_table_template <- function(temporary_statement = "TEMPORARY") {
+#' A generator function for a generic CREATE TABLE statment
+#' @param table_name The quoted table name
+#' @param field_names A vector of quoted field names
+#' @param field_types A vector of the field types
+#' @rdname sql_dialect
+#' @export
+generic_create_statement_generator <- function(table_name, field_names, field_types, temporary) {
+  paste0(
+    "CREATE ", if (temporary) "TEMPORARY ", "TABLE ", table_name, " (\n",
+    "  ", paste(paste0(field_names, " ", field_types), collapse = ",\n  "), "\n)\n"
+  )
+}
+
+#' @rdname sql_dialect
+#' @param statement_generator A function which creates an sql create table statement  
+#' @export
+create_table_template <- function(statement_generator = generic_create_statement_generator) {
   function(con, table, fields, row.names = NA, temporary = FALSE, ...) {
     table <- dbQuoteIdentifier(con, table)
 
@@ -31,12 +47,9 @@ create_table_template <- function(temporary_statement = "TEMPORARY") {
 
     field_names <- dbQuoteIdentifier(con, names(fields))
     field_types <- unname(fields)
-    fields <- paste0(field_names, " ", field_types)
 
-    SQL(paste0(
-      "CREATE ", if (temporary) paste0(temporary_statement, " "), "TABLE ", table, " (\n",
-      "  ", paste(fields, collapse = ",\n  "), "\n)\n"
-    ))
+    statement <- statement_generator(table, field_names, field_types, temporary)
+    SQL(statement)
   }
 }
 
@@ -122,7 +135,41 @@ generic_sql <- sql_dialect("generic")
 
 # maps diver classes to a list of arguments to sql_dialect()
 known_sql_dialects = list(
-  'org.h2.Driver' = list(name = 'H2', sql_create_table = create_table_template("LOCAL TEMPORARY")),
+  'org.h2.Driver' = list(
+    name = 'H2',
+    sql_create_table = create_table_template(
+      function(table_name, field_names, field_types, temporary) {
+        paste0(
+          "CREATE ", if (temporary) "LOCAL TEMPORARY ", "TABLE ", table_name, " (\n",
+          "  ", paste(paste0(field_names, " ", field_types), collapse = ",\n  "), "\n)\n"
+        )
+      })
+  ),
+  'org.apache.derby.jdbc.EmbeddedDriver' = list(
+    name = 'Derby',
+    sql_create_table = create_table_template(
+      function(table_name, field_names, field_types, temporary) {
+        if (temporary) {
+          paste0("DECLARE GLOBAL TEMPORARY TABLE ", table_name, " (\n",
+            "  ", paste(paste0(field_names, " ", field_types), collapse = ",\n  "), "\n) NOT LOGGED\n"
+          )
+        } else {
+          paste0(
+            "CREATE TABLE ", table_name, " (\n",
+            "  ", paste(paste0(field_names, " ", field_types), collapse = ",\n  "), "\n)\n"
+          )
+        }
+      }),
+    sql_append_table = function(con, table, values, row.names = NA, temporary = FALSE, ...) {
+        table <- dbQuoteIdentifier(con, table)
+        values <- sqlRownamesToColumn(values[0, , drop = FALSE], 
+            row.names)
+        fields <- dbQuoteIdentifier(con, names(values))
+        SQL(paste0("INSERT INTO ", if (temporary) "SESSION.", table, "\n", "  (", paste(fields, 
+            collapse = ", "), ")\n", "VALUES\n", paste0("  (", paste0(rep('?', length(fields)),
+            collapse = ", "), ")", collapse = ",\n")))
+    }
+  ),
   'com.mysql.jdbc.Driver' = list(name = 'MySQL', sql_quote_identifier = quote_identifier_template('`'))
 )
 
