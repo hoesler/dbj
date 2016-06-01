@@ -355,7 +355,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     
     if (nrow(value) > 0) {
       value <- sqlRownamesToColumn(value, row.names = row.names)
-      sql <- with(dbSQLDialect(conn)$env, sql_append_table(conn, name, value, row.names = row.names))
+      sql <- with(dbSQLDialect(conn)$env, sql_append_table(conn, name, value, row.names = row.names, temporary = temporary))
       appended <- dbSendUpdate(conn, sql, value)
       if (!appended) {
         stop("Data could not be appended")
