@@ -115,16 +115,17 @@ sql_dialect <- function(
   assert_that(is.function(sql_quote_identifier))
   assert_that(is.function(sql_quote_string))
 
-  structure(list(
-    name = name,
-    env = list(
+  structure(
+    list(
       sql_create_table = sql_create_table,
       sql_append_table = sql_append_table,
       sql_clear_table = sql_clear_table,
       sql_quote_identifier = sql_quote_identifier,
       sql_quote_string = sql_quote_string
-    )
-  ), class = "sql_dialect")
+    ),
+    class = "sql_dialect",
+    name = name
+  )
 }
 
 is.sql_dialect <- function(x) inherits(x, "sql_dialect")

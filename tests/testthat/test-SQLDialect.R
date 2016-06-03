@@ -11,6 +11,6 @@ test_that("We can guess the dialect", {
   lapply(names(driver_dialect_map), function(driver_class) {
     dialect <- guess_dialect(driver_class)
     expect_is(dialect, 'sql_dialect')
-    expect_equal(dialect$name, driver_dialect_map[[driver_class]])
+    expect_equal(attr(dialect, "name"), driver_dialect_map[[driver_class]])
   })
 })

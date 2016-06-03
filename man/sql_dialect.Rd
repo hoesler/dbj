@@ -13,7 +13,7 @@
 \alias{guess_dialect}
 \alias{sql_dialect}
 \title{Create a new SQL dialect environment}
-\format{An object of class \code{sql_dialect} of length 2.}
+\format{An object of class \code{sql_dialect} of length 5.}
 \usage{
 generic_create_statement_generator(table_name, field_names, field_types,
   temporary)

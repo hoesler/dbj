@@ -338,7 +338,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     }
     
     if (!table_exists && create) {
-      sql <- with(dbSQLDialect(conn)$env, sql_create_table(conn, name, value, temporary = temporary, row.names = row.names))
+      sql <- with(dbSQLDialect(conn), sql_create_table(conn, name, value, temporary = temporary, row.names = row.names))
       table_was_created <- dbSendUpdate(conn, sql)
       if (!table_was_created) {
         stop("Table could not be created")
@@ -346,7 +346,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     }
 
     if (table_exists && truncate) {
-      sql <- with(dbSQLDialect(conn)$env, sql_clear_table(conn, name, use_delete = TRUE))
+      sql <- with(dbSQLDialect(conn), sql_clear_table(conn, name, use_delete = TRUE))
       truncated <- dbSendUpdate(conn, sql)
       if (!truncated) {
         stop(sprintf("Table %s could not be truncated", name))
@@ -355,7 +355,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     
     if (nrow(value) > 0) {
       value <- sqlRownamesToColumn(value, row.names = row.names)
-      sql <- with(dbSQLDialect(conn)$env, sql_append_table(conn, name, value, row.names = row.names, temporary = temporary))
+      sql <- with(dbSQLDialect(conn), sql_append_table(conn, name, value, row.names = row.names, temporary = temporary))
       appended <- dbSendUpdate(conn, sql, value)
       if (!appended) {
         stop("Data could not be appended")
@@ -463,7 +463,7 @@ setMethod("dbGetDriver", signature(dbObj = "JDBCConnection"),
 #' @param use_delete Send a DELETE FROM query instead of TRUNCATE TABLE. Default is FALSE.
 setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, use_delete = FALSE, ...) {
-    sql <- with(dbSQLDialect(conn)$env, sql_clear_table(conn, name, use_delete))
+    sql <- with(dbSQLDialect(conn), sql_clear_table(conn, name, use_delete))
     dbSendUpdate(conn, sql)      
   }
 )
@@ -486,7 +486,7 @@ setMethod("dbIsValid", signature(dbObj = "JDBCConnection"),
 #' @export
 setMethod("dbQuoteIdentifier", signature(conn = "JDBCConnection", x = "character"),
   function(conn, x, ...) {
-    with(dbSQLDialect(conn)$env, sql_quote_identifier(conn, x, ...))
+    with(dbSQLDialect(conn), sql_quote_identifier(conn, x, ...))
   }
 )
 
@@ -496,7 +496,7 @@ setMethod("dbQuoteIdentifier", signature(conn = "JDBCConnection", x = "character
 #' @export
 setMethod("dbQuoteString", signature(conn = "JDBCConnection", x = "character"),
   function(conn, x, ...) {
-    with(dbSQLDialect(conn)$env, sql_quote_string(conn, x, ...))
+    with(dbSQLDialect(conn), sql_quote_string(conn, x, ...))
   }
 )
 
@@ -520,7 +520,7 @@ setMethod("show", "JDBCConnection", function(object) {
 #' @export
 setMethod("sqlCreateTable", "JDBCConnection",
   function(con, table, fields, row.names = NA, temporary = FALSE, ...) {
-    with(dbSQLDialect(con)$env, sql_create_table(con, table, fields, row.names = row.names, temporary = temporary, ...))
+    with(dbSQLDialect(con), sql_create_table(con, table, fields, row.names = row.names, temporary = temporary, ...))
   }
 )
 
@@ -529,6 +529,6 @@ setMethod("sqlCreateTable", "JDBCConnection",
 #' @export
 setMethod("sqlAppendTable", "JDBCConnection",
   function(con, table, values, row.names = NA, ...) {
-    with(dbSQLDialect(con)$env, sql_append_table(con, table, values, row.names = row.names, ...))
+    with(dbSQLDialect(con), sql_append_table(con, table, values, row.names = row.names, ...))
   }
 )
