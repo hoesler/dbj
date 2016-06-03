@@ -21,6 +21,15 @@ JDBCDriver <- setClass("JDBCDriver",
     dialect = "ANY",
     create_new_connection = "function"))
 
+setMethod("initialize", "JDBCDriver", function(.Object, j_drv, dialect, driverClass, ...) {
+    .Object <- callNextMethod()
+    if (!missing(j_drv)) {
+      .Object@info <- driver_info(j_drv, dialect, driverClass)
+    }
+    .Object
+  }
+)
+
 #' Legacy JDBCDriver constructor.
 #' 
 #' This function is present for \code{RJDBC} compatibility. Use \code{\link{driver}} instead. 
@@ -62,12 +71,11 @@ driver <- function(driverClass, classPath = '',
 
   j_drv = create_jdbc_driver(driverClass, classPath)
 
-  new("JDBCDriver",
+  JDBCDriver(
     driverClass = driverClass,
     j_drv = j_drv,
     read_conversions = read_conversions,
     write_conversions = write_conversions,
-    info = driver_info(j_drv, dialect, driverClass),
     dialect = dialect,
     create_new_connection = create_new_connection
   )
