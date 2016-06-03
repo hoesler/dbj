@@ -2,6 +2,10 @@
 #' @include JDBCMapping.R
 NULL
 
+#' Create a new JDBCResultPull reference object
+#' @param j_result_set a jobjRef object to a java.sql.ResultSet object
+#' @export
+#' @keywords internal
 create_result_pull <- function(j_result_set) {
   assert_that(j_result_set %instanceof% "java.sql.ResultSet")
   .jnew("com/github/hoesler/dbj/JDBCResultPull", .jcast(j_result_set, "java/sql/ResultSet"), check = TRUE)

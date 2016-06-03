@@ -229,6 +229,10 @@ execute_batch <- function(j_statement) {
   jtry(.jcall(j_statement, "[I", "executeBatch", check = FALSE))
 }
 
+#' Create a new ResultSetMetaData reference object
+#' @param j_result_set a jobjRef object to a java.sql.ResultSet object
+#' @export
+#' @keywords internal
 get_meta_data <- function(j_result_set) {
   #assert_that(j_result_set %instanceof% "java.sql.ResultSet")
 
