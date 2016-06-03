@@ -4,8 +4,10 @@
 NULL
 
 #' Create a Java JDBC Driver object
-#' @param driverClass the java class name of the JDBC driver to use
-#' @param classPath a string of paths seperated by \code{path.sep} variable in \code{\link{.Platform}} which should get added to the classpath (see \link[rJava]{.jaddClassPath})
+#' 
+#' @param driverClass the Java class name of the JDBC driver to use
+#' @param classPath a string of paths separated by \code{path.sep} variable in \code{\link{.Platform}}
+#'                  which should get added to the classpath (see \link[rJava]{.jaddClassPath})
 #' @export
 #' @keywords internal
 create_jdbc_driver <- function(driverClass, classPath) {
@@ -26,15 +28,16 @@ create_jdbc_driver <- function(driverClass, classPath) {
 }
 
 #' Create a Java JDBC Connection object
+#' 
 #' @param j_drv The Java driver object
-#' @param url the url to connect to
+#' @param url the URL to connect to
 #' @param user the user to log in
 #' @param password the users password
 #' @param ... named values which get transformed into key-value pairs of a 
 #'            Java Properties object which is passed to the connect method.
 #' @export
 #' @keywords internal
-create_jdbc_connection <- function(j_drv, url, user, password, ...) {
+create_jdbc_connection <- function(j_drv, url, user, password, ...) {
   j_con <- jtry(
     .jcall("java/sql/DriverManager", "Ljava/sql/Connection;", "getConnection",
       as.character(url)[1], as.character(user)[1], as.character(password)[1],
@@ -62,9 +65,9 @@ create_jdbc_connection <- function(j_drv, url, user, password, ...) {
   j_con
 }
 
-#' Set the values of prepared statment.
+#' Set the values of prepared statement.
 #' 
-#' @param  j_statement a java reference object to a java.sql.PreparedStatement
+#' @param  j_statement a Java reference object to a java.sql.PreparedStatement
 #' @param  parameter_list a list of parameter values to fill the statement with
 #' @param write_conversions a list of \code{JDBCWriteConversion} objects
 #' @keywords internal
@@ -130,7 +133,7 @@ add_batch <- function(j_statement) {
   jtry(.jcall(j_statement, "V", "addBatch", check = FALSE))
 }
 
-#' Transform a data frame into a java reference to a com/github/hoesler/dbj/Table
+#' Transform a data frame into a Java reference to a com/github/hoesler/dbj/Table
 #' 
 #' @param j_statement a jobjRef to a java.sql.PreparedStatement
 #' @param data a data.frame

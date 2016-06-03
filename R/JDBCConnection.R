@@ -8,16 +8,23 @@ NULL
 
 #' Class JDBCConnection
 #' 
-#' @param conn,con a \code{\linkS4class{JDBCConnection}} object
-#' @param dbObj a \code{\linkS4class{JDBCConnection}} object
+#' @param conn,con,dbObj A \code{\linkS4class{JDBCConnection}} object.
 #' @param ... Arguments passed on to other methods.
 #' 
+#' @slot j_connection A \code{jobjRef} holding a java.sql.Connection.
+#' @slot info The connection info list.
+#' @slot driver A \code{\linkS4class{JDBCDriver}} object.
+#' @slot create_new_query_result The factory function for \code{\linkS4class{JDBCQueryResult}} objects.
+#' @slot create_new_update_result The factory function for \code{\linkS4class{JDBCUpdateResult}} objects.
+#' 
 #' @export
-setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"),
+JDBCConnection <- setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"),
   slots = c(
     j_connection = "jobjRef",
     info = "list",
-    driver = "JDBCDriver"),
+    driver = "JDBCDriver",
+    create_new_query_result = "function",
+    create_new_update_result = "function"),
   validity = function(object) {
     if (is.jnull(object@j_connection)) return("j_connection is null")
     if (is.null(object@driver)) return("driver is null")
@@ -25,20 +32,14 @@ setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"),
   }
 )
 
-#' Create a new \code{\linkS4class{JDBCConnection}} object
-#' 
-#' @param j_connection a jobjRef object with a java.sql.Connection reference
-#' @param driver the full qualified class name of the JDBC Driver to use.
-#' @return a \code{\linkS4class{JDBCConnection}} object
-#' @keywords internal
-JDBCConnection <- function(j_connection, driver) {
-  assert_that(j_connection %instanceof% "java.sql.Connection")
-
-  new("JDBCConnection",
-    j_connection = j_connection,
-    info = connection_info(j_connection),
-    driver = driver)
-}
+setMethod("initialize", "JDBCConnection", function(.Object, j_connection, ...) {
+    .Object <- callNextMethod()
+    if (!missing(j_connection)) {
+      .Object@info <- connection_info(j_connection)
+    }
+    .Object
+  }
+)
 
 connection_info <- function(j_connection) {
   j_dbmeta <- jtry(.jcall(j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE))
@@ -134,10 +135,10 @@ setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "charact
     
     if (hasResult) {
       j_result_set <- jtry(.jcall(j_statement, "Ljava/sql/ResultSet;", "getResultSet", check = FALSE))
-      JDBCQueryResult(j_result_set, conn, statement)
+      conn@create_new_query_result(j_result_set, conn, statement)
     } else {
       update_count <- jtry(.jcall(j_statement, "I", "getUpdateCount", check = FALSE))
-      JDBCUpdateResult(update_count, conn, statement)
+      conn@create_new_update_result(update_count, conn, statement)
     }
     
   },
@@ -198,8 +199,8 @@ setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "chara
   valueClass = "logical"
 )
 
-fetch_all <- function(j_result_set, connection, close = TRUE) {  
-  res <- JDBCQueryResult(j_result_set, connection)
+fetch_all <- function(j_result_set, connection, statement = "", close = TRUE) {  
+  res <- connection@create_new_query_result(j_result_set, connection, statement)
   if (close) {
     on.exit(dbClearResult(res))
   }

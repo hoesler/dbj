@@ -17,8 +17,6 @@
 \alias{fetch,JDBCUpdateResult,numeric-method}
 \title{Class JDBCUpdateResult with factory method JDBCUpdateResult.}
 \usage{
-JDBCUpdateResult(update_count, connection, statement = "")
-
 \S4method{fetch}{JDBCUpdateResult,numeric}(res, n = -1, ...)
 
 \S4method{fetch}{JDBCUpdateResult,missing}(res, n = -1, ...)
@@ -42,12 +40,6 @@ JDBCUpdateResult(update_count, connection, statement = "")
 \S4method{dbGetRowsAffected}{JDBCUpdateResult}(res, ...)
 }
 \arguments{
-\item{update_count}{the number of affected rows.}
-
-\item{connection}{a \code{\linkS4class{JDBCConnection}} object.}
-
-\item{statement}{statement which was used for the query which returned this result}
-
 \item{res}{an \code{\linkS4class{JDBCUpdateResult}} object.}
 
 \item{n}{optional maximum number of records to retrieve per fetch. Use \code{-1} to 
@@ -59,9 +51,6 @@ number of rows as defined in \code{\link{JDBC}}}
 \item{dbObj}{An object of class \code{\linkS4class{JDBCUpdateResult}}}
 
 \item{...}{Ignored. Included for compatibility with generic.}
-}
-\value{
-a new JDBCUpdateResult object
 }
 \description{
 Class JDBCUpdateResult with factory method JDBCUpdateResult.

@@ -6,29 +6,13 @@ NULL
 #'
 #' @keywords internal
 #' @export
-setClass("JDBCUpdateResult",
+JDBCUpdateResult <- setClass("JDBCUpdateResult",
   contains = c("JDBCResult"),
   slots = c(
     statement = "character",
     update_count = "numeric",
     connection = "JDBCConnection")
 )
-
-#' @param update_count the number of affected rows.
-#' @param connection a \code{\linkS4class{JDBCConnection}} object.
-#' @param statement statement which was used for the query which returned this result
-#' @return a new JDBCUpdateResult object
-#' @rdname JDBCUpdateResult-class
-#' @export
-JDBCUpdateResult <- function(update_count, connection, statement = "") {
-  assert_that(is(update_count, "numeric"))
-  assert_that(is(connection, "JDBCConnection"))
-  new("JDBCUpdateResult",
-    update_count = update_count,
-    connection = connection,
-    statement = statement
-  )
-}
 
 #' @describeIn JDBCUpdateResult Returns an empty data frame.
 #'

@@ -9,7 +9,7 @@ create_jdbc_connection(j_drv, url, user, password, ...)
 \arguments{
 \item{j_drv}{The Java driver object}
 
-\item{url}{the url to connect to}
+\item{url}{the URL to connect to}
 
 \item{user}{the user to log in}
 

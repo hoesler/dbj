@@ -10,7 +10,7 @@ NULL
 #' \code{JDBCDriver} objects are usually created by 
 #' \code{\link[dbj]{driver}}.
 #' @export
-setClass("JDBCDriver",
+JDBCDriver <- setClass("JDBCDriver",
   contains = c("DBIDriver", "JDBCObject"),
   slots = c(
     driverClass = "character",
@@ -18,7 +18,8 @@ setClass("JDBCDriver",
     info = "list",
     read_conversions = "list",
     write_conversions = "list",
-    dialect = "ANY"))
+    dialect = "ANY",
+    create_new_connection = "function"))
 
 #' Legacy JDBCDriver constructor.
 #' 
@@ -33,16 +34,28 @@ JDBC <- function(driverClass = '', classPath = '', ...) {
   driver(driverClass, classPath, ...)
 }
 
+create_new_dbj_query_result <- function(j_result_set, conn, statement)
+  JDBCQueryResult(j_result_set = j_result_set, connection = conn, statement = statement)
+create_new_dbj_update_result <- function(update_count, conn, statement)
+  JDBCUpdateResult(update_count = update_count, connection = conn, statement = statement)
+create_new_dbj_connection <- function(j_con, drv) {
+  JDBCConnection(j_connection = j_con, driver = drv,
+    create_new_query_result = create_new_dbj_query_result,
+    create_new_update_result = create_new_dbj_update_result)
+}
+
 #' @inheritParams create_jdbc_driver
 #' @param read_conversions a list of JDBCReadConversion objects.
 #' @param write_conversions a list of JDBCWriteConversion objects.
 #' @param dialect The \code{\link{sql_dialect}} to use.
+#' @param create_new_connection The factory function for JDBCConnection objects.
 #' @rdname JDBCDriver-class
 #' @export
 driver <- function(driverClass, classPath = '',
                   read_conversions = default_read_conversions,
                   write_conversions = default_write_conversions,
-                  dialect = guess_dialect(driverClass)) {
+                  dialect = guess_dialect(driverClass),
+                  create_new_connection = create_new_dbj_connection) {
   assert_that(is.character(driverClass))
   assert_that(is.character(classPath))
   assert_that(is.sql_dialect(dialect))
@@ -55,7 +68,8 @@ driver <- function(driverClass, classPath = '',
     read_conversions = read_conversions,
     write_conversions = write_conversions,
     info = driver_info(j_drv, dialect, driverClass),
-    dialect = dialect
+    dialect = dialect,
+    create_new_connection = create_new_connection
   )
 }
 
@@ -102,7 +116,7 @@ setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
 setMethod("dbConnect", signature(drv = "JDBCDriver"),
   function(drv, url, user = '', password = '', ...) {
     j_con <- create_jdbc_connection(drv@j_drv, url, user, password, ...)
-    JDBCConnection(j_con, drv)
+    drv@create_new_connection(j_con, drv)
   },
   valueClass = "JDBCConnection"
 )

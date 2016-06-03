@@ -2,7 +2,7 @@
 % Please edit documentation in R/JDBCUtils.R
 \name{create_j_table}
 \alias{create_j_table}
-\title{Transform a data frame into a java reference to a com/github/hoesler/dbj/Table}
+\title{Transform a data frame into a Java reference to a com/github/hoesler/dbj/Table}
 \usage{
 create_j_table(j_statement, data, write_conversions)
 }
@@ -14,7 +14,7 @@ create_j_table(j_statement, data, write_conversions)
 \item{write_conversions}{a list of JDBCWriteConversion objects}
 }
 \description{
-Transform a data frame into a java reference to a com/github/hoesler/dbj/Table
+Transform a data frame into a Java reference to a com/github/hoesler/dbj/Table
 }
 \keyword{internal}
 

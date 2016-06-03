@@ -2,6 +2,7 @@
 % Please edit documentation in R/JDBCConnection.R
 \docType{class}
 \name{JDBCConnection-class}
+\alias{JDBCConnection}
 \alias{JDBCConnection-class}
 \alias{SQLKeywords,JDBCConnection-method}
 \alias{dbBegin,JDBCConnection-method}
@@ -53,13 +54,11 @@
   ...)
 }
 \arguments{
-\item{conn, con}{a \code{\linkS4class{JDBCConnection}} object}
+\item{conn, con, dbObj}{A \code{\linkS4class{JDBCConnection}} object.}
 
 \item{name}{A character string specifying a DBMS table name.}
 
 \item{...}{Arguments passed on to other methods.}
-
-\item{dbObj}{a \code{\linkS4class{JDBCConnection}} object}
 
 \item{object}{An object of class \code{\linkS4class{JDBCConnection}}}
 
@@ -107,5 +106,18 @@ Class JDBCConnection
 \item \code{sqlCreateTable}: Forwards to sql_create_table in dbSQLDialect
 
 \item \code{sqlAppendTable}: Forwards to sql_create_table in dbSQLDialect
+}}
+\section{Slots}{
+
+\describe{
+\item{\code{j_connection}}{A \code{jobjRef} holding a java.sql.Connection.}
+
+\item{\code{info}}{The connection info list.}
+
+\item{\code{driver}}{A \code{\linkS4class{JDBCDriver}} object.}
+
+\item{\code{create_new_query_result}}{The factory function for \code{\linkS4class{JDBCQueryResult}} objects.}
+
+\item{\code{create_new_update_result}}{The factory function for \code{\linkS4class{JDBCUpdateResult}} objects.}
 }}
 

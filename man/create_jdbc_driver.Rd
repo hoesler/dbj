@@ -7,9 +7,10 @@
 create_jdbc_driver(driverClass, classPath)
 }
 \arguments{
-\item{driverClass}{the java class name of the JDBC driver to use}
+\item{driverClass}{the Java class name of the JDBC driver to use}
 
-\item{classPath}{a string of paths seperated by \code{path.sep} variable in \code{\link{.Platform}} which should get added to the classpath (see \link[rJava]{.jaddClassPath})}
+\item{classPath}{a string of paths separated by \code{path.sep} variable in \code{\link{.Platform}}
+which should get added to the classpath (see \link[rJava]{.jaddClassPath})}
 }
 \description{
 Create a Java JDBC Driver object

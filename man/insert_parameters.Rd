@@ -2,19 +2,19 @@
 % Please edit documentation in R/JDBCUtils.R
 \name{insert_parameters}
 \alias{insert_parameters}
-\title{Set the values of prepared statment.}
+\title{Set the values of prepared statement.}
 \usage{
 insert_parameters(j_statement, parameter_list, write_conversions)
 }
 \arguments{
-\item{j_statement}{a java reference object to a java.sql.PreparedStatement}
+\item{j_statement}{a Java reference object to a java.sql.PreparedStatement}
 
 \item{parameter_list}{a list of parameter values to fill the statement with}
 
 \item{write_conversions}{a list of \code{JDBCWriteConversion} objects}
 }
 \description{
-Set the values of prepared statment.
+Set the values of prepared statement.
 }
 \keyword{internal}
 

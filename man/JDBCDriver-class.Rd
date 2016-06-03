@@ -2,6 +2,7 @@
 % Please edit documentation in R/JDBCDriver.R
 \docType{class}
 \name{JDBCDriver-class}
+\alias{JDBCDriver}
 \alias{JDBCDriver-class}
 \alias{dbDataType,JDBCDriver-method}
 \alias{dbGetDriver,JDBCDriver-method}
@@ -16,7 +17,8 @@
 driver(driverClass, classPath = "",
   read_conversions = default_read_conversions,
   write_conversions = default_write_conversions,
-  dialect = guess_dialect(driverClass))
+  dialect = guess_dialect(driverClass),
+  create_new_connection = create_new_dbj_connection)
 
 \S4method{dbListConnections}{JDBCDriver}(drv, ...)
 
@@ -33,15 +35,18 @@ driver(driverClass, classPath = "",
 \S4method{show}{JDBCDriver}(object)
 }
 \arguments{
-\item{driverClass}{the java class name of the JDBC driver to use}
+\item{driverClass}{the Java class name of the JDBC driver to use}
 
-\item{classPath}{a string of paths seperated by \code{path.sep} variable in \code{\link{.Platform}} which should get added to the classpath (see \link[rJava]{.jaddClassPath})}
+\item{classPath}{a string of paths separated by \code{path.sep} variable in \code{\link{.Platform}}
+which should get added to the classpath (see \link[rJava]{.jaddClassPath})}
 
 \item{read_conversions}{a list of JDBCReadConversion objects.}
 
 \item{write_conversions}{a list of JDBCWriteConversion objects.}
 
 \item{dialect}{The \code{\link{sql_dialect}} to use.}
+
+\item{create_new_connection}{The factory function for JDBCConnection objects.}
 
 \item{drv}{An object of class \code{\linkS4class{JDBCDriver}}}
 
