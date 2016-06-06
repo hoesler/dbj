@@ -35,7 +35,6 @@ create_jdbc_driver <- function(driverClass, classPath) {
 #' @param password the users password
 #' @param ... named values which get transformed into key-value pairs of a 
 #'            Java Properties object which is passed to the connect method.
-#' @export
 #' @keywords internal
 create_jdbc_connection <- function(j_drv, url, user, password, ...) {
   j_con <- jtry(
@@ -231,7 +230,6 @@ execute_batch <- function(j_statement) {
 
 #' Create a new ResultSetMetaData reference object
 #' @param j_result_set a jobjRef object to a java.sql.ResultSet object
-#' @export
 #' @keywords internal
 get_meta_data <- function(j_result_set) {
   #assert_that(j_result_set %instanceof% "java.sql.ResultSet")
