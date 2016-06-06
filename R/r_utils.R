@@ -43,3 +43,12 @@ requireOption <- function(x) {
   if (!x %in% names(options())) stop(sprintf("Option %s is not present", x))
   getOption(x)
 }
+
+#' Concatenate all elements in \code{paths} using \code{.Platform$path.sep} as the separator.
+#' 
+#' @param paths A character vector
+#' @return A character vector of the concatenated paths.
+#' @export
+as_classpath <- function(paths) {
+  paste0(paths, collapse = .Platform$path.sep)
+}

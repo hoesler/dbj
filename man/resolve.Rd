@@ -3,6 +3,7 @@
 \name{resolve}
 \alias{resolve}
 \alias{resolve.character}
+\alias{resolve.list}
 \alias{resolve.module}
 \title{Generic to resolve a module or file.}
 \usage{
@@ -11,6 +12,8 @@ resolve(what, ...)
 \method{resolve}{module}(what, repositories, ...)
 
 \method{resolve}{character}(what, ...)
+
+\method{resolve}{list}(what, ...)
 }
 \arguments{
 \item{what}{The definition to resolve.}
@@ -28,5 +31,7 @@ Generic to resolve a module or file.
 installs it, and returns the local path.
 
 \item \code{character}: Checks if \code{what} is a valid path to a file and returns \code{what}.
+
+\item \code{list}: Resolves all elements in \code{what} and returns them as a list.
 }}
 

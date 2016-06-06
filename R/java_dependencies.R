@@ -71,20 +71,8 @@ resolve.character <- function(what, ...) {
   what
 }
 
-#' Resolve a set of module definitions.
-#' 
-#' \code{java_classpath} additionally concatenates the resolved paths by the OS path separator.
-#' 
-#' @param ... Either local file paths or objects created with \code{module}.
-#' @param repositories A list of repositories to search in.
+#' @describeIn resolve Resolves all elements in \code{what} and returns them as a list.
 #' @export
-resolve_all <- function(..., repositories) {
-  sapply(list(...), function(x) { resolve(x, repositories = repositories) } )
-}
-
-#' @param paths A character vector of paths, as returned by \code{resolve_all}
-#' @rdname resolve_all
-#' @export
-as_classpath <- function(paths) {
-  paste0(paths, collapse = .Platform$path.sep)
+resolve.list <- function(what, ...) {
+  sapply(what, resolve, ...)
 }
