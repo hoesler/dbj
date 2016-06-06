@@ -7,3 +7,4 @@
 	- Support for row names translation
 	- Support for temporary tables
 	- Added conversion rule for difftime to TIME
+	- Added savepoint support to transactions
