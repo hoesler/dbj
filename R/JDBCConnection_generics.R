@@ -20,20 +20,6 @@ setGeneric("dbGetTables",
   valueClass = "data.frame"
 )
 
-#' Generics for sending an update query.
-#' 
-#' @param conn A \code{\linkS4class{JDBCConnection}} object.
-#' @param statement the statement to send
-#' @param parameters Optional. Either a named list or a data.frame of statment parameters.
-#'   A data.frame will produce a batch update for each row.
-#' @param ... Other arguments used by methods
-#' @keywords internal
-#' @export
-setGeneric("dbSendUpdate",
-  function(conn, statement, parameters, ...) standardGeneric("dbSendUpdate"),
-  valueClass = "logical"
-)
-
 #' Truncate a table
 #' 
 #' @param conn A \code{\linkS4class{JDBCConnection}} object.
@@ -54,4 +40,19 @@ setGeneric("dbTruncateTable",
 setGeneric("dbSQLDialect",
   function(conn, ...) standardGeneric("dbSQLDialect"),
   valueClass = "sql_dialect"
+)
+
+#' Send an update query.
+#' 
+#' @param conn A \code{\linkS4class{JDBCConnection}} object, as produced by
+#'   \code{\link{dbConnect}}.
+#' @param statement A SQL statement to send over the connection. Use \code{?} for input parameters.
+#' @param parameters A list of statement parameters, which will be inserted in order.
+#' @param ... Other arguments passed on to methods.
+#' @return A logical indicating success
+#' @keywords internal
+#' @export
+setGeneric("dbSendUpdate",
+  function(conn, statement, parameters, ...) standardGeneric("dbSendUpdate"),
+  valueClass = "logical"
 )
