@@ -6,17 +6,18 @@
 \title{Execute a SQL statement on a database connection}
 \usage{
 \S4method{dbSendQuery}{JDBCConnection,character}(conn, statement,
-  parameters = list(), ...)
+  parameters = list())
 }
 \arguments{
 \item{conn}{A \code{\linkS4class{JDBCConnection}} object, as produced by
 \code{\link{dbConnect}}.}
 
-\item{statement}{the statement to send over the connection}
+\item{statement}{A SQL statement to send over the connection. Use \code{?} for input parameters.}
 
-\item{parameters}{a list of statement parameters}
-
-\item{...}{Other parameters passed on to methods.-JDBCConnection-method}
+\item{parameters}{A list of statement parameters, which will be inserted in order.}
+}
+\value{
+A \code{\linkS4class{JDBCResult}} object
 }
 \description{
 Execute a SQL statement on a database connection

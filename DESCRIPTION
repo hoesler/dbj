@@ -32,6 +32,8 @@ Collate:
     'JDBCObject.R'
     'JDBCDriver.R'
     'JDBCConnection.R'
+    'JDBCConnection_transactions.R'
+    'JDBCConnection_update.R'
     'JDBCResult.R'
     'JDBCQueryResult.R'
     'JDBCUpdateResult.R'

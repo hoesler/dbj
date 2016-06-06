@@ -37,7 +37,7 @@ setMethod("initialize", "JDBCQueryResult", function(.Object, j_result_set, conne
     .Object@j_result_set_meta <- get_meta_data(j_result_set)
     if (is.jnull(.Object@j_result_set_meta)) stop("j_result_set_meta is null")
     
-    .Object@j_result_pull <- create_result_pull(j_result_set)
+    .Object@j_result_pull <- create_resultpull(j_result_set)
     if (is.jnull(.Object@j_result_pull)) stop("j_result_pull is null")
     
     .Object@state$row_count <- 0
@@ -56,7 +56,7 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
   function(res, n, fetch_size = 0, ..., row.names = NA) {
     assert_that(is.numeric(fetch_size))    
 
-    cols <- jtry(jcall(res@j_result_set_meta, "I", "getColumnCount"))
+    cols <- jdbc_rsmeta_column_count(res@j_result_set_meta)
     if (cols < 1L) {
       return(NULL)
     }
@@ -73,7 +73,7 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
 
     chunks <- list()
     repeat {    
-      fetched <- fetch_resultpull(res@j_result_pull, stride, column_info, dbGetDriver(res)@read_conversions, fetch_size) 
+      fetched <- resultpull_fetch(res@j_result_pull, stride, column_info, dbGetDriver(res)@read_conversions, fetch_size) 
       chunks <- c(chunks, list(fetched))  
 
       if (nrow(fetched) < stride) {
@@ -112,9 +112,9 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "missing"),
 #' @export
 setMethod("dbClearResult", signature(res = "JDBCQueryResult"),
   function(res, ...) {
-    closed <- jtry(jcall(res@j_result_set, "Z", "isClosed"))
+    closed <- jdbc_result_set_is_closed(res@j_result_set)
     if (!closed) {
-      j_statement <- jtry(jcall(res@j_result_set, "Ljava/sql/Statement;", "getStatement"))
+      j_statement <- jdbc_result_set_get_statement(res@j_result_set)
       if (!is.jnull(j_statement)) {
         close_statement(j_statement)
       } else {
@@ -143,25 +143,25 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
       return(data.frame())
     }
     
-    column_count <- jtry(jcall(res@j_result_set_meta, "I", "getColumnCount"))
+    column_count <- jdbc_rsmeta_column_count(res@j_result_set_meta)
     
     column_info <- list()
 
     if ("name" %in% what) { # TODO: return lables as names?
       column_info <- c(column_info, list(name = vapply(seq(column_count), function(i) {
-        jtry(jcall(res@j_result_set_meta, "S", "getColumnName", i))
+        jdbc_rsmeta_column_name(res@j_result_set_meta, i)
       }, "")))
     }
 
     if ("field.type" %in% what) {
       column_info <- c(column_info, list(field.type = vapply(seq(column_count), function(i) {
-        jtry(jcall(res@j_result_set_meta, "S", "getColumnTypeName", i))
+        jdbc_rsmeta_column_typename(res@j_result_set_meta, i)
       }, "")))
     }
 
     if ("jdbc.type" %in% what) {
       column_info <- c(column_info, list(jdbc.type = vapply(seq(column_count), function(i) {
-        jtry(jcall(res@j_result_set_meta, "I", "getColumnType", i))
+        jdbc_rsmeta_column_type(res@j_result_set_meta, i)
       }, 0L)))
     }
 
@@ -172,7 +172,7 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
         if ("jdbc.type" %in% names(column_info)) {
           column_info$jdbc.type[i]
         } else {
-          jtry(jcall(res@j_result_set_meta, "I", "getColumnType", i))
+          jdbc_rsmeta_column_type(res@j_result_set_meta, i)
         }
         read_conversions[sapply(read_conversions, function (x) { x$condition(list("jdbc.type" = jdbc.type)) })][[1]]$r_class
       }, "")))
@@ -180,13 +180,13 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
 
     if ("label" %in% what) {
       column_info <- c(column_info, list(label = vapply(seq(column_count), function(i) {
-        jtry(jcall(res@j_result_set_meta, "S", "getColumnLabel", i))
+        jdbc_rsmeta_column_label(res@j_result_set_meta, i)
       }, "")))
     }
     
     if ("nullable" %in% what) {
       column_info <- c(column_info, list(nullable = vapply(seq(column_count), function(i) {
-        jtry(jcall(res@j_result_set_meta, "I", "isNullable", i)) # 0 = disallows NULL, 1 = allows NULL, 2 = unknown
+        jdbc_rsmeta_column_nullable(res@j_result_set_meta, i)
       }, 0L)))
     }
 
@@ -206,11 +206,13 @@ setMethod("dbGetRowCount", signature(res = "JDBCQueryResult"),
 
 #' @rdname JDBCQueryResult-class
 #' @section Methods:
-#' \code{dbGetRowsAffected}: Count rows affected by the last update query
+#' \code{dbGetRowsAffected}: This function returns the number of rows
+#' that were added, deleted, or updated by data modifying query.
+#' For a selection query, this function returns 0.
 #' @export
 setMethod("dbGetRowsAffected", signature(res = "JDBCQueryResult"),
   function(res, ...) {
-    .NotYetImplemented()
+    0
   }
 )
 
@@ -233,7 +235,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCQueryResult"),
   function(dbObj, ...) {
     default_list <- callNextMethod(dbObj, ...)
     supplements <- list(
-      col.count = jtry(jcall(dbObj@j_result_set_meta, "I", "getColumnCount")),
+      col.count = jdbc_rsmeta_column_count(dbObj@j_result_set_meta),
       is.select = TRUE
     )
     c(default_list, supplements)
@@ -246,7 +248,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCQueryResult"),
 #' @export
 setMethod("dbIsValid", signature(dbObj = "JDBCQueryResult"),
   function(dbObj, ...) {
-    closed <- jtry(jcall(dbObj@j_result_set, "Z", "isClosed"))
+    closed <- jdbc_result_set_is_closed(dbObj@j_result_set)
     return(!closed)
   }
 )
@@ -257,7 +259,7 @@ checkValid <- function(res) {
   }
 }
 
-#' Deprecated! Use dbColumnInfo instead. 
+#' List fields in specified table.
 #' 
 #' @param conn an \code{\linkS4class{JDBCQueryResult}} object.
 #' @param  name Ignored. Needed for compatiblity with generic.
@@ -274,7 +276,7 @@ setMethod("dbListFields", signature(conn = "JDBCQueryResult", name = "missing"),
 #' @export
 setMethod("dbGetDriver", signature(dbObj = "JDBCQueryResult"),
   function(dbObj, ...) {
-    dbGetDriver(dbObj@connection) # forward
+    dbGetDriver(dbObj@connection)
   }
 )
 

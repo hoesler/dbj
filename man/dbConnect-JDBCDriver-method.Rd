@@ -16,7 +16,8 @@
 
 \item{password}{the users password}
 
-\item{...}{named values which transformed into key-value pairs of of a Java Properties object which is passed to the connect method.}
+\item{...}{named values which transformed into key-value pairs of of a Java Properties
+object which is passed to the connect method.}
 }
 \description{
 Create a JDBC connection.

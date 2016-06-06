@@ -6,42 +6,36 @@
 \alias{dbSendUpdate,JDBCConnection,character,data.frame-method}
 \alias{dbSendUpdate,JDBCConnection,character,list-method}
 \alias{dbSendUpdate,JDBCConnection,character,missing-method}
-\title{Generics for sending an update query.}
+\title{Send an update query.}
 \usage{
 dbSendUpdate(conn, statement, parameters, ...)
 
 \S4method{dbSendUpdate}{JDBCConnection,character,missing}(conn, statement,
-  parameters, ...)
+  parameters)
 
 \S4method{dbSendUpdate}{JDBCConnection,character,list}(conn, statement,
-  parameters, ...)
+  parameters)
 
 \S4method{dbSendUpdate}{JDBCConnection,character,data.frame}(conn, statement,
-  parameters, partition_size = 10000, ...)
+  parameters, partition_size = 10000)
 }
 \arguments{
-\item{conn}{A \code{\linkS4class{JDBCConnection}} object.}
-
-\item{statement}{the statement to send}
-
-\item{parameters}{Optional. Either a named list or a data.frame of statment parameters.
-A data.frame will produce a batch update for each row.}
-
-\item{...}{Other arguments used by methods}
-
-\item{partition_size}{the size which will be used to partition the data into seperate commits}
-
 \item{conn}{A \code{\linkS4class{JDBCConnection}} object, as produced by
 \code{\link{dbConnect}}.}
 
-\item{...}{Other parameters passed on to methods.}
+\item{statement}{A SQL statement to send over the connection. Use \code{?} for input parameters.}
 
-\item{statement}{the statement to send over the connection}
+\item{parameters}{A list of statement parameters, which will be inserted in order.}
 
-\item{parameters}{a list of statement parameters}
+\item{...}{Other arguments passed on to methods.}
+
+\item{partition_size}{the size which will be used to partition the data into separate commits}
+}
+\value{
+A logical indicating success
 }
 \description{
-Generics for sending an update query.
+Send an update query.
 }
 \section{Methods (by class)}{
 \itemize{

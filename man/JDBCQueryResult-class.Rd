@@ -87,7 +87,9 @@ JDBCQueryResult class.
 \code{dbGetRowCount}: Count rows in result set
 
 
-\code{dbGetRowsAffected}: Count rows affected by the last update query
+\code{dbGetRowsAffected}: This function returns the number of rows
+that were added, deleted, or updated by data modifying query.
+For a selection query, this function returns 0.
 
 
 \code{dbHasCompleted}: Check if all results have been fetched

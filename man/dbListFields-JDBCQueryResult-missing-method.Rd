@@ -3,7 +3,7 @@
 \docType{methods}
 \name{dbListFields,JDBCQueryResult,missing-method}
 \alias{dbListFields,JDBCQueryResult,missing-method}
-\title{Deprecated! Use dbColumnInfo instead.}
+\title{List fields in specified table.}
 \usage{
 \S4method{dbListFields}{JDBCQueryResult,missing}(conn, name, ...)
 }
@@ -15,7 +15,7 @@
 \item{...}{Ignored. Needed for compatiblity with generic.}
 }
 \description{
-Deprecated! Use dbColumnInfo instead.
+List fields in specified table.
 }
 \keyword{internal}
 

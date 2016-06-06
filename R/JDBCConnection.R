@@ -1,6 +1,6 @@
 #' @include JDBCObject.R
 #' @include JDBCDriver.R
-#' @include JDBCConnectionExtensions.R
+#' @include JDBCConnection_generics.R
 #' @include java_utils.R
 #' @include java_jdbc_utils.R
 #' @include r_utils.R
@@ -37,40 +37,12 @@ JDBCConnection <- setClass("JDBCConnection", contains = c("DBIConnection", "JDBC
 setMethod("initialize", "JDBCConnection", function(.Object, j_connection, ...) {
     .Object <- callNextMethod()
     if (!missing(j_connection)) {
-      .Object@info <- connection_info(j_connection)
+      .Object@info <- jdbc_connection_info(j_connection)
     }
     .Object@state$savepoints <- list()
     .Object
   }
 )
-
-connection_info <- function(j_connection) {
-  j_dbmeta <- jtry(jcall(j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData"))
-  
-  list(
-      db.version = jtry(jcall(j_dbmeta, "S", "getDatabaseProductVersion")),
-      dbname = jtry(jcall(j_dbmeta, "S", "getDatabaseProductName")),
-      username = jtry(jcall(j_dbmeta, "S", "getUserName")), 
-      host = NULL,
-      port = NULL,
-
-      url = jtry(jcall(j_dbmeta, "S", "getURL")),
-      jdbc_driver_name = jtry(jcall(j_dbmeta, "S", "getDriverName")),
-      jdbc_driver_version = jtry(jcall(j_dbmeta, "S", "getDriverVersion")),
-
-      feature.savepoints = jtry(jcall(j_dbmeta, "Z", "supportsSavepoints"))
-    )
-}
-
-add_savepoint <- function(connection, savepoint_name, j_savepoint) {
-  connection@state$savepoints$savepoint_name <- j_savepoint
-}
-
-remove_savepoint <- function(connection, savepoint_name) {
-  savepoints <- connection@state$savepoints
-  connection@state$savepoints$savepoint_name <- NULL
-  savepoint <- savepoints$savepoint_name
-}
 
 #' Create a JDBC connection.
 #' 
@@ -119,8 +91,8 @@ setMethod("dbCallProc", signature(conn = "JDBCConnection"),
 #' @export
 setMethod("dbDisconnect", signature(conn = "JDBCConnection"),
   function(conn, ...) {
-    if (!jtry(jcall(conn@j_connection, "Z", "isClosed"))) {
-      jtry(jcall(conn@j_connection, "V", "close"))
+    if (!jdbc_connection_is_closed(conn@j_connection)) {
+      jdbc_close_connection(conn@j_connection)
     } else {
       warning("Connection has already been closed") # required by DBItest
     }
@@ -132,12 +104,12 @@ setMethod("dbDisconnect", signature(conn = "JDBCConnection"),
 #'
 #' @param conn A \code{\linkS4class{JDBCConnection}} object, as produced by
 #'   \code{\link{dbConnect}}.
-#' @param ... Other parameters passed on to methods.-JDBCConnection-method
-#' @param statement the statement to send over the connection
-#' @param parameters a list of statement parameters
+#' @param statement A SQL statement to send over the connection. Use \code{?} for input parameters.
+#' @param parameters A list of statement parameters, which will be inserted in order.
+#' @return A \code{\linkS4class{JDBCResult}} object
 #' @export
 setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "character"),
-  function(conn, statement, parameters = list(), ...) {
+  function(conn, statement, parameters = list()) {
     assert_that(is.list(parameters))
     statement <- as.character(statement)[1L]
     
@@ -146,69 +118,14 @@ setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "charact
     hasResult <- execute_query(j_statement)
     
     if (hasResult) {
-      j_result_set <- jtry(jcall(j_statement, "Ljava/sql/ResultSet;", "getResultSet"))
+      j_result_set <- jdbc_get_result_set(j_statement)
       conn@create_new_query_result(j_result_set, conn, statement)
     } else {
-      update_count <- jtry(jcall(j_statement, "I", "getUpdateCount"))
+      update_count <- jdbc_get_update_count(j_statement)
       conn@create_new_update_result(update_count, conn, statement)
     }
     
-  },
-  valueClass = "JDBCResult"
-)
-
-#' @describeIn dbSendUpdate Send update query without parameters
-#' @param conn A \code{\linkS4class{JDBCConnection}} object, as produced by
-#'   \code{\link{dbConnect}}.
-#' @param ... Other parameters passed on to methods.
-#' @param statement the statement to send over the connection
-#' @param parameters a list of statement parameters
-#' @export
-setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "missing"),
-  function(conn, statement, parameters, ...) {
-    j_statement <- create_prepared_statement(conn, statement)
-    on.exit(close_statement(j_statement))
-    execute_update(j_statement)
-    invisible(TRUE)
-  },
-  valueClass = "logical"
-)
-
-#' @describeIn dbSendUpdate Send update query with parameters given as a named list
-#' @export
-setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "list"),
-  function(conn, statement, parameters, ...) {
-    assert_that(!is.null(names(parameters)))
-    dbSendUpdate(conn, statement, as.data.frame(parameters))
-  },
-  valueClass = "logical"
-)
-
-
-#' @describeIn dbSendUpdate Send batch update queries with parameters given as a data.frame
-#' @param partition_size the size which will be used to partition the data into seperate commits
-#' @export
-setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "data.frame"),
-  function(conn, statement, parameters, partition_size = 10000, ...) {
-    assert_that(!is.null(names(parameters)))
-    assert_that(!any(is.na(names(parameters))))
-    assert_that(length(statement) == 1)
-    assert_that(nrow(parameters) > 0)
-
-    conversions <- dbGetDriver(conn)@write_conversions
-
-    sapply(partition(parameters, partition_size), function(subset) {
-      # Create a new statement for each batch. Reusing a single statement messes up ParameterMetaData (on H2).
-      j_statement <- create_prepared_statement(conn, statement)
-      tryCatch({
-        batch_insert(j_statement, subset, conversions)
-        execute_batch(j_statement)},
-      finally = close_statement(j_statement))   
-    })    
-
-    invisible(TRUE)
-  },
-  valueClass = "logical"
+  }
 )
 
 fetch_all <- function(j_result_set, connection, statement = "", close = TRUE) {  
@@ -238,12 +155,8 @@ setMethod("dbListTables", signature(conn = "JDBCConnection"),
 #' @export
 setMethod("dbGetTables", signature(conn = "JDBCConnection"),
   function(conn, pattern = "%", ...) {
-    md <- jtry(jcall(conn@j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData"),
-      jstop, "Failed to retrieve JDBC database metadata")
-    # getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types)
-    j_result_set <- jtry(.jcall(md, "Ljava/sql/ResultSet;", "getTables", .jnull("java/lang/String"),
-                .jnull("java/lang/String"), pattern, .jnull("[Ljava/lang/String;"), check = FALSE),
-      jstop, "Unable to retrieve JDBC tables list")    
+    j_database_meta <- jdbc_get_database_meta(conn@j_connection)
+    j_result_set <- jdbc_dbmeta_get_tables(j_database_meta, pattern) 
     fetch_all(j_result_set, conn)
   }
 )
@@ -289,12 +202,8 @@ setMethod("dbListFields", signature(conn = "JDBCConnection", name = "character")
 #' @rdname dbGetFields
 setMethod("dbGetFields", signature(conn = "JDBCConnection"),
   function(conn, name, pattern = "%", ...) {
-    md <- jtry(jcall(conn@j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData"),
-      jstop, "Unable to retrieve JDBC database metadata")
-    # getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern)
-    j_result_set <- jtry(.jcall(md, "Ljava/sql/ResultSet;", "getColumns",
-        .jnull("java/lang/String"), .jnull("java/lang/String"), name, pattern, check = FALSE),
-      jstop, "Unable to retrieve JDBC columns list for ", name)
+    j_database_meta <- jdbc_get_database_meta(conn@j_connection)
+    j_result_set <- jdbc_dbmeta_get_columns(j_database_meta, name, pattern)
     fetch_all(j_result_set, conn)
   }
 )
@@ -303,7 +212,7 @@ setMethod("dbGetFields", signature(conn = "JDBCConnection"),
 #' @export
 setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
-    dbGetQuery(conn, paste("SELECT * FROM", dbQuoteIdentifier(conn, name)))
+    dbGetQuery(conn, paste("SELECT * FROM", dbQuoteIdentifier(conn, name))) # TODO: move sql to dialect
   }
 )
 
@@ -381,53 +290,6 @@ setMethod("dbSQLDialect", signature(conn = "JDBCConnection"),
   }
 )
 
-#' @describeIn JDBCConnection Begin a transaction
-#' @param savepoint_name The name of the savepoint
-#' @export
-setMethod("dbBegin", signature(conn = "JDBCConnection"),
-  function(conn, savepoint_name, ...) {
-    jtry(jcall(conn@j_connection, "V", "setAutoCommit", FALSE))
-    if (dbGetInfo(conn)$feature.savepoints) {
-      j_savepoint <- jtry(jcall(conn@j_connection, "Ljava/sql/Savepoint;", "setSavepoint", savepoint_name))
-      add_savepoint(conn, savepoint_name, j_savepoint)      
-    } else {
-      warning("Savepoints are not supported")
-    }
-    invisible(TRUE)
-  },
-  valueClass = "logical"
-)
-
-#' @describeIn JDBCConnection Commit a transaction
-#' @export
-setMethod("dbCommit", signature(conn = "JDBCConnection"),
-  function(conn, savepoint_name = NULL, ...) {
-    if (!is.null(savepoint_name)) {
-      remove_savepoint(conn, savepoint_name)
-    }
-    jtry(jcall(conn@j_connection, "V", "commit"))
-    jtry(jcall(conn@j_connection, "V", "setAutoCommit", TRUE))
-    invisible(TRUE)
-  },
-  valueClass = "logical"
-)
-
-#' @describeIn JDBCConnection Rollback a transaction
-#' @export
-setMethod("dbRollback", signature(conn = "JDBCConnection"), 
-  function(conn, savepoint_name, ...) {
-    j_savepoint <- remove_savepoint(conn, savepoint_name)
-    if (!is.null(j_savepoint)) {
-      jtry(jcall(conn@j_connection, "V", "rollback", j_savepoint))
-    } else {
-      jtry(jcall(conn@j_connection, "V", "rollback"))
-    }
-    jtry(jcall(conn@j_connection, "V", "setAutoCommit", TRUE))
-    invisible(TRUE)
-  },
-  valueClass = "logical"
-)
-
 #' @describeIn JDBCConnection Returns a list with \code{dbname}, \code{db.version}, \code{username}, \code{jdbc_driver_name}, \code{jdbc_driver_version}, \code{url}, \code{host} and \code{port}.
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCConnection"),
@@ -450,20 +312,7 @@ setMethod("dbGetException", signature(conn = "JDBCConnection"),
 setMethod("dbListResults", signature(conn = "JDBCConnection"),
   function(conn, ...) {
     list()
-  },
-  valueClass = "list"
-)
-
-#' @describeIn JDBCConnection Returns the list of SQL keywords as defined in the DatabaseMetaData Java object of the associated Java Connection object.
-#' @export
-setMethod("SQLKeywords", signature(dbObj = "JDBCConnection"),
-  function(dbObj, ...) {
-    .Deprecated()
-    md <- jtry(jcall(dbObj@j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData"))
-    keywords <- jtry(jcall(md, "S", "getSQLKeywords"))
-    unique(c(unlist(strsplit(keywords, "\\s*,\\s*")), .SQL92Keywords)) # TODO Java API refers to SQL:2003 keywords
-  },
-  valueClass = "character"
+  }
 )
 
 #' @describeIn JDBCConnection Returns the driver for this connection.
@@ -492,7 +341,7 @@ setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "characte
 #' @export
 setMethod("dbIsValid", signature(dbObj = "JDBCConnection"),
   function(dbObj, timeout = 0, ...) {
-    !is.jnull(dbObj@j_connection) && jtry(jcall(dbObj@j_connection, "Z", "isValid", as.integer(timeout)))
+    !is.jnull(dbObj@j_connection) && jdbc_connection_is_valid(dbObj@j_connection, timeout)
   }
 )
 

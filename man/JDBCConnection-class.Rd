@@ -4,9 +4,6 @@
 \name{JDBCConnection-class}
 \alias{JDBCConnection}
 \alias{JDBCConnection-class}
-\alias{SQLKeywords,JDBCConnection-method}
-\alias{dbBegin,JDBCConnection-method}
-\alias{dbCommit,JDBCConnection-method}
 \alias{dbExistsTable,JDBCConnection,character-method}
 \alias{dbGetDriver,JDBCConnection-method}
 \alias{dbGetException,JDBCConnection-method}
@@ -14,7 +11,6 @@
 \alias{dbListResults,JDBCConnection-method}
 \alias{dbReadTable,JDBCConnection,character-method}
 \alias{dbRemoveTable,JDBCConnection,character-method}
-\alias{dbRollback,JDBCConnection-method}
 \alias{dbSQLDialect,JDBCConnection-method}
 \alias{show,JDBCConnection-method}
 \alias{sqlAppendTable,JDBCConnection-method}
@@ -29,19 +25,11 @@
 
 \S4method{dbSQLDialect}{JDBCConnection}(conn)
 
-\S4method{dbBegin}{JDBCConnection}(conn, savepoint_name, ...)
-
-\S4method{dbCommit}{JDBCConnection}(conn, savepoint_name = NULL, ...)
-
-\S4method{dbRollback}{JDBCConnection}(conn, savepoint_name, ...)
-
 \S4method{dbGetInfo}{JDBCConnection}(dbObj, ...)
 
 \S4method{dbGetException}{JDBCConnection}(conn, ...)
 
 \S4method{dbListResults}{JDBCConnection}(conn, ...)
-
-\S4method{SQLKeywords}{JDBCConnection}(dbObj, ...)
 
 \S4method{dbGetDriver}{JDBCConnection}(dbObj, ...)
 
@@ -59,8 +47,6 @@
 \item{name}{A character string specifying a DBMS table name.}
 
 \item{...}{Arguments passed on to other methods.}
-
-\item{savepoint_name}{The name of the savepoint}
 
 \item{object}{An object of class \code{\linkS4class{JDBCConnection}}}
 
@@ -87,19 +73,11 @@ Class JDBCConnection
 
 \item \code{dbSQLDialect}: Get the current dialect
 
-\item \code{dbBegin}: Begin a transaction
-
-\item \code{dbCommit}: Commit a transaction
-
-\item \code{dbRollback}: Rollback a transaction
-
 \item \code{dbGetInfo}: Returns a list with \code{dbname}, \code{db.version}, \code{username}, \code{jdbc_driver_name}, \code{jdbc_driver_version}, \code{url}, \code{host} and \code{port}.
 
 \item \code{dbGetException}: Not implemented. Returns an empty list.
 
 \item \code{dbListResults}: Returns an empty \code{list} as JDBC maintains no list of active results.
-
-\item \code{SQLKeywords}: Returns the list of SQL keywords as defined in the DatabaseMetaData Java object of the associated Java Connection object.
 
 \item \code{dbGetDriver}: Returns the driver for this connection.
 

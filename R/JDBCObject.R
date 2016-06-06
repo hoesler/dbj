@@ -1,4 +1,4 @@
-#' @include JDBCObjectExtensions.R
+#' @include JDBCObject_generics.R
 NULL
 
 #' Class JDBCObject

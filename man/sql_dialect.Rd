@@ -13,7 +13,7 @@
 \alias{guess_dialect}
 \alias{sql_dialect}
 \title{Create a new SQL dialect environment}
-\format{An object of class \code{sql_dialect} of length 5.}
+\format{An object of class \code{sql_dialect} of length 6.}
 \usage{
 generic_create_statement_generator(table_name, field_names, field_types,
   temporary)
@@ -35,6 +35,7 @@ generic_quote_string(conn, x, ...)
 sql_dialect(name, sql_create_table = generic_create_table,
   sql_append_table = generic_append_table,
   sql_clear_table = generic_clear_table,
+  sql_remove_table = generic_remove_table,
   sql_quote_identifier = generic_quote_identifier,
   sql_quote_string = generic_quote_string)
 
@@ -85,6 +86,8 @@ guess_dialect(driver_class)
 \item{sql_append_table}{A function which generates an SQL statement for adding data to the table}
 
 \item{sql_clear_table}{A function which generates an SQL statement for truncating a table}
+
+\item{sql_remove_table}{The function called by the \code{dbRemoveTable,JDBCConnection-character-method} method}
 
 \item{sql_quote_identifier}{The function called by the \code{dbQuoteIdentifier,JDBCConnection-character-method} method}
 

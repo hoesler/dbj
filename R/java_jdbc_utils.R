@@ -248,3 +248,91 @@ close_result_set <- function(j_result_set) {
   #assert_that(j_result_set %instanceof% "java.sql.ResultSet")
   jtry(.jcall(j_result_set, "V", "close"))
 }
+
+jdbc_connection_is_closed <- function(j_connection) jtry(jcall(j_connection, "Z", "isClosed"))
+
+jdbc_close_connection <- function(j_connection) jtry(jcall(j_connection, "V", "close"))
+
+jdbc_connection_info <- function(j_connection) {
+  j_dbmeta <- jtry(jcall(j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData"))
+  
+  list(
+      db.version = jtry(jcall(j_dbmeta, "S", "getDatabaseProductVersion")),
+      dbname = jtry(jcall(j_dbmeta, "S", "getDatabaseProductName")),
+      username = jtry(jcall(j_dbmeta, "S", "getUserName")), 
+      host = NULL,
+      port = NULL,
+
+      url = jtry(jcall(j_dbmeta, "S", "getURL")),
+      jdbc_driver_name = jtry(jcall(j_dbmeta, "S", "getDriverName")),
+      jdbc_driver_version = jtry(jcall(j_dbmeta, "S", "getDriverVersion")),
+
+      feature.savepoints = jtry(jcall(j_dbmeta, "Z", "supportsSavepoints"))
+    )
+}
+
+jdbc_connection_is_valid <- function(j_connection, timeout) jtry(jcall(j_connection, "Z", "isValid", as.integer(timeout)))
+
+jdbc_get_result_set <- function(j_statement) jtry(jcall(j_statement, "Ljava/sql/ResultSet;", "getResultSet"))
+
+jdbc_get_update_count <- function(j_statement) jtry(jcall(j_statement, "I", "getUpdateCount"))
+
+jdbc_get_database_meta <- function(j_connection) jtry(jcall(j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData"),
+      jstop, "Failed to retrieve JDBC database metadata")
+
+jdbc_dbmeta_get_tables <- function(j_database_data, trable_name_pattern) {
+  # getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types)
+  jtry(
+    jcall(j_database_data, "Ljava/sql/ResultSet;", "getTables",
+      .jnull("java/lang/String"),
+      .jnull("java/lang/String"),
+      trable_name_pattern,
+      .jnull("[Ljava/lang/String;")),
+    jstop, "Unable to retrieve JDBC tables list")
+}
+
+jdbc_dbmeta_get_columns <- function(j_database_meta, table_name, column_name_pattern) {
+  # getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern)
+  jtry(
+    jcall(j_database_meta, "Ljava/sql/ResultSet;", "getColumns",
+      .jnull("java/lang/String"),
+      .jnull("java/lang/String"),
+      table_name,
+      column_name_pattern),
+    jstop, "Unable to retrieve JDBC columns list for ", table_name)
+}
+
+jdbc_connection_set_savepoint <- function(j_connection, savepoint_name) jtry(jcall(j_connection, "Ljava/sql/Savepoint;", "setSavepoint", savepoint_name))
+
+jdbc_connection_commit <- function(j_connection) jtry(jcall(j_connection, "V", "commit"))
+
+jdbc_connection_autocommit <- function(j_connection, auto) jtry(jcall(j_connection, "V", "setAutoCommit", auto))
+
+jdbc_connection_rollback <- function(j_connection, j_savepoint = NULL) {
+  if (is.null(j_savepoint)) {
+    jtry(jcall(j_connection, "V", "rollback"))
+  } else {
+    jtry(jcall(j_connection, "V", "rollback", j_savepoint))
+  } 
+}
+
+jdbc_rsmeta_column_count <- function(j_result_set_meta) jtry(jcall(j_result_set_meta, "I", "getColumnCount"))
+
+jdbc_rsmeta_column_name <- function(j_result_set_meta, column_index) jtry(jcall(j_result_set_meta, "S", "getColumnName", column_index))
+
+jdbc_rsmeta_column_type <- function(j_result_set_meta, column_index) jtry(jcall(j_result_set_meta, "I", "getColumnType", column_index))
+
+jdbc_rsmeta_column_typename <- function(j_result_set_meta, column_index) jtry(jcall(j_result_set_meta, "S", "getColumnTypeName", column_index))
+
+jdbc_rsmeta_column_label <- function(j_result_set_meta, column_index) jtry(jcall(j_result_set_meta, "S", "getColumnLabel", column_index))
+
+# 0 = disallows NULL, 1 = allows NULL, 2 = unknown
+jdbc_rsmeta_column_nullable <- function(j_result_set_meta, column_index) jtry(jcall(j_result_set_meta, "I", "isNullable", column_index))
+
+jdbc_result_set_is_closed <- function(j_result_set) jtry(jcall(j_result_set, "Z", "isClosed"))
+
+jdbc_result_set_get_statement <- function(j_result_set) jtry(jcall(j_result_set, "Ljava/sql/Statement;", "getStatement"))
+
+jdbc_driver_major_version <- function(j_drv) jtry(jcall(j_drv, "I", "getMajorVersion"))
+
+jdbc_driver_minor_version <- function(j_drv) jtry(jcall(j_drv, "I", "getMinorVersion"))

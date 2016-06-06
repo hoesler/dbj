@@ -9,7 +9,8 @@ JDBC(driverClass = "", classPath = "", ...)
 \arguments{
 \item{driverClass}{the java class name of the JDBC driver to use}
 
-\item{classPath}{a string of paths seperated by the \code{path.sep} variable in \code{\link{.Platform}} which should get added to the classpath (see \link[rJava]{.jaddClassPath})}
+\item{classPath}{a string of paths seperated by the \code{path.sep} variable in \code{\link{.Platform}}
+which should get added to the classpath (see \link[rJava]{.jaddClassPath})}
 
 \item{...}{Additional arguments passed to driver()}
 }

@@ -34,7 +34,8 @@ setMethod("initialize", "JDBCDriver", function(.Object, j_drv, dialect, driverCl
 #' 
 #' This function is present for \code{RJDBC} compatibility. Use \code{\link{driver}} instead. 
 #' @param driverClass the java class name of the JDBC driver to use
-#' @param classPath a string of paths seperated by the \code{path.sep} variable in \code{\link{.Platform}} which should get added to the classpath (see \link[rJava]{.jaddClassPath})
+#' @param classPath a string of paths seperated by the \code{path.sep} variable in \code{\link{.Platform}}
+#'                  which should get added to the classpath (see \link[rJava]{.jaddClassPath})
 #' @param ... Additional arguments passed to driver()
 #' @rdname JDBCDriver-class-legacy
 #' @export
@@ -82,12 +83,12 @@ driver <- function(driverClass, classPath = '',
 }
 
 driver_info <- function(j_drv, dialect, driverClass) {
-  major_version = jtry(jcall(j_drv, "I", "getMajorVersion"))
-  minor_version = jtry(jcall(j_drv, "I", "getMinorVersion"))
-
   list(
     driver.version = utils::packageVersion("dbj"),
-    client.version = paste(major_version, minor_version, sep = "."),
+    client.version = paste(
+      jdbc_driver_major_version(j_drv),
+      jdbc_driver_minor_version(j_drv),
+      sep = "."),
     max.connections = NA, # TODO: Is there a way to get this information from JDBC?
     driver.class = driverClass,
     sql.dialect = dialect$name  
@@ -118,7 +119,8 @@ setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
 #' @param url the url to connect to
 #' @param user the user to log in
 #' @param password the users password
-#' @param ... named values which transformed into key-value pairs of of a Java Properties object which is passed to the connect method.
+#' @param ... named values which transformed into key-value pairs of of a Java Properties
+#'            object which is passed to the connect method.
 #' @export
 setMethod("dbConnect", signature(drv = "JDBCDriver"),
   function(drv, url, user = '', password = '', ...) {
