@@ -53,14 +53,14 @@ jstop <- function(j_exception, ...) {
 #' Make sure that the expression, which is usually a .jcall or a .jnew function, is called with the check = FALSE option.
 #' Otherwise the exception is cleared before jtry checks for its existance.
 #' 
-#' @param  expression a valid R expression, usually containing a .jcall
+#' @param  expression a valid R expression, usually a call to .jcall or .jnew
 #' @param  onError the callback which will be called if a java exception was thrown with the exception as the first argument
 #' @param  ... any further arguments to the \code{onError} function
 #' @return the result of the \code{expression}
 #' @keywords internal
 jtry <- function(expression, onError = jstop, ...) {
   assert_that(is.function(onError))
-  .jcheck()
+  .jcheck(silent = FALSE)
   env <- new.env(parent = parent.frame())
   eval_result <- eval(substitute(expression), env)
   j_exception <- .jgetEx(clear = TRUE)
@@ -70,3 +70,20 @@ jtry <- function(expression, onError = jstop, ...) {
   return(eval_result)
 }
 
+#' Same as .jcall but with check = FALSE as default
+#' @inheritParams rJava::.jcall
+#' @keywords internal
+jcall <- function(obj, returnSig = "V", method, ..., evalArray = TRUE, 
+    evalString = TRUE, check = FALSE, interface = "RcallMethod", 
+    simplify = FALSE, use.true.class = FALSE) {
+  .jcall(obj = obj, returnSig = returnSig, method = method, ..., evalArray = evalArray, 
+    evalString = evalString, check = check, interface = interface, 
+    simplify = simplify, use.true.class = use.true.class)
+}
+
+#' Same as .jnew but with check = FALSE as default
+#' @inheritParams rJava::.jnew
+#' @keywords internal
+jnew <- function(class, ..., check = FALSE, silent =! check) {
+  .jnew(class = class, ..., check = check, silent = silent)
+}

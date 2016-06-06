@@ -7,7 +7,7 @@
 jtry(expression, onError = jstop, ...)
 }
 \arguments{
-\item{expression}{a valid R expression, usually containing a .jcall}
+\item{expression}{a valid R expression, usually a call to .jcall or .jnew}
 
 \item{onError}{the callback which will be called if a java exception was thrown with the exception as the first argument}
 

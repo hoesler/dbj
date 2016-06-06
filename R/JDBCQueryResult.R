@@ -56,7 +56,7 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
   function(res, n, fetch_size = 0, ..., row.names = NA) {
     assert_that(is.numeric(fetch_size))    
 
-    cols <- jtry(.jcall(res@j_result_set_meta, "I", "getColumnCount", check = FALSE))
+    cols <- jtry(jcall(res@j_result_set_meta, "I", "getColumnCount"))
     if (cols < 1L) {
       return(NULL)
     }
@@ -112,9 +112,9 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "missing"),
 #' @export
 setMethod("dbClearResult", signature(res = "JDBCQueryResult"),
   function(res, ...) {
-    closed <- jtry(.jcall(res@j_result_set, "Z", "isClosed", check = FALSE))
+    closed <- jtry(jcall(res@j_result_set, "Z", "isClosed"))
     if (!closed) {
-      j_statement <- jtry(.jcall(res@j_result_set, "Ljava/sql/Statement;", "getStatement", check = FALSE))
+      j_statement <- jtry(jcall(res@j_result_set, "Ljava/sql/Statement;", "getStatement"))
       if (!is.jnull(j_statement)) {
         close_statement(j_statement)
       } else {
@@ -144,25 +144,25 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
       return(data.frame())
     }
     
-    column_count <- jtry(.jcall(res@j_result_set_meta, "I", "getColumnCount", check = FALSE))
+    column_count <- jtry(jcall(res@j_result_set_meta, "I", "getColumnCount"))
     
     column_info <- list()
 
     if ("name" %in% what) { # TODO: return lables as names?
       column_info <- c(column_info, list(name = vapply(seq(column_count), function(i) {
-        jtry(.jcall(res@j_result_set_meta, "S", "getColumnName", i, check = FALSE))
+        jtry(jcall(res@j_result_set_meta, "S", "getColumnName", i))
       }, "")))
     }
 
     if ("field.type" %in% what) {
       column_info <- c(column_info, list(field.type = vapply(seq(column_count), function(i) {
-        jtry(.jcall(res@j_result_set_meta, "S", "getColumnTypeName", i, check = FALSE))
+        jtry(jcall(res@j_result_set_meta, "S", "getColumnTypeName", i))
       }, "")))
     }
 
     if ("jdbc.type" %in% what) {
       column_info <- c(column_info, list(jdbc.type = vapply(seq(column_count), function(i) {
-        jtry(.jcall(res@j_result_set_meta, "I", "getColumnType", i, check = FALSE))
+        jtry(jcall(res@j_result_set_meta, "I", "getColumnType", i))
       }, 0L)))
     }
 
@@ -173,7 +173,7 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
         if ("jdbc.type" %in% names(column_info)) {
           column_info$jdbc.type[i]
         } else {
-          jtry(.jcall(res@j_result_set_meta, "I", "getColumnType", i, check = FALSE))
+          jtry(jcall(res@j_result_set_meta, "I", "getColumnType", i))
         }
         read_conversions[sapply(read_conversions, function (x) { x$condition(list("jdbc.type" = jdbc.type)) })][[1]]$r_class
       }, "")))
@@ -181,13 +181,13 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
 
     if ("label" %in% what) {
       column_info <- c(column_info, list(label = vapply(seq(column_count), function(i) {
-        jtry(.jcall(res@j_result_set_meta, "S", "getColumnLabel", i, check = FALSE))
+        jtry(jcall(res@j_result_set_meta, "S", "getColumnLabel", i))
       }, "")))
     }
     
     if ("nullable" %in% what) {
       column_info <- c(column_info, list(nullable = vapply(seq(column_count), function(i) {
-        jtry(.jcall(res@j_result_set_meta, "I", "isNullable", i, check = FALSE)) # 0 = disallows NULL, 1 = allows NULL, 2 = unknown
+        jtry(jcall(res@j_result_set_meta, "I", "isNullable", i)) # 0 = disallows NULL, 1 = allows NULL, 2 = unknown
       }, 0L)))
     }
 
@@ -237,7 +237,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCQueryResult"),
   function(dbObj, ...) {
     default_list <- callNextMethod(dbObj, ...)
     supplements <- list(
-      col.count = jtry(.jcall(dbObj@j_result_set_meta, "I", "getColumnCount", check = FALSE)),
+      col.count = jtry(jcall(dbObj@j_result_set_meta, "I", "getColumnCount")),
       is.select = TRUE
     )
     c(default_list, supplements)
@@ -251,7 +251,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCQueryResult"),
 #' @export
 setMethod("dbIsValid", signature(dbObj = "JDBCQueryResult"),
   function(dbObj, ...) {
-    closed <- jtry(.jcall(dbObj@j_result_set, "Z", "isClosed", check = FALSE))
+    closed <- jtry(jcall(dbObj@j_result_set, "Z", "isClosed"))
     return(!closed)
   },
   valueClass = "logical"

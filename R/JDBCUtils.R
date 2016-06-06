@@ -56,7 +56,7 @@ create_jdbc_connection <- function(j_drv, url, user, password, ...) {
     if (length(password) == 1 && nchar(password)) .jcall(p, "Ljava/lang/Object;", "setProperty", "password",password)
     l <- list(...)
     if (length(names(l))) for (n in names(l)) .jcall(p, "Ljava/lang/Object;", "setProperty", n, as.character(l[[n]]))
-    j_con <- jtry(.jcall(j_drv, "Ljava/sql/Connection;", "connect", as.character(url)[1], p, check = FALSE))
+    j_con <- jtry(jcall(j_drv, "Ljava/sql/Connection;", "connect", as.character(url)[1], p))
   }
 
   verifyNotNull(j_con, "Unable to connect JDBC to ", url)
@@ -119,17 +119,17 @@ prepare_statement <- function(conn, statement,
 
 execute_query <- function(j_statement) {
   #assert_that(j_statement %instanceof% "java.sql.Statement")
-  jtry(.jcall(j_statement, "Z", "execute", check = FALSE))
+  jtry(jcall(j_statement, "Z", "execute"))
 }
 
 execute_update <- function(j_statement) {
   #assert_that(j_statement %instanceof% "java.sql.Statement")
-  jtry(.jcall(j_statement, "I", "executeUpdate", check = FALSE))
+  jtry(jcall(j_statement, "I", "executeUpdate"))
 }
 
 add_batch <- function(j_statement) {
   #assert_that(j_statement %instanceof% "java.sql.PreparedStatement")
-  jtry(.jcall(j_statement, "V", "addBatch", check = FALSE))
+  jtry(jcall(j_statement, "V", "addBatch"))
 }
 
 #' Transform a data frame into a Java reference to a com/github/hoesler/dbj/Table
@@ -142,12 +142,12 @@ create_j_table <- function(j_statement, data, write_conversions) {
   #assert_that(j_statement %instanceof% "java.sql.PreparedStatement")
   assert_that(is.data.frame(data))
 
-  j_statement_meta <- jtry(.jcall(j_statement, "Ljava/sql/ParameterMetaData;", "getParameterMetaData", check = FALSE))
+  j_statement_meta <- jtry(jcall(j_statement, "Ljava/sql/ParameterMetaData;", "getParameterMetaData"))
 
   j_columns <- unlist(lapply(seq_along(data), function(column_index) {
     column_data <- data[,column_index]
-    sql_type <- jtry(.jcall(j_statement_meta, "I", "getParameterType", column_index, check = FALSE))
-    is_nullable <- jtry(.jcall(j_statement_meta, "I", "isNullable", column_index, check = FALSE))
+    sql_type <- jtry(jcall(j_statement_meta, "I", "getParameterType", column_index))
+    is_nullable <- jtry(jcall(j_statement_meta, "I", "isNullable", column_index))
     if (is_nullable == 0 && any(is.na(column_data))) {
       stop("Column is not nullable but data contains NA")
     }
@@ -225,7 +225,7 @@ batch_insert <- function(j_statement, data, write_conversions) {
 #' @keywords internal
 execute_batch <- function(j_statement) {
   #assert_that(j_statement %instanceof% "java.sql.PreparedStatement")
-  jtry(.jcall(j_statement, "[I", "executeBatch", check = FALSE))
+  jtry(jcall(j_statement, "[I", "executeBatch"))
 }
 
 #' Create a new ResultSetMetaData reference object
@@ -234,7 +234,7 @@ execute_batch <- function(j_statement) {
 get_meta_data <- function(j_result_set) {
   #assert_that(j_result_set %instanceof% "java.sql.ResultSet")
 
-  j_meta_data <- jtry(.jcall(j_result_set, "Ljava/sql/ResultSetMetaData;", "getMetaData", check = FALSE))
+  j_meta_data <- jtry(jcall(j_result_set, "Ljava/sql/ResultSetMetaData;", "getMetaData"))
   verifyNotNull(j_meta_data, "Unable to retrieve JDBC result set meta data for ", j_result_set, " in dbSendQuery")
   return(j_meta_data)
 }

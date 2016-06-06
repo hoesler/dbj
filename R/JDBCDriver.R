@@ -82,8 +82,8 @@ driver <- function(driverClass, classPath = '',
 }
 
 driver_info <- function(j_drv, dialect, driverClass) {
-  major_version = jtry(.jcall(j_drv, "I", "getMajorVersion", check = FALSE))
-  minor_version = jtry(.jcall(j_drv, "I", "getMinorVersion", check = FALSE))
+  major_version = jtry(jcall(j_drv, "I", "getMajorVersion"))
+  minor_version = jtry(jcall(j_drv, "I", "getMinorVersion"))
 
   list(
     driver.version = utils::packageVersion("dbj"),

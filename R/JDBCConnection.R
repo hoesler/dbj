@@ -42,18 +42,18 @@ setMethod("initialize", "JDBCConnection", function(.Object, j_connection, ...) {
 )
 
 connection_info <- function(j_connection) {
-  j_dbmeta <- jtry(.jcall(j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE))
+  j_dbmeta <- jtry(jcall(j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData"))
   
   list(
-      db.version = jtry(.jcall(j_dbmeta, "S", "getDatabaseProductVersion", check = FALSE)),
-      dbname = jtry(.jcall(j_dbmeta, "S", "getDatabaseProductName", check = FALSE)),
-      username = jtry(.jcall(j_dbmeta, "S", "getUserName", check = FALSE)), 
+      db.version = jtry(jcall(j_dbmeta, "S", "getDatabaseProductVersion")),
+      dbname = jtry(jcall(j_dbmeta, "S", "getDatabaseProductName")),
+      username = jtry(jcall(j_dbmeta, "S", "getUserName")), 
       host = NULL,
       port = NULL,
 
-      url = jtry(.jcall(j_dbmeta, "S", "getURL", check = FALSE)),
-      jdbc_driver_name = jtry(.jcall(j_dbmeta, "S", "getDriverName", check = FALSE)),
-      jdbc_driver_version = jtry(.jcall(j_dbmeta, "S", "getDriverVersion", check = FALSE))
+      url = jtry(jcall(j_dbmeta, "S", "getURL")),
+      jdbc_driver_name = jtry(jcall(j_dbmeta, "S", "getDriverName")),
+      jdbc_driver_version = jtry(jcall(j_dbmeta, "S", "getDriverVersion")),
     )
 }
 
@@ -106,8 +106,8 @@ setMethod("dbCallProc", signature(conn = "JDBCConnection"),
 #' @export
 setMethod("dbDisconnect", signature(conn = "JDBCConnection"),
   function(conn, ...) {
-    if (!jtry(.jcall(conn@j_connection, "Z", "isClosed", check = FALSE))) {
-      jtry(.jcall(conn@j_connection, "V", "close", check = FALSE))
+    if (!jtry(jcall(conn@j_connection, "Z", "isClosed"))) {
+      jtry(jcall(conn@j_connection, "V", "close"))
     } else {
       warning("Connection has already been closed") # required by DBItest
     }
@@ -134,10 +134,10 @@ setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "charact
     hasResult <- execute_query(j_statement)
     
     if (hasResult) {
-      j_result_set <- jtry(.jcall(j_statement, "Ljava/sql/ResultSet;", "getResultSet", check = FALSE))
+      j_result_set <- jtry(jcall(j_statement, "Ljava/sql/ResultSet;", "getResultSet"))
       conn@create_new_query_result(j_result_set, conn, statement)
     } else {
-      update_count <- jtry(.jcall(j_statement, "I", "getUpdateCount", check = FALSE))
+      update_count <- jtry(jcall(j_statement, "I", "getUpdateCount"))
       conn@create_new_update_result(update_count, conn, statement)
     }
     
@@ -227,7 +227,7 @@ setMethod("dbListTables", signature(conn = "JDBCConnection"),
 #' @export
 setMethod("dbGetTables", signature(conn = "JDBCConnection"),
   function(conn, pattern = "%", ...) {
-    md <- jtry(.jcall(conn@j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE),
+    md <- jtry(jcall(conn@j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData"),
       jstop, "Failed to retrieve JDBC database metadata")
     # getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types)
     j_result_set <- jtry(.jcall(md, "Ljava/sql/ResultSet;", "getTables", .jnull("java/lang/String"),
@@ -281,7 +281,7 @@ setMethod("dbListFields", signature(conn = "JDBCConnection", name = "character")
 #' @rdname dbGetFields
 setMethod("dbGetFields", signature(conn = "JDBCConnection"),
   function(conn, name, pattern = "%", ...) {
-    md <- jtry(.jcall(conn@j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE),
+    md <- jtry(jcall(conn@j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData"),
       jstop, "Unable to retrieve JDBC database metadata")
     # getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern)
     j_result_set <- jtry(.jcall(md, "Ljava/sql/ResultSet;", "getColumns",
@@ -394,7 +394,7 @@ setMethod("dbBegin", signature(conn = "JDBCConnection"),
 #' @export
 setMethod("dbCommit", signature(conn = "JDBCConnection"),
   function(conn, ...) {
-    jtry(.jcall(conn@j_connection, "V", "commit", check = FALSE))
+    jtry(jcall(conn@j_connection, "V", "commit"))
     invisible(TRUE)
   },
   valueClass = "logical"
@@ -443,8 +443,8 @@ setMethod("dbListResults", signature(conn = "JDBCConnection"),
 setMethod("SQLKeywords", signature(dbObj = "JDBCConnection"),
   function(dbObj, ...) {
     .Deprecated()
-    md <- jtry(.jcall(dbObj@j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData", check = FALSE))
-    keywords <- jtry(.jcall(md, "S", "getSQLKeywords", check = FALSE))
+    md <- jtry(jcall(dbObj@j_connection, "Ljava/sql/DatabaseMetaData;", "getMetaData"))
+    keywords <- jtry(jcall(md, "S", "getSQLKeywords"))
     unique(c(unlist(strsplit(keywords, "\\s*,\\s*")), .SQL92Keywords)) # TODO Java API refers to SQL:2003 keywords
   },
   valueClass = "character"
@@ -476,7 +476,7 @@ setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "characte
 #' @export
 setMethod("dbIsValid", signature(dbObj = "JDBCConnection"),
   function(dbObj, timeout = 0, ...) {
-    !is.jnull(dbObj@j_connection) && jtry(.jcall(dbObj@j_connection, "Z", "isValid", as.integer(timeout), check = FALSE))
+    !is.jnull(dbObj@j_connection) && jtry(jcall(dbObj@j_connection, "Z", "isValid", as.integer(timeout)))
   },
   valueClass = "logical"
 )
