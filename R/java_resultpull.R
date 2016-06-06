@@ -1,8 +1,8 @@
-#' @include JavaUtils.R
-#' @include JDBCMapping.R
+#' @include java_utils.R
+#' @include type_mapping.R
 NULL
 
-#' Create a new JDBCResultPull reference object
+#' Create a new JDBCjava_resultpull.Reference object
 #' @param j_result_set a jobjRef object to a java.sql.ResultSet object
 #' @keywords internal
 create_result_pull <- function(j_result_set) {

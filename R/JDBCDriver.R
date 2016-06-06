@@ -1,8 +1,8 @@
 #' @include JDBCObject.R
-#' @include JavaUtils.R
-#' @include JDBCUtils.R
-#' @include JDBCMapping.R
-#' @include SQLDialect.R
+#' @include java_utils.R
+#' @include java_jdbc_utils.R
+#' @include type_mapping.R
+#' @include sql_dialect.R
 NULL
 
 #' Class JDBCDriver with factory methods.

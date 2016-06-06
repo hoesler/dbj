@@ -1,4 +1,4 @@
-#' @include JDBCSQLTypes.R
+#' @include java_sql_types.R
 NULL
 
 #' Create a JDBCReadConversion object. 

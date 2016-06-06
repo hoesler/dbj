@@ -1,9 +1,9 @@
 #' @include JDBCObject.R
 #' @include JDBCDriver.R
 #' @include JDBCConnectionExtensions.R
-#' @include JavaUtils.R
-#' @include JDBCUtils.R
-#' @include RUtils.R
+#' @include java_utils.R
+#' @include java_jdbc_utils.R
+#' @include r_utils.R
 NULL
 
 #' Class JDBCConnection

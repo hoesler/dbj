@@ -1,6 +1,6 @@
-#' @include JavaUtils.R
-#' @include JDBCSQLTypes.R
-#' @include JDBCMapping.R
+#' @include java_utils.R
+#' @include java_sql_types.R
+#' @include type_mapping.R
 NULL
 
 #' Create a Java JDBC Driver object

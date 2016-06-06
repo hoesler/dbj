@@ -1,4 +1,4 @@
-context("SQLDialect")
+context("sql_dialect")
 
 test_that("We can guess the dialect", {
   # given

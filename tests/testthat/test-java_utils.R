@@ -1,5 +1,4 @@
-# JavaUtils methods
-context("JavaUtils tests")
+context("java_utils tests")
 
 ## jtry
 #######

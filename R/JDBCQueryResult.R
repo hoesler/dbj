@@ -1,5 +1,5 @@
 #' @include JDBCResult.R
-#' @include JavaUtils.R
+#' @include java_utils.R
 NULL
 
 #' JDBCQueryResult class.
