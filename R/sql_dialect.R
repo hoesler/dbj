@@ -84,6 +84,8 @@ generic_clear_table <- function(conn, table, use_delete = FALSE) {
   }
 }
 
+generic_remove_table <- function(conn, name) paste("DROP TABLE", dbQuoteIdentifier(conn, name))
+
 quote_identifier_template <- function(quote_character = "\"") {
   function(conn, x, ...) {
     x <- gsub(quote_character, paste0(quote_character, quote_character), x, fixed = TRUE)
@@ -106,6 +108,7 @@ sql_dialect <- function(
   sql_create_table = generic_create_table,
   sql_append_table = generic_append_table,
   sql_clear_table = generic_clear_table,
+  sql_remove_table = generic_remove_table,
   sql_quote_identifier = generic_quote_identifier,
   sql_quote_string = generic_quote_string) {
 
@@ -120,6 +123,7 @@ sql_dialect <- function(
       sql_create_table = sql_create_table,
       sql_append_table = sql_append_table,
       sql_clear_table = sql_clear_table,
+      sql_remove_table = sql_remove_table,
       sql_quote_identifier = sql_quote_identifier,
       sql_quote_string = sql_quote_string
     ),
