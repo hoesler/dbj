@@ -29,11 +29,11 @@
 
 \S4method{dbSQLDialect}{JDBCConnection}(conn)
 
-\S4method{dbBegin}{JDBCConnection}(conn, ...)
+\S4method{dbBegin}{JDBCConnection}(conn, savepoint_name, ...)
 
-\S4method{dbCommit}{JDBCConnection}(conn, ...)
+\S4method{dbCommit}{JDBCConnection}(conn, savepoint_name = NULL, ...)
 
-\S4method{dbRollback}{JDBCConnection}(conn, ...)
+\S4method{dbRollback}{JDBCConnection}(conn, savepoint_name, ...)
 
 \S4method{dbGetInfo}{JDBCConnection}(dbObj, ...)
 
@@ -59,6 +59,8 @@
 \item{name}{A character string specifying a DBMS table name.}
 
 \item{...}{Arguments passed on to other methods.}
+
+\item{savepoint_name}{The name of the savepoint}
 
 \item{object}{An object of class \code{\linkS4class{JDBCConnection}}}
 
@@ -110,6 +112,8 @@ Class JDBCConnection
 \section{Slots}{
 
 \describe{
+\item{\code{state}}{An environment for mutable states}
+
 \item{\code{j_connection}}{A \code{jobjRef} holding a java.sql.Connection.}
 
 \item{\code{info}}{The connection info list.}

@@ -11,6 +11,7 @@ NULL
 #' @param conn,con,dbObj A \code{\linkS4class{JDBCConnection}} object.
 #' @param ... Arguments passed on to other methods.
 #' 
+#' @slot state An environment for mutable states
 #' @slot j_connection A \code{jobjRef} holding a java.sql.Connection.
 #' @slot info The connection info list.
 #' @slot driver A \code{\linkS4class{JDBCDriver}} object.
@@ -20,6 +21,7 @@ NULL
 #' @export
 JDBCConnection <- setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"),
   slots = c(
+    state = "environment",
     j_connection = "jobjRef",
     info = "list",
     driver = "JDBCDriver",
@@ -37,6 +39,7 @@ setMethod("initialize", "JDBCConnection", function(.Object, j_connection, ...) {
     if (!missing(j_connection)) {
       .Object@info <- connection_info(j_connection)
     }
+    .Object@state$savepoints <- list()
     .Object
   }
 )
@@ -54,7 +57,19 @@ connection_info <- function(j_connection) {
       url = jtry(jcall(j_dbmeta, "S", "getURL")),
       jdbc_driver_name = jtry(jcall(j_dbmeta, "S", "getDriverName")),
       jdbc_driver_version = jtry(jcall(j_dbmeta, "S", "getDriverVersion")),
+
+      feature.savepoints = jtry(jcall(j_dbmeta, "Z", "supportsSavepoints"))
     )
+}
+
+add_savepoint <- function(connection, savepoint_name, j_savepoint) {
+  connection@state$savepoints$savepoint_name <- j_savepoint
+}
+
+remove_savepoint <- function(connection, savepoint_name) {
+  savepoints <- connection@state$savepoints
+  connection@state$savepoints$savepoint_name <- NULL
+  savepoint <- savepoints$savepoint_name
 }
 
 #' Create a JDBC connection.
@@ -332,11 +347,8 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
       stop("Table `", name, "' does not exist and create is FALSE")
     }      
     
-    commit_automatically <- jtry(.jcall(conn@j_connection, "Z", "getAutoCommit", check = FALSE))
-    if (commit_automatically) {
-      jtry(.jcall(conn@j_connection, "V", "setAutoCommit", FALSE, check = FALSE)) # TODO: switch to dbBegin here?
-      on.exit(jtry(.jcall(conn@j_connection, "V", "setAutoCommit", commit_automatically, check = FALSE)))
-    }
+    dbBegin(conn, "dbWriteTable")
+    on.exit(dbRollback(conn, "dbWriteTable"))
     
     if (!table_exists && create) {
       sql <- with(dbSQLDialect(conn), sql_create_table(conn, name, value, temporary = temporary, row.names = row.names))
@@ -362,10 +374,9 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
         stop("Data could not be appended")
       }
     }
-    
-    if (commit_automatically) {
-      dbCommit(conn) 
-    }
+
+    on.exit(NULL)
+    dbCommit(conn, "dbWriteTable")
 
     invisible(TRUE)           
   },
@@ -381,10 +392,17 @@ setMethod("dbSQLDialect", signature(conn = "JDBCConnection"),
 )
 
 #' @describeIn JDBCConnection Begin a transaction
+#' @param savepoint_name The name of the savepoint
 #' @export
 setMethod("dbBegin", signature(conn = "JDBCConnection"),
-  function(conn, ...) {
-    jtry(.jcall(conn@j_connection, "V", "setAutoCommit", FALSE, check = FALSE))
+  function(conn, savepoint_name, ...) {
+    jtry(jcall(conn@j_connection, "V", "setAutoCommit", FALSE))
+    if (dbGetInfo(conn)$feature.savepoints) {
+      j_savepoint <- jtry(jcall(conn@j_connection, "Ljava/sql/Savepoint;", "setSavepoint", savepoint_name))
+      add_savepoint(conn, savepoint_name, j_savepoint)      
+    } else {
+      warning("Savepoints are not supported")
+    }
     invisible(TRUE)
   },
   valueClass = "logical"
@@ -393,8 +411,12 @@ setMethod("dbBegin", signature(conn = "JDBCConnection"),
 #' @describeIn JDBCConnection Commit a transaction
 #' @export
 setMethod("dbCommit", signature(conn = "JDBCConnection"),
-  function(conn, ...) {
+  function(conn, savepoint_name = NULL, ...) {
+    if (!is.null(savepoint_name)) {
+      remove_savepoint(conn, savepoint_name)
+    }
     jtry(jcall(conn@j_connection, "V", "commit"))
+    jtry(jcall(conn@j_connection, "V", "setAutoCommit", TRUE))
     invisible(TRUE)
   },
   valueClass = "logical"
@@ -403,8 +425,14 @@ setMethod("dbCommit", signature(conn = "JDBCConnection"),
 #' @describeIn JDBCConnection Rollback a transaction
 #' @export
 setMethod("dbRollback", signature(conn = "JDBCConnection"), 
-  function(conn, ...) {
-    jtry(.jcall(conn@j_connection, "V", "rollback", check = FALSE))
+  function(conn, savepoint_name, ...) {
+    j_savepoint <- remove_savepoint(conn, savepoint_name)
+    if (!is.null(j_savepoint)) {
+      jtry(jcall(conn@j_connection, "V", "rollback", j_savepoint))
+    } else {
+      jtry(jcall(conn@j_connection, "V", "rollback"))
+    }
+    jtry(jcall(conn@j_connection, "V", "setAutoCommit", TRUE))
     invisible(TRUE)
   },
   valueClass = "logical"
