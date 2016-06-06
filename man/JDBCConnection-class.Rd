@@ -81,7 +81,7 @@ Class JDBCConnection
 \itemize{
 \item \code{dbExistsTable}: Does a table exist?
 
-\item \code{dbRemoveTable}: Executes the SQL \code{DROP TABLE}.
+\item \code{dbRemoveTable}: Executes \code{sql_remove_table} from \code{dbSQLDialect(conn)}.
 
 \item \code{dbReadTable}: Copy data frames from database.
 

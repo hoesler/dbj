@@ -258,15 +258,12 @@ setMethod("dbExistsTable", signature(conn = "JDBCConnection", name = "character"
   }
 )
 
-#' @describeIn JDBCConnection Executes the SQL \code{DROP TABLE}.
+#' @describeIn JDBCConnection Executes \code{sql_remove_table} from \code{dbSQLDialect(conn)}.
 #' @export
 setMethod("dbRemoveTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
     sql <- with(dbSQLDialect(conn), sql_remove_table(conn, name, ...))
-    table_was_removed <- dbSendUpdate(conn, sql)
-    if (!table_was_removed) {
-      stop("Table could not be removed")
-    }
+    dbSendUpdate(conn, sql)
   }
 )
 
