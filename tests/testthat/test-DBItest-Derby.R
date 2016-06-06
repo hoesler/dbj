@@ -1,6 +1,7 @@
 derby_driver_class <- 'org.apache.derby.jdbc.EmbeddedDriver'
 derby_classpath <- resolve(
-  module('org.apache.derby:derby:10.12.1.1')
+  module('org.apache.derby:derby:10.12.1.1'),
+  repositories = list(maven_local, maven_central)
 )
 
 DBItest::make_context(

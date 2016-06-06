@@ -2,15 +2,9 @@
 % Please edit documentation in R/java_dependencies.R
 \name{fetch_module}
 \alias{fetch_module}
-\alias{fetch_module.maven_local_repository}
-\alias{fetch_module.maven_remote_repository}
 \title{Fetch a module from repository and make the jar locally available.}
 \usage{
 fetch_module(repository, module, ...)
-
-\method{fetch_module}{maven_remote_repository}(repository, module, ...)
-
-\method{fetch_module}{maven_local_repository}(repository, module, ...)
 }
 \arguments{
 \item{repository}{The repository to search in.}
@@ -25,10 +19,4 @@ The path to the local version of the jar file or NULL if the module is not in th
 \description{
 Fetch a module from repository and make the jar locally available.
 }
-\section{Methods (by class)}{
-\itemize{
-\item \code{maven_remote_repository}: Get the module from the given \code{maven_remote_repository}.
-
-\item \code{maven_local_repository}: Get the module from the given \code{maven_local_repository}.
-}}
 

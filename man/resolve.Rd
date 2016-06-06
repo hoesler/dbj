@@ -4,12 +4,11 @@
 \alias{resolve}
 \alias{resolve.character}
 \alias{resolve.module}
-\title{Generic to resove a module or file.}
+\title{Generic to resolve a module or file.}
 \usage{
 resolve(what, ...)
 
-\method{resolve}{module}(what, repositories = list(maven_local,
-  maven_central), ...)
+\method{resolve}{module}(what, repositories, ...)
 
 \method{resolve}{character}(what, ...)
 }
@@ -21,11 +20,12 @@ resolve(what, ...)
 \item{repositories}{A list of repositories to search in.}
 }
 \description{
-Generic to resove a module or file.
+Generic to resolve a module or file.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{module}: Tries to resolve the module \code{what} in one of the given \code{repositories}, installs it, and returns the local path.
+\item \code{module}: Tries to resolve the module \code{what} in one of the given \code{repositories},
+installs it, and returns the local path.
 
 \item \code{character}: Checks if \code{what} is a valid path to a file and returns \code{what}.
 }}

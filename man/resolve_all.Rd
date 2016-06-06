@@ -5,7 +5,7 @@
 \alias{resolve_all}
 \title{Resolve a set of module definitions.}
 \usage{
-resolve_all(..., repositories = list(maven_local, maven_central))
+resolve_all(..., repositories)
 
 as_classpath(paths)
 }
@@ -17,6 +17,6 @@ as_classpath(paths)
 \item{paths}{A character vector of paths, as returned by \code{resolve_all}}
 }
 \description{
-\code{java_classpath} additionally concats the resolved paths by the OS path separator.
+\code{java_classpath} additionally concatenates the resolved paths by the OS path separator.
 }
 

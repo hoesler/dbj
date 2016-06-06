@@ -39,5 +39,6 @@ Collate:
     'JDBCUpdateResult.R'
     'dbj.R'
     'java_dependencies.R'
+    'java_dependencies_maven.R'
     'java_resultpull.R'
 RoxygenNote: 5.0.1
