@@ -41,8 +41,7 @@ setMethod("fetch", signature(res = "JDBCUpdateResult", n = "missing"),
 setMethod("dbClearResult", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
     invisible(TRUE)
-  },
-  valueClass = "logical"
+  }
 )
 
 #' @describeIn JDBCUpdateResult Unsupported
@@ -50,8 +49,7 @@ setMethod("dbClearResult", signature(res = "JDBCUpdateResult"),
 setMethod("dbColumnInfo", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
     stop("dbColumnInfo is unsupported in JDBCUpdateResult")    
-  },
-  valueClass = "data.frame"
+  }
 )
 
 #' @describeIn JDBCUpdateResult Unsupported
@@ -59,8 +57,7 @@ setMethod("dbColumnInfo", signature(res = "JDBCUpdateResult"),
 setMethod("dbGetRowCount", signature(res = "JDBCUpdateResult"),
   function(res, ...) {
     0
-  },
-  valueClass = "numeric"
+  }
 )
 
 #' @describeIn JDBCUpdateResult Get info
@@ -72,8 +69,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCUpdateResult"),
       is.select = FALSE
     )
     c(default_list, supplements)
-  },
-  valueClass = "list"
+  }
 )
 
 #' @describeIn JDBCUpdateResult Is always \code{TRUE}.
@@ -81,8 +77,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCUpdateResult"),
 setMethod("dbIsValid", signature(dbObj = "JDBCUpdateResult"),
   function(dbObj, ...) {
     TRUE
-  },
-  valueClass = "logical"
+  }
 )
 
 #' @rdname JDBCUpdateResult-class

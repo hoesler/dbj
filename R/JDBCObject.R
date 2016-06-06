@@ -23,6 +23,5 @@ setMethod("dbDataType", signature(dbObj = "JDBCObject"),
     drv <- dbGetDriver(dbObj)
     assert_that(is(drv, "JDBCDriver"))
     dbDataType(drv, obj)
-  },
-  valueClass = "character"
+  }
 )

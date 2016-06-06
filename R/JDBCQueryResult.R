@@ -124,8 +124,7 @@ setMethod("dbClearResult", signature(res = "JDBCQueryResult"),
       warning("Result has already been closed")
     }
     invisible(TRUE)
-  },
-  valueClass = "logical"
+  }
 )
 
 #' @section Methods:
@@ -192,8 +191,7 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
     }
 
     as.data.frame(column_info, row.names = seq(column_count), stringsAsFactors = FALSE)   
-  },
-  valueClass = "data.frame"
+  }
 )
 
 #' @rdname JDBCQueryResult-class
@@ -203,8 +201,7 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
 setMethod("dbGetRowCount", signature(res = "JDBCQueryResult"),
   function(res, ...) {
     res@state$row_count
-  },
-  valueClass = "numeric"
+  }
 )
 
 #' @rdname JDBCQueryResult-class
@@ -214,8 +211,7 @@ setMethod("dbGetRowCount", signature(res = "JDBCQueryResult"),
 setMethod("dbGetRowsAffected", signature(res = "JDBCQueryResult"),
   function(res, ...) {
     .NotYetImplemented()
-  },
-  valueClass = "numeric"
+  }
 )
 
 #' @rdname JDBCQueryResult-class
@@ -241,8 +237,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCQueryResult"),
       is.select = TRUE
     )
     c(default_list, supplements)
-  },
-  valueClass = "list"
+  }
 )
 
 #' @rdname JDBCQueryResult-class
@@ -253,8 +248,7 @@ setMethod("dbIsValid", signature(dbObj = "JDBCQueryResult"),
   function(dbObj, ...) {
     closed <- jtry(jcall(dbObj@j_result_set, "Z", "isClosed"))
     return(!closed)
-  },
-  valueClass = "logical"
+  }
 )
 
 checkValid <- function(res) {
@@ -273,8 +267,7 @@ checkValid <- function(res) {
 setMethod("dbListFields", signature(conn = "JDBCQueryResult", name = "missing"),
   function(conn, name, ...) {
     dbColumnInfo(conn, "name")$name
-  },
-  valueClass = "character"
+  }
 )
 
 #' @rdname JDBCQueryResult-class

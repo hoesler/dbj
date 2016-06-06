@@ -109,8 +109,7 @@ setMethod("dbListConnections", signature(drv = "JDBCDriver"),
 setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
   function(drv, ...) {
     invisible(TRUE)
-  },
-  valueClass = "logical"
+  }
 )
 
 #' Create a JDBC connection.
@@ -125,8 +124,7 @@ setMethod("dbConnect", signature(drv = "JDBCDriver"),
   function(drv, url, user = '', password = '', ...) {
     j_con <- create_jdbc_connection(drv@j_drv, url, user, password, ...)
     drv@create_new_connection(j_con, drv)
-  },
-  valueClass = "JDBCConnection"
+  }
 )
 
 #' @describeIn JDBCDriver Returns a list with \code{driver.version}, \code{client.version} and \code{max.connections}.
@@ -152,8 +150,7 @@ setMethod("dbGetDriver", signature(dbObj = "JDBCDriver"),
 setMethod("dbDataType", signature(dbObj = "JDBCDriver"),
   function(dbObj, obj, ...) {
     toSQLDataType(obj, dbObj@write_conversions)
-  },
-  valueClass = "character"
+  }
 )
 
 #' @describeIn JDBCDriver always \code{TRUE}.
@@ -161,8 +158,7 @@ setMethod("dbDataType", signature(dbObj = "JDBCDriver"),
 setMethod("dbIsValid", signature(dbObj = "JDBCDriver"),
   function(dbObj, ...) {
     TRUE
-  },
-  valueClass = "logical"
+  }
 )
 
 #' @describeIn JDBCDriver Prints a short info about the driver.

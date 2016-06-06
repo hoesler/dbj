@@ -83,8 +83,7 @@ setMethod("dbConnect", signature(drv = "JDBCConnection"),
   function(drv, password = "", ...) {
     info <- dbGetInfo(drv)
     dbConnect(dbGetDriver(drv), info$url, info$user_name, password)
-  },
-  valueClass = "JDBCConnection"
+  }
 )
 
 #' Marked as deprecated in DBI
@@ -109,8 +108,7 @@ setMethod("dbCallProc", signature(conn = "JDBCConnection"),
     insert_parameters(j_prepared_statement, parameters, dbGetDriver(conn)@write_conversions)
     execute_update(j_prepared_statement)
     invisible(TRUE)
-  },
-  valueClass = "logical"
+  }
 )
 
 #' Disconnect (close) a connection
@@ -127,8 +125,7 @@ setMethod("dbDisconnect", signature(conn = "JDBCConnection"),
       warning("Connection has already been closed") # required by DBItest
     }
     invisible(TRUE)
-  },
-  valueClass = "logical"
+  }
 )
 
 #' Execute a SQL statement on a database connection
@@ -233,8 +230,7 @@ setMethod("dbListTables", signature(conn = "JDBCConnection"),
   function(conn, pattern = "%", ...) {
     tables <- dbGetTables(conn, pattern, ...)
     as.character(tables$TABLE_NAME)
-  },
-  valueClass = "character"
+  }
 )
 
 #' @param pattern the pattern for table names
@@ -249,8 +245,7 @@ setMethod("dbGetTables", signature(conn = "JDBCConnection"),
                 .jnull("java/lang/String"), pattern, .jnull("[Ljava/lang/String;"), check = FALSE),
       jstop, "Unable to retrieve JDBC tables list")    
     fetch_all(j_result_set, conn)
-  },
-  valueClass = "data.frame"
+  }
 )
 
 #' @describeIn JDBCConnection Does a table exist?
@@ -260,8 +255,7 @@ setMethod("dbExistsTable", signature(conn = "JDBCConnection", name = "character"
   function(conn, name, ...) {
     tables <- dbListTables(conn, name, ...)
     length(tables) > 0
-  },
-  valueClass = "logical"
+  }
 )
 
 #' @describeIn JDBCConnection Executes the SQL \code{DROP TABLE}.
@@ -269,8 +263,7 @@ setMethod("dbExistsTable", signature(conn = "JDBCConnection", name = "character"
 setMethod("dbRemoveTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
     dbSendUpdate(conn, paste("DROP TABLE", dbQuoteIdentifier(conn, name)))
-  },
-  valueClass = "logical"
+  }
 )
 
 #' List field names in specified table.
@@ -284,8 +277,7 @@ setMethod("dbRemoveTable", signature(conn = "JDBCConnection", name = "character"
 setMethod("dbListFields", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, pattern = "%", ...) {
     dbGetFields(conn, name, pattern, ...)$COLUMN_NAME
-  },
-  valueClass = "data.frame"
+  }
 )
 
 #' @param conn A \code{\linkS4class{JDBCConnection}} object, as produced by
@@ -303,8 +295,7 @@ setMethod("dbGetFields", signature(conn = "JDBCConnection"),
         .jnull("java/lang/String"), .jnull("java/lang/String"), name, pattern, check = FALSE),
       jstop, "Unable to retrieve JDBC columns list for ", name)
     fetch_all(j_result_set, conn)
-  },
-  valueClass = "data.frame"
+  }
 )
 
 #' @describeIn JDBCConnection Copy data frames from database.
@@ -312,8 +303,7 @@ setMethod("dbGetFields", signature(conn = "JDBCConnection"),
 setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
     dbGetQuery(conn, paste("SELECT * FROM", dbQuoteIdentifier(conn, name)))
-  },
-  valueClass = "data.frame"
+  }
 )
 
 #' Write a local data frame or file to the database.
@@ -379,8 +369,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     dbCommit(conn, "dbWriteTable")
 
     invisible(TRUE)           
-  },
-  valueClass = "logical"
+  }
 )
 
 #' @describeIn JDBCConnection Get the current dialect
@@ -443,8 +432,7 @@ setMethod("dbRollback", signature(conn = "JDBCConnection"),
 setMethod("dbGetInfo", signature(dbObj = "JDBCConnection"),
   function(dbObj, ...) {
     dbObj@info
-  },
-  valueClass = "list"
+  }
 )
 
 #' @describeIn JDBCConnection Not implemented. Returns an empty list.
@@ -453,8 +441,7 @@ setMethod("dbGetException", signature(conn = "JDBCConnection"),
   function(conn, ...) {
     warning("Not implemented. Returns an empty list.")
     list(errNum = "", errMsg = "")
-  },
-  valueClass = "list"
+  }
 )
 
 #' @describeIn JDBCConnection Returns an empty \code{list} as JDBC maintains no list of active results.
@@ -505,8 +492,7 @@ setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "characte
 setMethod("dbIsValid", signature(dbObj = "JDBCConnection"),
   function(dbObj, timeout = 0, ...) {
     !is.jnull(dbObj@j_connection) && jtry(jcall(dbObj@j_connection, "Z", "isValid", as.integer(timeout)))
-  },
-  valueClass = "logical"
+  }
 )
 
 #' Quote an identifier using the \code{sql_quote_identifier} function defined in the Drivers \code{sql_dialect} evironment.  
