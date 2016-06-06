@@ -17,9 +17,11 @@ default_write_conversions
 \arguments{
 \item{condition}{a function which accepts a list and returns a logical.}
 
-\item{conversion}{a function which accepts a data frame column vector and returns it transformed into a vector of a transfer data type.}
+\item{conversion}{a function which accepts a data frame column vector and returns it transformed
+into a vector of a transfer data type.}
 
-\item{create_type}{a character vector of length 1 which holds a sql type name used to store data which sattisfies the given condition.}
+\item{create_type}{a character vector of length 1 which holds a sql type name used to store data
+which sattisfies the given condition.}
 
 \item{class_names}{a character vector of class names}
 }

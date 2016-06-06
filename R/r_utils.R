@@ -1,6 +1,7 @@
 #' Partition data into chunks.
 #' 
-#' Partition a vector, list matrix or data.frame into a list of vectors, lists, matrices or data.frames respectively,
+#' Partition a vector, list matrix or data.frame into a list of vectors,
+#' lists, matrices or data.frames respectively,
 #' each of the same size (last might be smaller).
 #' 
 #' @param data the data to partition

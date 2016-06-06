@@ -10,7 +10,9 @@
 \arguments{
 \item{dbObj}{A subclass of DBIConnection, representing an active connection to an DBMS.}
 
-\item{timeout}{The time in seconds to wait for the database operation used to validate the connection to complete. If the timeout period expires before the operation completes, this method returns false. A value of 0 indicates a timeout is not applied to the database operation.}
+\item{timeout}{The time in seconds to wait for the database operation used to validate the connection to complete.
+If the timeout period expires before the operation completes, this method returns false.
+A value of 0 indicates a timeout is not applied to the database operation.}
 
 \item{...}{Ignored. Included for compatibility with generic.}
 }

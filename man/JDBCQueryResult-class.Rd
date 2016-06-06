@@ -77,7 +77,8 @@ JDBCQueryResult class.
 \code{fetch}: Fetch n results
 
 
-\code{dbColumnInfo}: Get info about the result set data types. Returns a data.frame with one row per output field in \code{res}.
+\code{dbColumnInfo}: Get info about the result set data types.
+  Returns a data.frame with one row per output field in \code{res}.
   Includes \code{name}, \code{field.type} (the SQL type)
   and \code{data.type} (the R data type) columns for the default what.
   Additionally, \code{label} (The field label)

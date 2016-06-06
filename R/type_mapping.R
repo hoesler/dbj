@@ -5,7 +5,8 @@ NULL
 #' 
 #' @param condition a function which accepts a list and returns a logical
 #' @param r_class the target class of the conversion
-#' @param conversion a function which accepts a data frame column vector and returns it transformed into a vector of a transfer data type.
+#' @param conversion a function which accepts a data frame column vector
+#'                   and returns it transformed into a vector of a transfer data type.
 #' 
 #' @export
 #' @family conversion functions
@@ -98,8 +99,10 @@ default_read_conversions <- list(
 #' Create a JDBCWriteConversion object. 
 #' 
 #' @param condition a function which accepts a list and returns a logical.
-#' @param conversion a function which accepts a data frame column vector and returns it transformed into a vector of a transfer data type.
-#' @param create_type a character vector of length 1 which holds a sql type name used to store data which sattisfies the given condition.
+#' @param conversion a function which accepts a data frame column vector and returns it transformed
+#'                    into a vector of a transfer data type.
+#' @param create_type a character vector of length 1 which holds a sql type name used to store data
+#'                    which sattisfies the given condition.
 #' 
 #' @export
 #' @family conversion functions

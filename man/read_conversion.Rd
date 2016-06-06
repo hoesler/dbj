@@ -19,7 +19,8 @@ default_read_conversions
 
 \item{r_class}{the target class of the conversion}
 
-\item{conversion}{a function which accepts a data frame column vector and returns it transformed into a vector of a transfer data type.}
+\item{conversion}{a function which accepts a data frame column vector
+and returns it transformed into a vector of a transfer data type.}
 
 \item{sql_types}{a numeric vector of JDBC_SQL_TYPES}
 }

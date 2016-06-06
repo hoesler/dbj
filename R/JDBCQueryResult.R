@@ -73,7 +73,10 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
 
     chunks <- list()
     repeat {    
-      fetched <- resultpull_fetch(res@j_result_pull, stride, column_info, dbGetDriver(res)@read_conversions, fetch_size) 
+      fetched <- resultpull_fetch(
+        res@j_result_pull, stride, column_info,
+        dbGetDriver(res)@read_conversions, fetch_size) 
+      
       chunks <- c(chunks, list(fetched))  
 
       if (nrow(fetched) < stride) {
@@ -128,7 +131,8 @@ setMethod("dbClearResult", signature(res = "JDBCQueryResult"),
 )
 
 #' @section Methods:
-#' \code{dbColumnInfo}: Get info about the result set data types. Returns a data.frame with one row per output field in \code{res}.
+#' \code{dbColumnInfo}: Get info about the result set data types.
+#'   Returns a data.frame with one row per output field in \code{res}.
 #'   Includes \code{name}, \code{field.type} (the SQL type)
 #'   and \code{data.type} (the R data type) columns for the default what.
 #'   Additionally, \code{label} (The field label)
@@ -174,7 +178,9 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
         } else {
           jdbc_rsmeta_column_type(res@j_result_set_meta, i)
         }
-        read_conversions[sapply(read_conversions, function (x) { x$condition(list("jdbc.type" = jdbc.type)) })][[1]]$r_class
+        read_conversions[sapply(read_conversions, function (x) {
+          x$condition(list("jdbc.type" = jdbc.type))
+        })][[1]]$r_class
       }, "")))
     }
 

@@ -96,11 +96,15 @@ quote_identifier_template <- function(quote_character = "\"") {
 
 #' @rdname sql_dialect
 #' @export
-generic_quote_identifier <- getMethod("dbQuoteIdentifier", signature = c("DBIConnection", "character"), where = asNamespace('DBI'))@.Data
+generic_quote_identifier <- getMethod("dbQuoteIdentifier",
+  signature = c("DBIConnection", "character"),
+  where = asNamespace('DBI'))@.Data
 
 #' @rdname sql_dialect
 #' @export
-generic_quote_string <- getMethod("dbQuoteString", signature = c("DBIConnection", "character"), where = asNamespace('DBI'))@.Data
+generic_quote_string <- getMethod("dbQuoteString",
+  signature = c("DBIConnection", "character"),
+  where = asNamespace('DBI'))@.Data
 
 #' @rdname sql_dialect
 #' @export

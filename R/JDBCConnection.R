@@ -290,7 +290,8 @@ setMethod("dbSQLDialect", signature(conn = "JDBCConnection"),
   }
 )
 
-#' @describeIn JDBCConnection Returns a list with \code{dbname}, \code{db.version}, \code{username}, \code{jdbc_driver_name}, \code{jdbc_driver_version}, \code{url}, \code{host} and \code{port}.
+#' @describeIn JDBCConnection Returns a list with \code{dbname}, \code{db.version}, \code{username},
+#'             \code{jdbc_driver_name}, \code{jdbc_driver_version}, \code{url}, \code{host} and \code{port}.
 #' @export
 setMethod("dbGetInfo", signature(dbObj = "JDBCConnection"),
   function(dbObj, ...) {
@@ -336,7 +337,9 @@ setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "characte
 
 #' dbIsValid
 #' @param dbObj A subclass of DBIConnection, representing an active connection to an DBMS.
-#' @param timeout The time in seconds to wait for the database operation used to validate the connection to complete. If the timeout period expires before the operation completes, this method returns false. A value of 0 indicates a timeout is not applied to the database operation.
+#' @param timeout The time in seconds to wait for the database operation used to validate the connection to complete.
+#'                If the timeout period expires before the operation completes, this method returns false.
+#'                A value of 0 indicates a timeout is not applied to the database operation.
 #' @param ... Ignored. Included for compatibility with generic.
 #' @export
 setMethod("dbIsValid", signature(dbObj = "JDBCConnection"),

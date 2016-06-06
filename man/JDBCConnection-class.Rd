@@ -73,7 +73,8 @@ Class JDBCConnection
 
 \item \code{dbSQLDialect}: Get the current dialect
 
-\item \code{dbGetInfo}: Returns a list with \code{dbname}, \code{db.version}, \code{username}, \code{jdbc_driver_name}, \code{jdbc_driver_version}, \code{url}, \code{host} and \code{port}.
+\item \code{dbGetInfo}: Returns a list with \code{dbname}, \code{db.version}, \code{username},
+\code{jdbc_driver_name}, \code{jdbc_driver_version}, \code{url}, \code{host} and \code{port}.
 
 \item \code{dbGetException}: Not implemented. Returns an empty list.
 
