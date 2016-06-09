@@ -1,13 +1,11 @@
 #' @include JDBCObject.R
 NULL
 
-#' JDBCResult class.
+#' JDBCResult class
 #' 
-#' Base class for \code{linkS4class{JDBCQueryResult}} and \code{linkS4class{JDBCUpdateResult}}.
-#' @param res A \code{\linkS4class{JDBCResult}} object.
-#' @param params A list of bindings.
-#' @param ... Ignored. Needed for compatibility with generic.
-#'
+#' Base class for \code{\linkS4class{JDBCQueryResult}} and \code{\linkS4class{JDBCUpdateResult}}.
+#' 
+#' @family result classes
 #' @export
 setClass("JDBCResult",
   contains = c("DBIResult", "JDBCObject", "VIRTUAL"))
@@ -24,11 +22,24 @@ RESULT_SET_CONCURRENCY <- list(
 )
 
 #' @rdname JDBCResult-class
+#' @aliases dbBind,JDBCResult-method
+#' @param res An object inheriting from \code{\linkS4class{JDBCResult}}
+#' @inheritParams DBI::dbBind
 #' @section Methods:
-#' \code{dbBind}: Unsupported. Use parameter binding of dbSendQuery-JDBCConnection-character-method instead.
+#' \code{dbBind}: Unsupported. Use parameter binding of \code{\link{dbSendQuery,JDBCConnection,character-method}} instead.
 #' @export
 setMethod("dbBind", signature(res = "JDBCResult"),
   function(res, params, ...) {
     stop("Unsupported. Use parameter binding of dbSendQuery instead.")
   }
 )
+
+#' @rdname JDBCResult-class
+#' @aliases fetch,JDBCResult-method
+#' @inheritParams DBI::fetch
+#' @section Methods:
+#' \code{fetch}: Forwards to \code{\link{dbFetch}}.
+#' @export
+setMethod("fetch", signature(res = "JDBCResult"), function(res, n = -1, ...) {
+  dbFetch(res, n = n, ...)
+})

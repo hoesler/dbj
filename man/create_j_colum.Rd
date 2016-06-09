@@ -18,4 +18,5 @@ create_j_colum(column_data, sql_type, is_nullable, write_conversions)
 \description{
 Create a Java Column class for given column_data
 }
+\keyword{internal}
 

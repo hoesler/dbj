@@ -6,7 +6,7 @@
 \alias{dbCommit,JDBCConnection-method}
 \alias{dbRollback,JDBCConnection-method}
 \alias{jdbc-transaction}
-\title{JDBC transaction management.}
+\title{JDBC transaction management}
 \usage{
 \S4method{dbBegin}{JDBCConnection}(conn, savepoint_name = NULL)
 
@@ -25,6 +25,12 @@ nest multiple transaction}
 A boolean, indicating success or failure.
 }
 \description{
-JDBC transaction management.
+By default, dbj is in auto-commit mode. \code{dbBegin} starts
+a transaction and turns auto-commit off. \code{dbCommit} and
+\code{dbRollback} commit and rollback the transaction, respectively and turn
+auto-commit on.
+}
+\details{
+If the database supports savepoints (\code{feature.savepoints} in \link{dbGetInfo} is \code{TRUE})
 }
 

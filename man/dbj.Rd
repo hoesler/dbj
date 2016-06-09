@@ -6,6 +6,6 @@
 \alias{dbj-package}
 \title{A DBI implementation using JDBC over rJava.}
 \description{
-A DBI implementation using JDBC over rJava.
+Start with \code{\link{driver}} to create a new database driver.
 }
 

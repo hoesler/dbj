@@ -2,7 +2,8 @@
 % Please edit documentation in R/java_dependencies.R
 \name{fetch_module}
 \alias{fetch_module}
-\title{Fetch a module from repository and make the jar locally available.}
+\alias{repository}
+\title{Fetch a module from a repository}
 \usage{
 fetch_module(repository, module, ...)
 }
@@ -17,6 +18,10 @@ fetch_module(repository, module, ...)
 The path to the local version of the jar file or NULL if the module is not in the repository.
 }
 \description{
-Fetch a module from repository and make the jar locally available.
+Classes which support \code{fetch_module} should locate the given \code{module} and make it locally available.
+}
+\seealso{
+Other java dependency functions: \code{\link{maven_repository}},
+  \code{\link{module}}, \code{\link{resolve}}
 }
 

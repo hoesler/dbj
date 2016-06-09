@@ -5,9 +5,9 @@ NULL
 
 #' Create a Java JDBC Driver object
 #' 
-#' @param driverClass the Java class name of the JDBC driver to use
-#' @param classPath a string of paths separated by \code{path.sep} variable in \code{\link{.Platform}}
-#'                  which should get added to the classpath (see \link[rJava]{.jaddClassPath})
+#' @param driverClass a character vector of length one specifying a JDBC driver class (e.g. 'org.h2.Driver')
+#' @param classPath a character vector of length one specifying classpaths separated by \code{\link[=.Platform]{path.sep}}
+#'  or a character vector of classpaths which will be added to the \code{\link[=.jaddClassPath]{rJava class loader}}
 #' @export
 #' @keywords internal
 create_jdbc_driver <- function(driverClass, classPath) {
@@ -27,41 +27,23 @@ create_jdbc_driver <- function(driverClass, classPath) {
   j_drv
 }
 
-#' Create a Java JDBC Connection object
+#' Establish a JDBC Connection
 #' 
-#' @param j_drv The Java driver object
-#' @param url the URL to connect to
+#' @param j_drv the Java driver object
+#' @param url the URL of the form \code{jdbc:subprotocol:subname}
 #' @param user the user to log in
-#' @param password the users password
-#' @param ... named values which get transformed into key-value pairs of a 
-#'            Java Properties object which is passed to the connect method.
+#' @param password the user's password
+#' @param ... additional connection arguments
+#' @return a jObjRef referencing a java.sql.Connection
 #' @keywords internal
 create_jdbc_connection <- function(j_drv, url, user, password, ...) {
-  j_con <- jtry(
-    .jcall("java/sql/DriverManager", "Ljava/sql/Connection;", "getConnection",
-      as.character(url)[1], as.character(user)[1], as.character(password)[1],
-      check = FALSE),
-    onError = function(j_exception, expression, ...) {
-      message <- .jcall(j_exception, "S", "toString")
-      warning("Failed to connect: ", message)
-    }
-  )
-  
-  if (is.jnull(j_con) && !is.jnull(j_drv)) {
-    # ok one reason for this to fail is its interaction with rJava's
-    # class loader. In that case we try to load the driver directly.
-    oex <- .jgetEx(TRUE)
-    p <- .jnew("java/util/Properties")
-    if (length(user) == 1 && nchar(user)) .jcall(p, "Ljava/lang/Object;", "setProperty", "user",user)
-    if (length(password) == 1 && nchar(password)) .jcall(p, "Ljava/lang/Object;", "setProperty", "password",password)
-    l <- list(...)
-    if (length(names(l))) for (n in names(l)) .jcall(p, "Ljava/lang/Object;", "setProperty", n, as.character(l[[n]]))
-    j_con <- jtry(jcall(j_drv, "Ljava/sql/Connection;", "connect", as.character(url)[1], p))
-  }
-
-  verifyNotNull(j_con, "Unable to connect JDBC to ", url)
-
-  j_con
+  j_properties <- jtry(jnew("java/util/Properties"))    
+  properties <- c(user = user, password = password, list(...))
+  for (key in names(properties)) {
+    value <- as.character(properties[[key]])
+    jtry(jcall(j_properties, "Ljava/lang/Object;", "setProperty", key, value))
+  } 
+  jtry(jcall("java/sql/DriverManager", "Ljava/sql/Connection;", "getConnection", url, j_properties))
 }
 
 #' Set the values of prepared statement.
@@ -76,8 +58,8 @@ insert_parameters <- function(j_statement, parameter_list, write_conversions) {
   if (length(parameter_list) > 0) {
     j_table <- create_j_table(j_statement, as.data.frame(parameter_list, stringsAsFactors = FALSE), write_conversions)
 
-    jtry(.jcall("com/github/hoesler/dbj/PreparedStatements", "V", "insert",
-      .jcast(j_statement, "java/sql/PreparedStatement"), .jcast(j_table, "com/github/hoesler/dbj/Table"), as.integer(0), check = FALSE))
+    jtry(jcall("com/github/hoesler/dbj/PreparedStatements", "V", "insert",
+      .jcast(j_statement, "java/sql/PreparedStatement"), .jcast(j_table, "com/github/hoesler/dbj/Table"), as.integer(0)))
   }
   invisible(NULL)
 }
@@ -101,8 +83,8 @@ prepare_call <- function(conn, statement,
   assert_that(is.integer(result_set_type))
   assert_that(is.integer(result_set_concurrency))
 
-  jtry(.jcall(conn@j_connection, "Ljava/sql/CallableStatement;", "prepareCall",
-    statement, result_set_type, result_set_concurrency, check = FALSE))
+  jtry(jcall(conn@j_connection, "Ljava/sql/CallableStatement;", "prepareCall",
+    statement, result_set_type, result_set_concurrency))
 }
 
 prepare_statement <- function(conn, statement,
@@ -164,6 +146,7 @@ create_j_table <- function(j_statement, data, write_conversions) {
 #' @param sql_type the type of the column
 #' @param is_nullable is the column nullable? 0 = disallows NULL, 1 = allows NULL, 2 = unknown
 #' @param write_conversions a list of JDBCWriteConversion objects
+#' @keywords internal
 create_j_colum <- function(column_data, sql_type, is_nullable, write_conversions) {
   converted_column_data <- convert_to_transfer(write_conversions, column_data, list(sql_type = sql_type, class_names = class(column_data)))
   

@@ -3,23 +3,34 @@
 \docType{methods}
 \name{dbConnect,JDBCDriver-method}
 \alias{dbConnect,JDBCDriver-method}
-\title{Create a JDBC connection.}
+\title{Connect to a database}
 \usage{
 \S4method{dbConnect}{JDBCDriver}(drv, url, user = "", password = "", ...)
 }
 \arguments{
 \item{drv}{An object of class \code{\linkS4class{JDBCDriver}}}
 
-\item{url}{the url to connect to}
+\item{url}{the URL of the form \code{jdbc:subprotocol:subname}}
 
 \item{user}{the user to log in}
 
-\item{password}{the users password}
+\item{password}{the user's password}
 
-\item{...}{named values which transformed into key-value pairs of of a Java Properties
-object which is passed to the connect method.}
+\item{...}{additional connection arguments}
 }
 \description{
-Create a JDBC connection.
+Connect to a database using a
+\href{https://docs.oracle.com/javase/tutorial/jdbc/basics/connecting.html#db_connection_url}{JDBC URL}.
+}
+\examples{
+\dontrun{
+drv <- dbj::driver('org.h2.Driver', '~/h2.jar')
+con <- dbConnect(drv, 'jdbc:h2:mem:', 'sa', 'sa')
+}
+}
+\seealso{
+Other connection functions: \code{\link{JDBCDriver-class}},
+  \code{\link{dbConnect,JDBCConnection-method}},
+  \code{\link{dbDisconnect,JDBCConnection-method}}
 }
 

@@ -1,7 +1,14 @@
 #' @include JDBCConnection.R
 NULL
 
-#' JDBC transaction management.
+#' JDBC transaction management
+#' 
+#' By default, dbj is in auto-commit mode. \code{dbBegin} starts
+#' a transaction and turns auto-commit off. \code{dbCommit} and
+#' \code{dbRollback} commit and rollback the transaction, respectively and turn
+#' auto-commit on.
+#' 
+#' If the database supports savepoints (\code{feature.savepoints} in \link{dbGetInfo} is \code{TRUE})
 #' 
 #' @param conn a \code{\linkS4class{JDBCConnection}} object, produced by
 #'   \code{\link[DBI]{dbConnect}}

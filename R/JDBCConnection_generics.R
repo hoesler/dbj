@@ -36,6 +36,7 @@ setGeneric("dbTruncateTable",
 #' 
 #' @param conn A \code{\linkS4class{JDBCConnection}} object.
 #' @param ... Other arguments used by methods
+#' @keywords internal
 #' @export
 setGeneric("dbSQLDialect",
   function(conn, ...) standardGeneric("dbSQLDialect"),

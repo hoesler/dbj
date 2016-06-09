@@ -4,7 +4,7 @@
 \alias{module}
 \alias{module.character}
 \alias{module.list}
-\title{Generic to create a module definition.}
+\title{Define Java dependencies as a module}
 \usage{
 module(x)
 
@@ -13,15 +13,28 @@ module(x)
 \method{module}{list}(x)
 }
 \arguments{
-\item{x}{The definition.}
+\item{x}{A module definition}
+}
+\value{
+a list with class \code{"module"}
 }
 \description{
-Generic to create a module definition.
+The \code{module} function creates a definition object of a Java dependency,
+which can be \code{\link[=resolve]{resolved}} from a \code{\link{repository}}
+and used to create a classpath argument to \code{\link{driver}}.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{character}: Construct from a string like 'group:name:version'.
+\item \code{character}: Constructs a module from a string in the form 'group:name:version'.
 
-\item \code{list}: Construct from a list with character elements named \code{group}, \code{name} and \code{version}.
+\item \code{list}: Constructs a module from a named list with elements \code{group}, \code{name} and \code{version}.
 }}
+\examples{
+module('com.h2database:h2:1.3.176')
+module(list(group = 'com.h2database', name = 'h2', version = '1.3.176'))
+}
+\seealso{
+Other java dependency functions: \code{\link{fetch_module}},
+  \code{\link{maven_repository}}, \code{\link{resolve}}
+}
 

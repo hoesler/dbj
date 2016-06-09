@@ -6,6 +6,7 @@
 \alias{JDBCQueryResult-class}
 \alias{dbClearResult,JDBCQueryResult-method}
 \alias{dbColumnInfo,JDBCQueryResult-method}
+\alias{dbFetch,JDBCQueryResult,numeric-method}
 \alias{dbGetDriver,JDBCQueryResult-method}
 \alias{dbGetInfo,JDBCQueryResult-method}
 \alias{dbGetRowCount,JDBCQueryResult-method}
@@ -13,14 +14,10 @@
 \alias{dbGetStatement,JDBCQueryResult-method}
 \alias{dbHasCompleted,JDBCQueryResult-method}
 \alias{dbIsValid,JDBCQueryResult-method}
-\alias{fetch,JDBCQueryResult,missing-method}
-\alias{fetch,JDBCQueryResult,numeric-method}
-\title{JDBCQueryResult class.}
+\title{JDBCQueryResult class}
 \usage{
-\S4method{fetch}{JDBCQueryResult,numeric}(res, n, fetch_size = 0, ...,
-  row.names = NA)
-
-\S4method{fetch}{JDBCQueryResult,missing}(res, n = -1, ...)
+\S4method{dbFetch}{JDBCQueryResult,numeric}(res, n = -1, fetch_size = 0,
+  ..., row.names = NA)
 
 \S4method{dbClearResult}{JDBCQueryResult}(res, ...)
 
@@ -70,11 +67,11 @@ See \url{http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setFet
 Expected is a subset of \code{c("name", "field.type", "data.type", "label", "nullable")}.}
 }
 \description{
-JDBCQueryResult class.
+JDBCQueryResult class
 }
 \section{Methods}{
 
-\code{fetch}: Fetch n results
+\code{dbFetch}: Fetch n results
 
 
 \code{dbColumnInfo}: Get info about the result set data types.
@@ -107,5 +104,8 @@ For a selection query, this function returns 0.
 
 \code{dbGetRowsAffected}: Returns 0
 }
-\keyword{internal}
+\seealso{
+Other result classes: \code{\link{JDBCResult-class}},
+  \code{\link{JDBCUpdateResult-class}}
+}
 

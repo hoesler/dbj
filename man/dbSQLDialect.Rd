@@ -14,4 +14,5 @@ dbSQLDialect(conn, ...)
 \description{
 Get the current SQL dialect of the connection
 }
+\keyword{internal}
 

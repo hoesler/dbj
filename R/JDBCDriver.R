@@ -5,10 +5,11 @@
 #' @include sql_dialect.R
 NULL
 
-#' Class JDBCDriver with factory methods.
+#' JDBCDriver class
 #'
 #' \code{JDBCDriver} objects are usually created by 
 #' \code{\link[dbj]{driver}}.
+#' @keywords internal
 #' @export
 JDBCDriver <- setClass("JDBCDriver",
   contains = c("DBIDriver", "JDBCObject"),
@@ -54,12 +55,24 @@ create_new_dbj_connection <- function(j_con, drv) {
     create_new_update_result = create_new_dbj_update_result)
 }
 
+#' Factory function for \code{\linkS4class{JDBCDriver}} objects
+#' 
+#' Call \code{driver} to create a new \code{\linkS4class{JDBCDriver}}
+#' in order to \code{\link[=dbConnect,JDBCDriver-method]{connect}} to databases using the given JDBC driver.
+#' 
 #' @inheritParams create_jdbc_driver
-#' @param read_conversions a list of JDBCReadConversion objects.
-#' @param write_conversions a list of JDBCWriteConversion objects.
+#' @param read_conversions a list of \code{\link[=read_conversion]{read conversions}}.
+#' @param write_conversions a list of \code{\link[=write_conversion]{write conversions}}.
 #' @param dialect The \code{\link{sql_dialect}} to use.
 #' @param create_new_connection The factory function for JDBCConnection objects.
-#' @rdname JDBCDriver-class
+#'  Should only be modified by packages extending JDBCDriver and related classes. 
+#' @return A new \code{\linkS4class{JDBCDriver}}
+#' @examples
+#' \dontrun{
+#' drv <- dbj::driver('org.h2.Driver', '~/h2.jar')
+#' con1 <- dbConnect(drv, 'jdbc:h2:mem:')
+#' con2 <- dbConnect(drv, 'jdbc:h2:file:~/foo')
+#' }
 #' @export
 driver <- function(driverClass, classPath = '',
                   read_conversions = default_read_conversions,
@@ -98,6 +111,7 @@ driver_info <- function(j_drv, dialect, driverClass) {
 #' @describeIn JDBCDriver JDBC maintains no list of acitve connections. Returns an empty list.
 #' @param drv An object of class \code{\linkS4class{JDBCDriver}}
 #' @param ... Ignored.
+#' @family connection functions
 #' @export
 setMethod("dbListConnections", signature(drv = "JDBCDriver"),
   function(drv, ...) {
@@ -105,7 +119,7 @@ setMethod("dbListConnections", signature(drv = "JDBCDriver"),
   }
 )
 
-#' @describeIn JDBCDriver Unloading has no effect but returns always \code{TRUE}.
+#' @describeIn JDBCDriver Unloading a \code{JDBCDriver} has no effect. Returns \code{TRUE}.
 #' @export
 setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
   function(drv, ...) {
@@ -113,15 +127,20 @@ setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
   }
 )
 
-#' Create a JDBC connection.
+#' Connect to a database
+#' 
+#' Connect to a database using a
+#' \href{https://docs.oracle.com/javase/tutorial/jdbc/basics/connecting.html#db_connection_url}{JDBC URL}.
 #'
 #' @param drv An object of class \code{\linkS4class{JDBCDriver}}
-#' @param url the url to connect to
-#' @param user the user to log in
-#' @param password the users password
-#' @param ... named values which transformed into key-value pairs of of a Java Properties
-#'            object which is passed to the connect method.
+#' @inheritParams create_jdbc_connection
+#' @family connection functions
 #' @export
+#' @examples
+#' \dontrun{
+#' drv <- dbj::driver('org.h2.Driver', '~/h2.jar')
+#' con <- dbConnect(drv, 'jdbc:h2:mem:', 'sa', 'sa')
+#' }
 setMethod("dbConnect", signature(drv = "JDBCDriver"),
   function(drv, url, user = '', password = '', ...) {
     j_con <- create_jdbc_connection(drv@j_drv, url, user, password, ...)
@@ -140,6 +159,7 @@ setMethod("dbGetInfo", signature(dbObj = "JDBCDriver"),
 
 #' @describeIn JDBCDriver returns the JDBCDriver object.
 #' @export
+#' @keywords internal
 setMethod("dbGetDriver", signature(dbObj = "JDBCDriver"),
   function(dbObj, ...) {
     dbObj

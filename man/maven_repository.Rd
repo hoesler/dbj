@@ -9,10 +9,10 @@
 \alias{maven_local_repository}
 \alias{maven_remote_repository}
 \alias{maven_repository}
-\title{Maven repository}
-\format{An object of class \code{maven_local_repository} (inherits from \code{maven_repository}, \code{module_repository}) of length 1.}
+\title{Resolve Java dependencies with maven}
+\format{An object of class \code{maven_local_repository} of length 1.}
 \usage{
-maven_remote_repository(url, local_mirror, install = is(local_mirror,
+maven_remote_repository(url, local_mirror = NULL, install = is(local_mirror,
   "maven_local_repository"))
 
 maven_local_repository(path)
@@ -28,7 +28,7 @@ maven_central
 \arguments{
 \item{url, path}{The location of the repository.}
 
-\item{local_mirror}{A local maven repository to which remotely fetched modules should be installed.}
+\item{local_mirror}{A local maven repository to which remotely fetched modules can be installed.}
 
 \item{install}{Should the fetched artifact be installed to the local repository?}
 
@@ -39,7 +39,11 @@ maven_central
 \item{...}{Additional arguments passed to methods.}
 }
 \description{
-Use maven repositories to locate modules.
+Define maven repositories to \link{resolve} \link[=module]{modules}.
+}
+\seealso{
+Other java dependency functions: \code{\link{fetch_module}},
+  \code{\link{module}}, \code{\link{resolve}}
 }
 \keyword{datasets}
 

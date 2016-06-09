@@ -2,7 +2,7 @@
 % Please edit documentation in R/type_mapping.R
 \name{convert_from_transfer}
 \alias{convert_from_transfer}
-\title{Convert from transfer type to client type.}
+\title{Convert from transfer type to client type}
 \usage{
 convert_from_transfer(read_conversions, data, data_attributes)
 }
@@ -14,7 +14,7 @@ convert_from_transfer(read_conversions, data, data_attributes)
 \item{data_attributes}{a named list of attributes of data}
 }
 \description{
-Convert from transfer type to client type.
+Convert from transfer type to client type
 }
 \keyword{internal}
 

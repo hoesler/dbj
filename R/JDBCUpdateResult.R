@@ -2,9 +2,12 @@
 #' @include java_utils.R
 NULL
 
-#' Class JDBCUpdateResult with factory method JDBCUpdateResult.
+#' JDBCUpdateResult class
+#' 
+#' The class created as a result of a database \code{\link[=dbSendQuery,JDBCConnection,character-method]{query}}
+#' which returns no results (e.g. for INSERT or UPDATE statements).
 #'
-#' @keywords internal
+#' @family result classes
 #' @export
 JDBCUpdateResult <- setClass("JDBCUpdateResult",
   contains = c("JDBCResult"),
@@ -22,7 +25,7 @@ JDBCUpdateResult <- setClass("JDBCUpdateResult",
 #'    number of rows as defined in \code{\link{JDBC}}
 #' @param ... Ignored. Needed for compatibility with generic.
 #' @export
-setMethod("fetch", signature(res = "JDBCUpdateResult", n = "numeric"),
+setMethod("dbFetch", signature(res = "JDBCUpdateResult", n = "numeric"),
   function(res, n, ...) {
     data.frame()
   }
@@ -30,7 +33,7 @@ setMethod("fetch", signature(res = "JDBCUpdateResult", n = "numeric"),
 
 #' @describeIn JDBCUpdateResult Returns an empty data frame.
 #' @export
-setMethod("fetch", signature(res = "JDBCUpdateResult", n = "missing"),
+setMethod("dbFetch", signature(res = "JDBCUpdateResult", n = "missing"),
   function(res, n, ...) {
     data.frame()
   }
@@ -82,8 +85,8 @@ setMethod("dbIsValid", signature(dbObj = "JDBCUpdateResult"),
 
 #' @rdname JDBCUpdateResult-class
 #' @param dbObj An object of class \code{\linkS4class{JDBCUpdateResult}}
-#' @param ... Ignored. Included for compatibility with generic.
 #' @export
+#' @keywords internal
 setMethod("dbGetDriver", signature(dbObj = "JDBCUpdateResult"),
   function(dbObj, ...) {
     dbGetDriver(dbObj@connection) # forward

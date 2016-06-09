@@ -2,24 +2,26 @@
 % Please edit documentation in R/java_jdbc_utils.R
 \name{create_jdbc_connection}
 \alias{create_jdbc_connection}
-\title{Create a Java JDBC Connection object}
+\title{Establish a JDBC Connection}
 \usage{
 create_jdbc_connection(j_drv, url, user, password, ...)
 }
 \arguments{
-\item{j_drv}{The Java driver object}
+\item{j_drv}{the Java driver object}
 
-\item{url}{the URL to connect to}
+\item{url}{the URL of the form \code{jdbc:subprotocol:subname}}
 
 \item{user}{the user to log in}
 
-\item{password}{the users password}
+\item{password}{the user's password}
 
-\item{...}{named values which get transformed into key-value pairs of a 
-Java Properties object which is passed to the connect method.}
+\item{...}{additional connection arguments}
+}
+\value{
+a jObjRef referencing a java.sql.Connection
 }
 \description{
-Create a Java JDBC Connection object
+Establish a JDBC Connection
 }
 \keyword{internal}
 

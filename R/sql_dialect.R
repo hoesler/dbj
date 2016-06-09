@@ -1,12 +1,14 @@
-#' Create a new SQL dialect environment
+#' Define an SQL dialect
+#' 
+#' SQL dialects are used to configure a dbj \code{\link{driver}}
 #' 
 #' @param name The name of the dialect
 #' @param sql_create_table A function which generates an SQL statement for creating a table
 #' @param sql_append_table A function which generates an SQL statement for adding data to the table
 #' @param sql_clear_table A function which generates an SQL statement for truncating a table
-#' @param sql_quote_identifier The function called by the \code{dbQuoteIdentifier,JDBCConnection-character-method} method
-#' @param sql_quote_string The function called by the \code{dbQuoteString,JDBCConnection-character-method} method
-#' @param sql_remove_table The function called by the \code{dbRemoveTable,JDBCConnection-character-method} method
+#' @param sql_quote_identifier The function called by the \code{dbQuoteIdentifier,JDBCConnection,character-method} method
+#' @param sql_quote_string The function called by the \code{dbQuoteString,JDBCConnection,character-method} method
+#' @param sql_remove_table The function called by the \code{dbRemoveTable,JDBCConnection,character-method} method
 #' @param conn,con An object of type \code{\linkS4class{JDBCConnection}}
 #' @param table The table name
 #' @param fields Either a character vector or a data frame.
@@ -19,6 +21,7 @@
 #' @param ... Other parameters passed on to methods.
 #' @return A new structure with class \code{sql_dialect}.
 #' @name sql_dialect
+#' @family SQL dialect functions
 NULL
 
 #' A generator function for a generic CREATE TABLE statment

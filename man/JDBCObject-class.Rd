@@ -5,7 +5,7 @@
 \alias{JDBCObject-class}
 \alias{SQLKeywords,JDBCObject-method}
 \alias{dbDataType,JDBCObject-method}
-\title{Class JDBCObject}
+\title{JDBCObject class}
 \usage{
 \S4method{SQLKeywords}{JDBCObject}(dbObj, ...)
 
@@ -15,7 +15,7 @@
 \item{dbObj}{an object of type \code{\linkS4class{JDBCObject}}}
 }
 \description{
-Class JDBCObject
+JDBCObject class
 }
 \section{Methods (by generic)}{
 \itemize{

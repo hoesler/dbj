@@ -4,22 +4,39 @@
 \name{JDBCResult-class}
 \alias{JDBCResult-class}
 \alias{dbBind,JDBCResult-method}
-\title{JDBCResult class.}
+\alias{fetch,JDBCResult-method}
+\title{JDBCResult class}
 \usage{
 \S4method{dbBind}{JDBCResult}(res, params, ...)
+
+\S4method{fetch}{JDBCResult}(res, n = -1, ...)
 }
 \arguments{
-\item{res}{A \code{\linkS4class{JDBCResult}} object.}
+\item{res}{An object inheriting from \code{\linkS4class{JDBCResult}}}
 
-\item{params}{A list of bindings.}
+\item{params}{A list of bindings. Named values should be matched to
+named paramters (if supported by the DBI backend). Unnamed values
+will be matched by position. I don't recommend mixing named and unnamed
+values.}
 
-\item{...}{Ignored. Needed for compatibility with generic.}
+\item{...}{Other arguments passed on to methods.}
+
+\item{n}{maximum number of records to retrieve per fetch. Use \code{n = -1}
+to retrieve all pending records.  Some implementations may recognize other
+special values.}
 }
 \description{
-Base class for \code{linkS4class{JDBCQueryResult}} and \code{linkS4class{JDBCUpdateResult}}.
+Base class for \code{\linkS4class{JDBCQueryResult}} and \code{\linkS4class{JDBCUpdateResult}}.
 }
 \section{Methods}{
 
-\code{dbBind}: Unsupported. Use parameter binding of dbSendQuery-JDBCConnection-character-method instead.
+\code{dbBind}: Unsupported. Use parameter binding of \code{\link{dbSendQuery,JDBCConnection,character-method}} instead.
+
+
+\code{fetch}: Forwards to \code{\link{dbFetch}}.
+}
+\seealso{
+Other result classes: \code{\link{JDBCQueryResult-class}},
+  \code{\link{JDBCUpdateResult-class}}
 }
 

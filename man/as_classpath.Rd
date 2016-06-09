@@ -2,7 +2,7 @@
 % Please edit documentation in R/r_utils.R
 \name{as_classpath}
 \alias{as_classpath}
-\title{Concatenate all elements in \code{paths} using \code{.Platform$path.sep} as the separator.}
+\title{Covert a character vector into a classpath}
 \usage{
 as_classpath(paths)
 }

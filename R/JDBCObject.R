@@ -1,7 +1,8 @@
 #' @include JDBCObject_generics.R
 NULL
 
-#' Class JDBCObject
+#' JDBCObject class
+#' 
 #' @param dbObj an object of type \code{\linkS4class{JDBCObject}}
 #' @keywords internal
 #' @export

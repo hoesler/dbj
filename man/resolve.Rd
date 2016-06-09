@@ -5,7 +5,7 @@
 \alias{resolve.character}
 \alias{resolve.list}
 \alias{resolve.module}
-\title{Generic to resolve a module or file.}
+\title{Resolve objects to file paths}
 \usage{
 resolve(what, ...)
 
@@ -20,18 +20,25 @@ resolve(what, ...)
 
 \item{...}{Additional arguments passed to methods.}
 
-\item{repositories}{A list of repositories to search in.}
+\item{repositories}{A list of \code{\link[=repository]{repositories}} to search in.}
 }
 \description{
-Generic to resolve a module or file.
+Resolve objects to file paths
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{module}: Tries to resolve the module \code{what} in one of the given \code{repositories},
-installs it, and returns the local path.
+\item \code{module}: Tries to resolve the module \code{what} in one of the given \code{repositories}
+using \code{\link{fetch_module}}.
 
 \item \code{character}: Checks if \code{what} is a valid path to a file and returns \code{what}.
 
 \item \code{list}: Resolves all elements in \code{what} and returns them as a list.
 }}
+\examples{
+resolve(module('com.h2database:h2:1.3.176'), list(maven_local, maven_central))
+}
+\seealso{
+Other java dependency functions: \code{\link{fetch_module}},
+  \code{\link{maven_repository}}, \code{\link{module}}
+}
 

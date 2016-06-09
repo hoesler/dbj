@@ -1,10 +1,19 @@
-#' Generic to create a module definition.
+#' Define Java dependencies as a module
 #' 
-#' @param x The definition.
+#' The \code{module} function creates a definition object of a Java dependency,
+#' which can be \code{\link[=resolve]{resolved}} from a \code{\link{repository}}
+#' and used to create a classpath argument to \code{\link{driver}}.
+#' 
+#' @param x A module definition
+#' @return a list with class \code{"module"}
+#' @family java dependency functions
 #' @export
+#' @examples
+#' module('com.h2database:h2:1.3.176')
+#' module(list(group = 'com.h2database', name = 'h2', version = '1.3.176'))
 module <- function(x) UseMethod("module")
 
-#' @describeIn module Construct from a string like 'group:name:version'.
+#' @describeIn module Constructs a module from a string in the form 'group:name:version'.
 #' @export
 module.character <- function(x) {
   match <- regmatches(x, regexec("(.+):(.+):(.+)", x))[[1]]
@@ -14,7 +23,7 @@ module.character <- function(x) {
   module.list(module_parts)
 }
 
-#' @describeIn module Construct from a list with character elements named \code{group}, \code{name} and \code{version}.
+#' @describeIn module Constructs a module from a named list with elements \code{group}, \code{name} and \code{version}.
 #' @export
 module.list <- function(x) {
   structure(
@@ -25,30 +34,37 @@ module.list <- function(x) {
     ), class = "module")
 }
 
-#' Fetch a module from repository and make the jar locally available.
+#' Fetch a module from a repository
+#' 
+#' Classes which support \code{fetch_module} should locate the given \code{module} and make it locally available.
 #' 
 #' @param repository The repository to search in.
 #' @param module The module to resolve.
 #' @param ... Additional arguments passed to methods.
 #' @return The path to the local version of the jar file or NULL if the module is not in the repository.
+#' @aliases repository
+#' @family java dependency functions
 #' @export
 fetch_module <- function(repository, module, ...) UseMethod("fetch_module")
 
-#' Generic to resolve a module or file.
+#' Resolve objects to file paths
 #' 
 #' @param what The definition to resolve.
 #' @param ... Additional arguments passed to methods.
+#' @family java dependency functions
 #' @export
+#' @examples
+#' resolve(module('com.h2database:h2:1.3.176'), list(maven_local, maven_central))
 resolve <- function(what, ...) UseMethod("resolve")
 
-#' @describeIn resolve Tries to resolve the module \code{what} in one of the given \code{repositories},
-#'                installs it, and returns the local path.
-#' @param repositories A list of repositories to search in.
+#' @describeIn resolve Tries to resolve the module \code{what} in one of the given \code{repositories}
+#'  using \code{\link{fetch_module}}.
+#' @param repositories A list of \code{\link[=repository]{repositories}} to search in.
 #' @export
 resolve.module <- function(what, repositories, ...) {
   path <- NULL
   for (repository in repositories) {
-    path <- fetch_module(repository, what)
+    path <- fetch_module(repository, what, ...)
 
     if (!is.null(path)) {
       message(sprintf("Found module %s in repository %s",

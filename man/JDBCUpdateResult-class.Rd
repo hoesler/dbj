@@ -6,6 +6,8 @@
 \alias{JDBCUpdateResult-class}
 \alias{dbClearResult,JDBCUpdateResult-method}
 \alias{dbColumnInfo,JDBCUpdateResult-method}
+\alias{dbFetch,JDBCUpdateResult,missing-method}
+\alias{dbFetch,JDBCUpdateResult,numeric-method}
 \alias{dbGetDriver,JDBCUpdateResult-method}
 \alias{dbGetInfo,JDBCUpdateResult-method}
 \alias{dbGetRowCount,JDBCUpdateResult-method}
@@ -13,13 +15,11 @@
 \alias{dbGetStatement,JDBCUpdateResult-method}
 \alias{dbHasCompleted,JDBCUpdateResult-method}
 \alias{dbIsValid,JDBCUpdateResult-method}
-\alias{fetch,JDBCUpdateResult,missing-method}
-\alias{fetch,JDBCUpdateResult,numeric-method}
-\title{Class JDBCUpdateResult with factory method JDBCUpdateResult.}
+\title{JDBCUpdateResult class}
 \usage{
-\S4method{fetch}{JDBCUpdateResult,numeric}(res, n = -1, ...)
+\S4method{dbFetch}{JDBCUpdateResult,numeric}(res, n = -1, ...)
 
-\S4method{fetch}{JDBCUpdateResult,missing}(res, n = -1, ...)
+\S4method{dbFetch}{JDBCUpdateResult,missing}(res, n = -1, ...)
 
 \S4method{dbClearResult}{JDBCUpdateResult}(res, ...)
 
@@ -49,17 +49,16 @@ number of rows as defined in \code{\link{JDBC}}}
 \item{...}{Ignored. Needed for compatibility with generic.}
 
 \item{dbObj}{An object of class \code{\linkS4class{JDBCUpdateResult}}}
-
-\item{...}{Ignored. Included for compatibility with generic.}
 }
 \description{
-Class JDBCUpdateResult with factory method JDBCUpdateResult.
+The class created as a result of a database \code{\link[=dbSendQuery,JDBCConnection,character-method]{query}}
+which returns no results (e.g. for INSERT or UPDATE statements).
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{fetch}: Returns an empty data frame.
+\item \code{dbFetch}: Returns an empty data frame.
 
-\item \code{fetch}: Returns an empty data frame.
+\item \code{dbFetch}: Returns an empty data frame.
 
 \item \code{dbClearResult}: Has no effect. Returns always \code{TRUE}.
 
@@ -80,6 +79,10 @@ Class JDBCUpdateResult with factory method JDBCUpdateResult.
 
 
 \code{dbGetRowsAffected}: Returns the number of rows that were added, deleted, or updated
+}
+\seealso{
+Other result classes: \code{\link{JDBCQueryResult-class}},
+  \code{\link{JDBCResult-class}}
 }
 \keyword{internal}
 

@@ -1,4 +1,4 @@
-#' Partition data into chunks.
+#' Partition data into chunks
 #' 
 #' Partition a vector, list matrix or data.frame into a list of vectors,
 #' lists, matrices or data.frames respectively,
@@ -44,6 +44,8 @@ requireOption <- function(x) {
   getOption(x)
 }
 
+#' Covert a character vector into a classpath
+#' 
 #' Concatenate all elements in \code{paths} using \code{.Platform$path.sep} as the separator.
 #' 
 #' @param paths A character vector

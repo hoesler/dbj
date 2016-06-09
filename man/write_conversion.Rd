@@ -2,34 +2,49 @@
 % Please edit documentation in R/type_mapping.R
 \docType{data}
 \name{write_conversion}
+\alias{class_matcher}
 \alias{default_write_conversions}
 \alias{mapped_write_conversion}
 \alias{write_conversion}
-\title{Create a JDBCWriteConversion object.}
-\format{The default conversions}
+\title{Create a write conversion object}
+\format{An object of class \code{list} of length 8.}
 \usage{
 write_conversion(condition, conversion, create_type)
+
+class_matcher(class_names)
 
 mapped_write_conversion(class_names, conversion, create_type)
 
 default_write_conversions
 }
 \arguments{
-\item{condition}{a function which accepts a list and returns a logical.}
+\item{condition}{a function which accepts a list of data attributes and returns a logical
+indicating if it is able to convert the data}
 
 \item{conversion}{a function which accepts a data frame column vector and returns it transformed
-into a vector of a transfer data type.}
+into a vector of a transfer data type}
 
-\item{create_type}{a character vector of length 1 which holds a sql type name used to store data
-which sattisfies the given condition.}
+\item{create_type}{a character vector of length 1 which holds a SQL type name used to store data
+which satisfies the given condition.}
 
 \item{class_names}{a character vector of class names}
 }
 \description{
-Create a JDBCWriteConversion object.
+Write conversion objects define how to convert R values to data which can be written to JDBC.
+}
+\details{
+Group conversion objects as a list and pass them to \code{\link{driver}}.
+}
+\examples{
+# Convert difftime vectors into numeric vectors of milliseconds and create 
+mapped_write_conversion(
+  "difftime",
+  function(data) as.numeric(data, units = "secs") * 1000,
+  "TIME"
+)
 }
 \seealso{
-Other conversion.functions: \code{\link{read_conversion}}
+Other conversion functions: \code{\link{read_conversion}}
 }
-\keyword{datasets}
+\keyword{internal}
 

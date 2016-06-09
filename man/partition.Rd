@@ -4,7 +4,7 @@
 \alias{partition}
 \alias{partition.data.frame}
 \alias{partition.default}
-\title{Partition data into chunks.}
+\title{Partition data into chunks}
 \usage{
 partition(data, size)
 

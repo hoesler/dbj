@@ -12,7 +12,7 @@
 \alias{generic_sql}
 \alias{guess_dialect}
 \alias{sql_dialect}
-\title{Create a new SQL dialect environment}
+\title{Define an SQL dialect}
 \format{An object of class \code{sql_dialect} of length 6.}
 \usage{
 generic_create_statement_generator(table_name, field_names, field_types,
@@ -87,11 +87,11 @@ guess_dialect(driver_class)
 
 \item{sql_clear_table}{A function which generates an SQL statement for truncating a table}
 
-\item{sql_remove_table}{The function called by the \code{dbRemoveTable,JDBCConnection-character-method} method}
+\item{sql_remove_table}{The function called by the \code{dbRemoveTable,JDBCConnection,character-method} method}
 
-\item{sql_quote_identifier}{The function called by the \code{dbQuoteIdentifier,JDBCConnection-character-method} method}
+\item{sql_quote_identifier}{The function called by the \code{dbQuoteIdentifier,JDBCConnection,character-method} method}
 
-\item{sql_quote_string}{The function called by the \code{dbQuoteString,JDBCConnection-character-method} method}
+\item{sql_quote_string}{The function called by the \code{dbQuoteString,JDBCConnection,character-method} method}
 
 \item{driver_class}{The full classname of a Java Driver class.}
 }
@@ -99,9 +99,13 @@ guess_dialect(driver_class)
 A new structure with class \code{sql_dialect}.
 }
 \description{
-Create a new SQL dialect environment
+SQL dialects are used to configure a dbj \code{\link{driver}}
 
 A generator function for a generic CREATE TABLE statment
+}
+\seealso{
+Other SQL dialect functions: \code{\link{dbj-sql-generate}},
+  \code{\link{dbj-sql-quote}}
 }
 \keyword{datasets}
 

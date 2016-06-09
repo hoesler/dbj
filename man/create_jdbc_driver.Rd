@@ -7,10 +7,10 @@
 create_jdbc_driver(driverClass, classPath)
 }
 \arguments{
-\item{driverClass}{the Java class name of the JDBC driver to use}
+\item{driverClass}{a character vector of length one specifying a JDBC driver class (e.g. 'org.h2.Driver')}
 
-\item{classPath}{a string of paths separated by \code{path.sep} variable in \code{\link{.Platform}}
-which should get added to the classpath (see \link[rJava]{.jaddClassPath})}
+\item{classPath}{a character vector of length one specifying classpaths separated by \code{\link[=.Platform]{path.sep}}
+or a character vector of classpaths which will be added to the \code{\link[=.jaddClassPath]{rJava class loader}}}
 }
 \description{
 Create a Java JDBC Driver object

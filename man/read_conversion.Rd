@@ -4,33 +4,48 @@
 \name{read_conversion}
 \alias{default_read_conversions}
 \alias{read_conversion}
+\alias{sql_type_matcher}
 \alias{sqltype_read_conversion}
-\title{Create a JDBCReadConversion object.}
-\format{The default conversions}
+\title{Create a read conversion object}
+\format{An object of class \code{list} of length 9.}
 \usage{
 read_conversion(condition, r_class, conversion)
+
+sql_type_matcher(sql_types)
 
 sqltype_read_conversion(sql_types, r_class, conversion)
 
 default_read_conversions
 }
 \arguments{
-\item{condition}{a function which accepts a list and returns a logical}
+\item{condition}{a function which accepts a list of data attributes and returns a logical
+indicating if it is able to convert the data}
 
 \item{r_class}{the target class of the conversion}
 
-\item{conversion}{a function which accepts a data frame column vector
-and returns it transformed into a vector of a transfer data type.}
+\item{conversion}{a function which accepts data of a transfer type
+and transforms into data of type \code{r_class}.}
 
 \item{sql_types}{a numeric vector of JDBC_SQL_TYPES}
 }
 \description{
-Create a JDBCReadConversion object.
+Read conversion objects define how to convert data read from JDBC to R values.
+}
+\details{
+\code{sqltype_read_conversion} matches
+Group conversion objects as a list and pass them to \code{\link{driver}}.
+}
+\examples{
 
-The dafault read conversions
+# Convert TIME data, returned from JDBC as milliseconds, to difftime.
+sqltype_read_conversion(
+  with(JDBC_SQL_TYPES, c(TIME)),
+  "difftime",
+  function(data) as.difftime(data / 1000, units = "secs")
+)
 }
 \seealso{
-Other conversion.functions: \code{\link{write_conversion}}
+Other conversion functions: \code{\link{write_conversion}}
 }
-\keyword{datasets}
+\keyword{internal}
 

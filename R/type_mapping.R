@@ -1,15 +1,29 @@
 #' @include java_sql_types.R
 NULL
 
-#' Create a JDBCReadConversion object. 
+#' Create a read conversion object
 #' 
-#' @param condition a function which accepts a list and returns a logical
+#' Read conversion objects define how to convert data read from JDBC to R values.
+#' 
+#' \code{sqltype_read_conversion} matches
+#' Group conversion objects as a list and pass them to \code{\link{driver}}.
+#' 
+#' @param condition a function which accepts a list of data attributes and returns a logical
+#'  indicating if it is able to convert the data
 #' @param r_class the target class of the conversion
-#' @param conversion a function which accepts a data frame column vector
-#'                   and returns it transformed into a vector of a transfer data type.
+#' @param conversion a function which accepts data of a transfer type
+#'  and transforms into data of type \code{r_class}.
 #' 
 #' @export
 #' @family conversion functions
+#' @examples
+#' 
+#' # Convert TIME data, returned from JDBC as milliseconds, to difftime.
+#' sqltype_read_conversion(
+#'   with(JDBC_SQL_TYPES, c(TIME)),
+#'   "difftime",
+#'   function(data) as.difftime(data / 1000, units = "secs")
+#' )
 read_conversion <- function(condition, r_class, conversion) {
   assert_that(is.function(condition))
   assert_that(is.character(r_class))
@@ -25,14 +39,24 @@ read_conversion <- function(condition, r_class, conversion) {
 #' @param sql_types a numeric vector of JDBC_SQL_TYPES
 #' @export
 #' @rdname read_conversion
-sqltype_read_conversion <- function(sql_types, r_class, conversion) {
+#' @keywords internal
+sql_type_matcher <- function(sql_types) {
   assert_that(is.numeric(sql_types))
-  
-  read_conversion(function(attributes) {
+  assert_that(all(sql_types %in% JDBC_SQL_TYPES))
+
+  function(attributes) {
     assert_that(is.list(attributes) && c("jdbc.type") %in% names(attributes))
     assert_that(attributes$jdbc.type %in% JDBC_SQL_TYPES)
-    with(JDBC_SQL_TYPES, JDBC_SQL_TYPES[JDBC_SQL_TYPES == attributes$jdbc.type] %in% sql_types)
-  }, r_class, conversion)
+
+    all(JDBC_SQL_TYPES[JDBC_SQL_TYPES == attributes$jdbc.type] %in% sql_types)
+  }
+}
+
+#' @export
+#' @rdname read_conversion
+#' @keywords internal
+sqltype_read_conversion <- function(sql_types, r_class, conversion) {
+  read_conversion(sql_type_matcher(sql_types), r_class, conversion)
 }
 
 check_raw_list <- function(x) {
@@ -43,10 +67,9 @@ check_raw_list <- function(x) {
   x
 }
 
-#' The dafault read conversions
-#' @format The default conversions
 #' @export
 #' @rdname read_conversion
+#' @keywords internal
 default_read_conversions <- list(
   sqltype_read_conversion(
     with(JDBC_SQL_TYPES, get("NULL")),
@@ -96,16 +119,28 @@ default_read_conversions <- list(
   )
 )
 
-#' Create a JDBCWriteConversion object. 
+#' Create a write conversion object
 #' 
-#' @param condition a function which accepts a list and returns a logical.
+#' Write conversion objects define how to convert R values to data which can be written to JDBC.
+#' 
+#' Group conversion objects as a list and pass them to \code{\link{driver}}.
+#' 
+#' @param condition a function which accepts a list of data attributes and returns a logical
+#'  indicating if it is able to convert the data
 #' @param conversion a function which accepts a data frame column vector and returns it transformed
-#'                    into a vector of a transfer data type.
-#' @param create_type a character vector of length 1 which holds a sql type name used to store data
-#'                    which sattisfies the given condition.
+#'  into a vector of a transfer data type
+#' @param create_type a character vector of length 1 which holds a SQL type name used to store data
+#'  which satisfies the given condition.
 #' 
 #' @export
 #' @family conversion functions
+#' @examples
+#' # Convert difftime vectors into numeric vectors of milliseconds and create 
+#' mapped_write_conversion(
+#'   "difftime",
+#'   function(data) as.numeric(data, units = "secs") * 1000,
+#'   "TIME"
+#' )
 write_conversion <- function(condition, conversion, create_type) {
   assert_that(is.function(condition))
   assert_that(is.function(conversion))
@@ -121,18 +156,26 @@ write_conversion <- function(condition, conversion, create_type) {
 #' @param class_names a character vector of class names
 #' @export
 #' @rdname write_conversion
-mapped_write_conversion <- function(class_names, conversion, create_type) {
+#' @keywords internal
+class_matcher <- function(class_names) {
   assert_that(is.character(class_names))
  
-  write_conversion(function(attributes) {
+  function(attributes) {
     assert_that(is.list(attributes) && all(c("class_names") %in% names(attributes)))
     any(attributes$class_names %in% class_names)
-  }, conversion, create_type)
+  }
 }
 
-#' @format The default conversions
 #' @export
 #' @rdname write_conversion
+#' @keywords internal
+mapped_write_conversion <- function(class_names, conversion, create_type) {
+  write_conversion(class_matcher(class_names), conversion, create_type)
+}
+
+#' @export
+#' @rdname write_conversion
+#' @keywords internal
 default_write_conversions <- list(
   mapped_write_conversion(
     "integer",
@@ -176,7 +219,7 @@ default_write_conversions <- list(
   )
 )
 
-#' Convert from transfer type to client type.
+#' Convert from transfer type to client type
 #' 
 #' @param read_conversions a list of JDBCReadConversion objects
 #' @param data the data vector to convert
@@ -239,5 +282,5 @@ setMethod("toSQLDataType", "ANY", function(obj, write_conversions) {
       return(db_data_type)
     }
   }
-  stop("No mapping defined for object of type ", class(obj))
+  stop("No mapping defined for object of type [", paste(class(obj), collapse = ", "), "]")
 })

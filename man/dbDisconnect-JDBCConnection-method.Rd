@@ -16,4 +16,15 @@
 \description{
 Disconnect (close) a connection
 }
+\seealso{
+Other connection functions: \code{\link{JDBCDriver-class}},
+  \code{\link{dbConnect,JDBCConnection-method}},
+  \code{\link{dbConnect,JDBCDriver-method}}
+
+Other JDBCConnection methods: \code{\link{dbConnect,JDBCConnection-method}},
+  \code{\link{dbSendQuery,JDBCConnection,character-method}},
+  \code{\link{dbj-edit-tables}},
+  \code{\link{dbj-sql-generate}},
+  \code{\link{dbj-sql-quote}}, \code{\link{dbj-table}}
+}
 

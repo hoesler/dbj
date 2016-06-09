@@ -4,25 +4,15 @@
 \name{JDBCConnection-class}
 \alias{JDBCConnection}
 \alias{JDBCConnection-class}
-\alias{dbExistsTable,JDBCConnection,character-method}
 \alias{dbGetDriver,JDBCConnection-method}
 \alias{dbGetException,JDBCConnection-method}
 \alias{dbGetInfo,JDBCConnection-method}
+\alias{dbIsValid,JDBCConnection-method}
 \alias{dbListResults,JDBCConnection-method}
-\alias{dbReadTable,JDBCConnection,character-method}
-\alias{dbRemoveTable,JDBCConnection,character-method}
 \alias{dbSQLDialect,JDBCConnection-method}
 \alias{show,JDBCConnection-method}
-\alias{sqlAppendTable,JDBCConnection-method}
-\alias{sqlCreateTable,JDBCConnection-method}
-\title{Class JDBCConnection}
+\title{JDBCConnection class}
 \usage{
-\S4method{dbExistsTable}{JDBCConnection,character}(conn, name, ...)
-
-\S4method{dbRemoveTable}{JDBCConnection,character}(conn, name, ...)
-
-\S4method{dbReadTable}{JDBCConnection,character}(conn, name, ...)
-
 \S4method{dbSQLDialect}{JDBCConnection}(conn)
 
 \S4method{dbGetInfo}{JDBCConnection}(dbObj, ...)
@@ -33,60 +23,52 @@
 
 \S4method{dbGetDriver}{JDBCConnection}(dbObj, ...)
 
+\S4method{dbIsValid}{JDBCConnection}(dbObj, timeout = 0, ...)
+
 \S4method{show}{JDBCConnection}(object)
-
-\S4method{sqlCreateTable}{JDBCConnection}(con, table, fields, row.names = NA,
-  temporary = FALSE, ...)
-
-\S4method{sqlAppendTable}{JDBCConnection}(con, table, values, row.names = NA,
-  ...)
 }
 \arguments{
-\item{conn, con, dbObj}{A \code{\linkS4class{JDBCConnection}} object.}
+\item{conn}{A \code{\linkS4class{JDBCConnection}} object, as produced by
+\code{\link{dbConnect}}.}
 
-\item{name}{A character string specifying a DBMS table name.}
+\item{dbObj}{A \code{\linkS4class{JDBCConnection}} object, as produced by
+\code{\link{dbConnect}}.}
 
-\item{...}{Arguments passed on to other methods.}
+\item{...}{Other parameters passed on to methods.}
+
+\item{timeout}{The time in seconds to wait for the database operation used to validate the connection to complete.
+If the timeout period expires before the operation completes, this method returns false.
+A value of 0 indicates a timeout is not applied to the database operation.}
 
 \item{object}{An object of class \code{\linkS4class{JDBCConnection}}}
-
-\item{table}{A table name}
-
-\item{fields}{Either a character vector or a data frame}
-
-\item{row.names}{Either TRUE, FALSE, NA or a string.}
-
-\item{temporary}{If TRUE, will generate a temporary table statement.}
-
-\item{values}{A data frame}
 }
 \description{
-Class JDBCConnection
+JDBCConnection class
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{dbExistsTable}: Does a table exist?
+\item \code{dbSQLDialect}: Get the \code{\link{sql_dialect}} of the driver which created this connection.
 
-\item \code{dbRemoveTable}: Executes \code{sql_remove_table} from \code{dbSQLDialect(conn)}.
-
-\item \code{dbReadTable}: Copy data frames from database.
-
-\item \code{dbSQLDialect}: Get the current dialect
-
-\item \code{dbGetInfo}: Returns a list with \code{dbname}, \code{db.version}, \code{username},
-\code{jdbc_driver_name}, \code{jdbc_driver_version}, \code{url}, \code{host} and \code{port}.
+\item \code{dbGetInfo}: Returns a named list with the following entries:
+    \code{dbname} (the name of the database),
+    \code{db.version} (the version of the database),
+    \code{username} (the username which was used to connect),
+    \code{jdbc_driver_name} (the name of the JDBC driver),
+    \code{jdbc_driver_version} (the version of the JDBC driver),
+    \code{url} (the url of the JDBC connection),
+    \code{host} (currently NULL),
+    \code{port} (currently NULL)
+and \code{feature.savepoints} (a logical indicating if the database supports savepoints).
 
 \item \code{dbGetException}: Not implemented. Returns an empty list.
 
-\item \code{dbListResults}: Returns an empty \code{list} as JDBC maintains no list of active results.
+\item \code{dbListResults}: Returns an empty list. JDBC does not keep track of active results.
 
-\item \code{dbGetDriver}: Returns the driver for this connection.
+\item \code{dbGetDriver}: Returns the \code{\linkS4class{JDBCDriver}} which created this connection.
+
+\item \code{dbIsValid}: Check if the connection is valid. Returns a logical.
 
 \item \code{show}: Prints a short info about the connection
-
-\item \code{sqlCreateTable}: Forwards to sql_create_table in dbSQLDialect
-
-\item \code{sqlAppendTable}: Forwards to sql_create_table in dbSQLDialect
 }}
 \section{Slots}{
 
@@ -103,4 +85,5 @@ Class JDBCConnection
 
 \item{\code{create_new_update_result}}{The factory function for \code{\linkS4class{JDBCUpdateResult}} objects.}
 }}
+\keyword{internal}
 

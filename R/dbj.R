@@ -1,5 +1,7 @@
 #' A DBI implementation using JDBC over rJava.
 #'
+#' Start with \code{\link{driver}} to create a new database driver.
+#' 
 #' @docType package
 #' @import DBI rJava methods assertthat
 #' @name dbj

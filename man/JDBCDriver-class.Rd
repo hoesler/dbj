@@ -10,16 +10,9 @@
 \alias{dbIsValid,JDBCDriver-method}
 \alias{dbListConnections,JDBCDriver-method}
 \alias{dbUnloadDriver,JDBCDriver-method}
-\alias{driver}
 \alias{show,JDBCDriver-method}
-\title{Class JDBCDriver with factory methods.}
+\title{JDBCDriver class}
 \usage{
-driver(driverClass, classPath = "",
-  read_conversions = default_read_conversions,
-  write_conversions = default_write_conversions,
-  dialect = guess_dialect(driverClass),
-  create_new_connection = create_new_dbj_connection)
-
 \S4method{dbListConnections}{JDBCDriver}(drv, ...)
 
 \S4method{dbUnloadDriver}{JDBCDriver}(drv, ...)
@@ -35,19 +28,6 @@ driver(driverClass, classPath = "",
 \S4method{show}{JDBCDriver}(object)
 }
 \arguments{
-\item{driverClass}{the Java class name of the JDBC driver to use}
-
-\item{classPath}{a string of paths separated by \code{path.sep} variable in \code{\link{.Platform}}
-which should get added to the classpath (see \link[rJava]{.jaddClassPath})}
-
-\item{read_conversions}{a list of JDBCReadConversion objects.}
-
-\item{write_conversions}{a list of JDBCWriteConversion objects.}
-
-\item{dialect}{The \code{\link{sql_dialect}} to use.}
-
-\item{create_new_connection}{The factory function for JDBCConnection objects.}
-
 \item{drv}{An object of class \code{\linkS4class{JDBCDriver}}}
 
 \item{...}{Ignored.}
@@ -66,7 +46,7 @@ which should get added to the classpath (see \link[rJava]{.jaddClassPath})}
 \itemize{
 \item \code{dbListConnections}: JDBC maintains no list of acitve connections. Returns an empty list.
 
-\item \code{dbUnloadDriver}: Unloading has no effect but returns always \code{TRUE}.
+\item \code{dbUnloadDriver}: Unloading a \code{JDBCDriver} has no effect. Returns \code{TRUE}.
 
 \item \code{dbGetInfo}: Returns a list with \code{driver.version}, \code{client.version} and \code{max.connections}.
 
@@ -78,4 +58,10 @@ which should get added to the classpath (see \link[rJava]{.jaddClassPath})}
 
 \item \code{show}: Prints a short info about the driver.
 }}
+\seealso{
+Other connection functions: \code{\link{dbConnect,JDBCConnection-method}},
+  \code{\link{dbConnect,JDBCDriver-method}},
+  \code{\link{dbDisconnect,JDBCConnection-method}}
+}
+\keyword{internal}
 

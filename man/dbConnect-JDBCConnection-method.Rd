@@ -17,4 +17,15 @@
 \description{
 Create a connection to the same URL and with the same user as this connection uses.
 }
+\seealso{
+Other connection functions: \code{\link{JDBCDriver-class}},
+  \code{\link{dbConnect,JDBCDriver-method}},
+  \code{\link{dbDisconnect,JDBCConnection-method}}
+
+Other JDBCConnection methods: \code{\link{dbDisconnect,JDBCConnection-method}},
+  \code{\link{dbSendQuery,JDBCConnection,character-method}},
+  \code{\link{dbj-edit-tables}},
+  \code{\link{dbj-sql-generate}},
+  \code{\link{dbj-sql-quote}}, \code{\link{dbj-table}}
+}
 

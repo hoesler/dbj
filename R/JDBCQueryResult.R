@@ -2,7 +2,7 @@
 #' @include java_utils.R
 NULL
 
-#' JDBCQueryResult class.
+#' JDBCQueryResult class
 #' 
 #' @param res,dbObj an \code{\linkS4class{JDBCQueryResult}} object.
 #' @param n optional maximum number of records to retrieve per fetch. Use \code{-1} to 
@@ -14,7 +14,7 @@ NULL
 #'   Expected is a subset of \code{c("name", "field.type", "data.type", "label", "nullable")}.
 #' @param ... Ignored. Needed for compatibility with generic.
 #' 
-#' @keywords internal
+#' @family result classes
 #' @export
 JDBCQueryResult <- setClass("JDBCQueryResult",
   contains = c("JDBCResult"),
@@ -50,10 +50,10 @@ setMethod("initialize", "JDBCQueryResult", function(.Object, j_result_set, conne
 #' @rdname JDBCQueryResult-class
 #' @inheritParams DBI::sqlColumnToRownames
 #' @section Methods:
-#' \code{fetch}: Fetch n results
+#' \code{dbFetch}: Fetch n results
 #' @export
-setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
-  function(res, n, fetch_size = 0, ..., row.names = NA) {
+setMethod("dbFetch", signature(res = "JDBCQueryResult", n = "numeric"),
+  function(res, n = -1, fetch_size = 0, ..., row.names = NA) {
     assert_that(is.numeric(fetch_size))    
 
     cols <- jdbc_rsmeta_column_count(res@j_result_set_meta)
@@ -100,14 +100,6 @@ setMethod("fetch", signature(res = "JDBCQueryResult", n = "numeric"),
     ret <- sqlColumnToRownames(ret, row.names)
 
     return(ret)
-  }
-)
-
-#' @rdname JDBCQueryResult-class
-#' @export
-setMethod("fetch", signature(res = "JDBCQueryResult", n = "missing"),
-  function(res, n, ...) {
-    fetch(res, -1)
   }
 )
 
