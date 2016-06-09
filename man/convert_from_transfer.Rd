@@ -4,10 +4,10 @@
 \alias{convert_from_transfer}
 \title{Convert from transfer type to client type}
 \usage{
-convert_from_transfer(read_conversions, data, data_attributes)
+convert_from_transfer(read_conversion_rules, data, data_attributes)
 }
 \arguments{
-\item{read_conversions}{a list of JDBCReadConversion objects}
+\item{read_conversion_rules}{a list of \code{\link{read_conversion_rule}} objects}
 
 \item{data}{the data vector to convert}
 

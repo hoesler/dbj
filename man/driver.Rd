@@ -16,9 +16,9 @@ driver(driverClass, classPath = "",
 \item{classPath}{a character vector of length one specifying classpaths separated by \code{\link[=.Platform]{path.sep}}
 or a character vector of classpaths which will be added to the \code{\link[=.jaddClassPath]{rJava class loader}}}
 
-\item{read_conversions}{a list of \code{\link[=read_conversion]{read conversions}}.}
+\item{read_conversions}{a list of \code{\link[=read_conversion_rule]{read conversions}}.}
 
-\item{write_conversions}{a list of \code{\link[=write_conversion]{write conversions}}.}
+\item{write_conversions}{a list of \code{\link[=write_conversion_rule]{write conversions}}.}
 
 \item{dialect}{The \code{\link{sql_dialect}} to use.}
 

@@ -1,12 +1,9 @@
 #' @include java_sql_types.R
 NULL
 
-#' Create a read conversion object
+#' Create a read conversion rule
 #' 
-#' Read conversion objects define how to convert data read from JDBC to R values.
-#' 
-#' \code{sqltype_read_conversion} matches
-#' Group conversion objects as a list and pass them to \code{\link{driver}}.
+#' Read conversion rules define how to convert data read from JDBC to R values.
 #' 
 #' @param condition a function which accepts a list of data attributes and returns a logical
 #'  indicating if it is able to convert the data
@@ -18,114 +15,42 @@ NULL
 #' @family conversion functions
 #' @examples
 #' 
-#' # Convert TIME data, returned from JDBC as milliseconds, to difftime.
-#' sqltype_read_conversion(
-#'   with(JDBC_SQL_TYPES, c(TIME)),
-#'   "difftime",
-#'   function(data) as.difftime(data / 1000, units = "secs")
+#' # Convert TIME data, fetched from JDBC as numeric milliseconds, to difftime.
+#' read_conversion_rule(
+#'   function(jdbc.type, ...) with(JDBC_SQL_TYPES,
+#'     jdbc.type == TIME),
+#'   function(...) "difftime",
+#'   function(data, ...) as.difftime(data / 1000, units = "secs")
 #' )
-read_conversion <- function(condition, r_class, conversion) {
+read_conversion_rule <- function(condition, r_class, conversion) {
   assert_that(is.function(condition))
-  assert_that(is.character(r_class))
+  assert_that(is.function(r_class))
   assert_that(is.function(conversion))
 
   structure(list(
     condition = condition,
     r_class = r_class,
     conversion = conversion
-  ), class = "JDBCReadConversion")
+  ), class = "read_conversion_rule")
 }
 
-#' @param sql_types a numeric vector of JDBC_SQL_TYPES
-#' @export
-#' @rdname read_conversion
-#' @keywords internal
-sql_type_matcher <- function(sql_types) {
-  assert_that(is.numeric(sql_types))
-  assert_that(all(sql_types %in% JDBC_SQL_TYPES))
-
-  function(attributes) {
-    assert_that(is.list(attributes) && c("jdbc.type") %in% names(attributes))
-    assert_that(attributes$jdbc.type %in% JDBC_SQL_TYPES)
-
-    all(JDBC_SQL_TYPES[JDBC_SQL_TYPES == attributes$jdbc.type] %in% sql_types)
-  }
+is.raw_list <- function(x) {
+  all(vapply(x, function(x) { is.raw(x) || is.na(x) }, logical(1)))
 }
 
-#' @export
-#' @rdname read_conversion
-#' @keywords internal
-sqltype_read_conversion <- function(sql_types, r_class, conversion) {
-  read_conversion(sql_type_matcher(sql_types), r_class, conversion)
-}
+is.difftime <- function(x) is(x, "difftime")
 
-check_raw_list <- function(x) {
-  is_raw <- vapply(x, function(x) { is.raw(x) || is.na(x) }, logical(1))
-  if (!all(is_raw)) {
-    stop("Only lists of raw vectors are currently supported", call. = FALSE)
-  }
-  x
-}
+is.Date <- function(x) is(x, "Date")
 
-#' @export
-#' @rdname read_conversion
-#' @keywords internal
-default_read_conversions <- list(
-  sqltype_read_conversion(
-    with(JDBC_SQL_TYPES, get("NULL")),
-    "integer",
-    identity
-  ),
-  sqltype_read_conversion(
-    with(JDBC_SQL_TYPES, c(TINYINT, SMALLINT, INTEGER)),
-    "integer",
-    identity
-  ),
-  sqltype_read_conversion(
-    with(JDBC_SQL_TYPES, c(FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL, BIGINT)),
-    "numeric",
-    identity
-  ),
-  sqltype_read_conversion(
-    with(JDBC_SQL_TYPES, c(BIT, BOOLEAN)),
-    "logical",
-    identity
-  ),
-  sqltype_read_conversion(
-    with(JDBC_SQL_TYPES, c(CHAR, VARCHAR, LONGVARCHAR, NCHAR, NVARCHAR, LONGNVARCHAR)),
-    "character",
-    identity
-  ),
-  sqltype_read_conversion(
-    with(JDBC_SQL_TYPES, c(TIME)),
-    "difftime",
-    function(data) as.difftime(data / 1000, units = "secs")
-  ),
-  sqltype_read_conversion(
-    with(JDBC_SQL_TYPES, c(DATE)),
-    "Date",
-    # data is point in time that is time milliseconds after January 1, 1970 00:00:00 GMT
-    function(data) structure(as.integer(data / 1000 / 60 / 60 / 24), class = "Date")
-  ),
-  sqltype_read_conversion(
-    with(JDBC_SQL_TYPES, c(TIMESTAMP)),
-    "POSIXct",
-    function(data) as.POSIXct(data / 1000, origin = "1970-01-01", tz = "GMT")
-  ),
-  sqltype_read_conversion(
-    with(JDBC_SQL_TYPES, c(BINARY, BLOB)),
-    "list",
-    function(data) { lapply(data, function(field) { if (all(is.na(field))) NA else as.raw(field) }) }
-  )
-)
+is.POSIXct <- function(x) is(x, "POSIXct")
 
-#' Create a write conversion object
+#' Create a write conversion rule
 #' 
-#' Write conversion objects define how to convert R values to data which can be written to JDBC.
+#' Write conversion rules define how to convert R values to data which can be written to JDBC.
 #' 
-#' Group conversion objects as a list and pass them to \code{\link{driver}}.
+#' Group conversion rules as a list and pass them to \code{\link{driver}}.
 #' 
-#' @param condition a function which accepts a list of data attributes and returns a logical
+#' @param condition a function which accepts the data and additional attributes and returns a logical
 #'  indicating if it is able to convert the data
 #' @param conversion a function which accepts a data frame column vector and returns it transformed
 #'  into a vector of a transfer data type
@@ -136,101 +61,41 @@ default_read_conversions <- list(
 #' @family conversion functions
 #' @examples
 #' # Convert difftime vectors into numeric vectors of milliseconds and create 
-#' mapped_write_conversion(
-#'   "difftime",
-#'   function(data) as.numeric(data, units = "secs") * 1000,
-#'   "TIME"
+#' write_conversion_rule(
+#'   function(data, ...) is.difftime(data),
+#'   function(data, ...) as.numeric(data, units = "secs") * 1000,
+#'   function(...) "TIME"
 #' )
-write_conversion <- function(condition, conversion, create_type) {
+write_conversion_rule <- function(condition, conversion, create_type) {
   assert_that(is.function(condition))
   assert_that(is.function(conversion))
-  assert_that(is.character(create_type))
+  assert_that(is.function(create_type))
 
   structure(list(
     condition = condition,
     conversion = conversion,
     create_type = create_type
-  ), class = "JDBCWriteConversion")
+  ), class = "write_conversion_rule")
 }
-
-#' @param class_names a character vector of class names
-#' @export
-#' @rdname write_conversion
-#' @keywords internal
-class_matcher <- function(class_names) {
-  assert_that(is.character(class_names))
- 
-  function(attributes) {
-    assert_that(is.list(attributes) && all(c("class_names") %in% names(attributes)))
-    any(attributes$class_names %in% class_names)
-  }
-}
-
-#' @export
-#' @rdname write_conversion
-#' @keywords internal
-mapped_write_conversion <- function(class_names, conversion, create_type) {
-  write_conversion(class_matcher(class_names), conversion, create_type)
-}
-
-#' @export
-#' @rdname write_conversion
-#' @keywords internal
-default_write_conversions <- list(
-  mapped_write_conversion(
-    "integer",
-    identity,
-    "INTEGER"
-  ),
-  mapped_write_conversion(
-    "numeric",
-    identity,
-    "DOUBLE PRECISION"
-  ),
-  mapped_write_conversion(
-    "logical",
-    as.numeric,
-    "BOOLEAN"
-  ),
-  mapped_write_conversion(
-    "difftime",
-    function(data) as.numeric(data, units = "secs") * 1000,
-    "TIME"
-  ),
-  mapped_write_conversion(
-    "Date",
-    function(data) as.numeric(data) * 24 * 60 * 60 * 1000, # days to milliseconds after January 1, 1970 00:00:00 GMT
-    "DATE"
-  ),
-  mapped_write_conversion(
-    "POSIXct",
-    function(data) as.numeric(data) * 1000, # seconds to milliseconds after January 1, 1970 00:00:00 GMT
-    "TIMESTAMP"
-  ),
-  mapped_write_conversion(
-    c("character", "factor"),
-    as.character,
-    "VARCHAR(255)"
-  ),
-  mapped_write_conversion(
-    "list",
-    check_raw_list,
-    "BLOB"
-  )
-)
 
 #' Convert from transfer type to client type
 #' 
-#' @param read_conversions a list of JDBCReadConversion objects
+#' @param read_conversion_rules a list of \code{\link{read_conversion_rule}} objects
 #' @param data the data vector to convert
 #' @param data_attributes a named list of attributes of data
 #' @keywords internal
-convert_from_transfer <- function(read_conversions, data, data_attributes) {
-  assert_that(is.list(read_conversions) && all(sapply(read_conversions, class) == "JDBCReadConversion"))
+convert_from_transfer <- function(read_conversion_rules, data, data_attributes) {
+  assert_that(is.list(read_conversion_rules))
+  assert_that(all(sapply(read_conversion_rules, class) == "read_conversion_rule"))
   
-  for (i in seq_along(read_conversions)) {
-    if (read_conversions[[i]]$condition(data_attributes)) {
-      return(read_conversions[[i]]$conversion(data))
+  for (i in seq_along(read_conversion_rules)) {
+    conversion_rule <- read_conversion_rules[[i]]
+    args <- c(list(data = data), as.list(data_attributes))
+    
+    conversion_rule_applicable <- do.call(conversion_rule$condition, args)
+    if (conversion_rule_applicable) {
+      converted_data <- do.call(conversion_rule$conversion, args)
+      return(converted_data)
     }
   }
 
@@ -240,19 +105,22 @@ convert_from_transfer <- function(read_conversions, data, data_attributes) {
 
 #' Convert from client type to transfer type
 #' 
-#' @param write_conversions a list of JDBCWriteConversion objects
+#' @param write_conversion_rules a list of \code{\link{write_conversion_rule}} objects
 #' @param data the data object to convert
 #' @param data_attributes a named list of attributes
 #' @keywords internal
-convert_to_transfer <- function(write_conversions, data, data_attributes) {
-  assert_that(is.list(write_conversions))
-  assert_that(all(sapply(write_conversions, class) == "JDBCWriteConversion"))
-
-  for (i in seq_along(write_conversions)) {
-    conversion <- write_conversions[[i]]
-    if (conversion$condition(data_attributes)) {
-      ret <- conversion$conversion(data)
-      return(ret)
+convert_to_transfer <- function(write_conversion_rules, data, data_attributes) {
+  assert_that(is.list(write_conversion_rules))
+  assert_that(all(sapply(write_conversion_rules, class) == "write_conversion_rule"))
+  
+  for (i in seq_along(write_conversion_rules)) {
+    conversion_rule <- write_conversion_rules[[i]]
+    args <- c(list(data = data), as.list(data_attributes))
+    
+    conversion_rule_applicable <- do.call(conversion_rule$condition, args)
+    if (conversion_rule_applicable) {
+      converted_data <- do.call(conversion_rule$conversion, args)
+      return(converted_data)
     }
   }
 
@@ -275,9 +143,10 @@ setMethod("toSQLDataType", "AsIs", function(obj, write_conversions) {
 setMethod("toSQLDataType", "ANY", function(obj, write_conversions) {
   for (i in seq_along(write_conversions)) {
     conversion <- write_conversions[[i]]
-    data_attributes <- list(class_names = class(obj))
-    if (conversion$condition(data_attributes)) {
-      db_data_type <- conversion$create_type
+    args <- list(data = obj)
+    
+    if (do.call(conversion$condition, args)) {
+      db_data_type <- do.call(conversion$create_type, args)
       assert_that(is.character(db_data_type) && length(db_data_type == 1))
       return(db_data_type)
     }

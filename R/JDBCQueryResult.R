@@ -171,8 +171,8 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
           jdbc_rsmeta_column_type(res@j_result_set_meta, i)
         }
         read_conversions[sapply(read_conversions, function (x) {
-          x$condition(list("jdbc.type" = jdbc.type))
-        })][[1]]$r_class
+          x$condition(jdbc.type = jdbc.type)
+        })][[1]]$r_class()
       }, "")))
     }
 

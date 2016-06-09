@@ -13,7 +13,7 @@ create_j_colum(column_data, sql_type, is_nullable, write_conversions)
 
 \item{is_nullable}{is the column nullable? 0 = disallows NULL, 1 = allows NULL, 2 = unknown}
 
-\item{write_conversions}{a list of JDBCWriteConversion objects}
+\item{write_conversions}{a list of \code{\link{write_conversion_rule}} objects}
 }
 \description{
 Create a Java Column class for given column_data

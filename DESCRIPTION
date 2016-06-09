@@ -41,4 +41,5 @@ Collate:
     'java_dependencies.R'
     'java_dependencies_maven.R'
     'java_resultpull.R'
+    'type_mapping_defaults.R'
 RoxygenNote: 5.0.1

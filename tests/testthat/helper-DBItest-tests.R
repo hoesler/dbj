@@ -57,15 +57,25 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
     	
       # given
   	  read_conversions <- c(list(
-  	    sqltype_read_conversion(JDBC_SQL_TYPES$DOUBLE, "numeric", function(x) x + 1)
+  	    read_conversion_rule(
+          function(jdbc.type, ...) with(JDBC_SQL_TYPES,
+            jdbc.type == DOUBLE),
+          function(...) "numeric",
+          function(data, ...) data + 1
+        )
   	  ), default_read_conversions)
 
   	  write_conversions <- c(list(
-  	    mapped_write_conversion("numeric", function(x) x + 1, "DOUBLE")
+  	    write_conversion_rule(
+          function(data, ...) is.numeric(data),
+          function(data, ...) data + 1,
+          function(...) "DOUBLE"
+        )
   	  ), default_write_conversions)
 
   	  # when
-  	  drv <- do.call(dbj::driver, modifyList(default_driver_args, list(read_conversions = read_conversions, write_conversions = write_conversions)))
+  	  drv <- do.call(dbj::driver, modifyList(default_driver_args,
+        list(read_conversions = read_conversions, write_conversions = write_conversions)))
   	  
   	  # then
   	  con <- do.call(dbConnect, c(list(drv), ctx$connect_args))
@@ -74,7 +84,7 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
 
   	  iris_read <- tryCatch({
   	  	expect_error(dbGetQuery(con, paste0("SELECT * FROM ", dbQuoteIdentifier("iris"))))
-  		dbWriteTable(con, "iris", iris)
+  		  dbWriteTable(con, "iris", iris)
   	  	dbReadTable(con, "iris")
   	  }, finally = dbRemoveTable(con, "iris"))
 
@@ -86,15 +96,25 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
       # given
   	  library(lubridate)
   	  read_conversions <- c(list(
-  	    sqltype_read_conversion(JDBC_SQL_TYPES$DOUBLE, "Duration", function(x) duration(x))
+  	    read_conversion_rule(
+          function(jdbc.type, ...) with(JDBC_SQL_TYPES,
+            jdbc.type == DOUBLE),
+          function(...) "Duration",
+          function(data, ...) duration(data)
+        )
   	  ), default_read_conversions)
 
   	  write_conversions <- c(list(
-  	    mapped_write_conversion("Duration", function(x) as.numeric(x), "DOUBLE")
+  	    write_conversion_rule(
+          function(data, ...) is.duration(data),
+          function(data, ...) as.numeric(data),
+          function(...) "DOUBLE"
+        )
   	  ), default_write_conversions)
 
   	  # when
-  	  drv <- do.call(dbj::driver, modifyList(default_driver_args, list(read_conversions = read_conversions, write_conversions = write_conversions)))
+  	  drv <- do.call(dbj::driver, modifyList(default_driver_args,
+        list(read_conversions = read_conversions, write_conversions = write_conversions)))
   	  
   	  # then
   	  con <- do.call(dbConnect, c(list(drv), ctx$connect_args))
@@ -103,7 +123,7 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
 
   	  df_read <- tryCatch({
   	  	expect_error(dbGetQuery(con, paste0("SELECT * FROM ", dbQuoteIdentifier("time_table"))))
-  		dbWriteTable(con, "time_table", df)
+  		  dbWriteTable(con, "time_table", df)
   	  	dbReadTable(con, "time_table")
   	  }, finally = dbRemoveTable(con, "time_table"))
 

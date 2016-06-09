@@ -61,8 +61,8 @@ create_new_dbj_connection <- function(j_con, drv) {
 #' in order to \code{\link[=dbConnect,JDBCDriver-method]{connect}} to databases using the given JDBC driver.
 #' 
 #' @inheritParams create_jdbc_driver
-#' @param read_conversions a list of \code{\link[=read_conversion]{read conversions}}.
-#' @param write_conversions a list of \code{\link[=write_conversion]{write conversions}}.
+#' @param read_conversions a list of \code{\link[=read_conversion_rule]{read conversions}}.
+#' @param write_conversions a list of \code{\link[=write_conversion_rule]{write conversions}}.
 #' @param dialect The \code{\link{sql_dialect}} to use.
 #' @param create_new_connection The factory function for JDBCConnection objects.
 #'  Should only be modified by packages extending JDBCDriver and related classes. 

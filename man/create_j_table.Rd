@@ -11,7 +11,7 @@ create_j_table(j_statement, data, write_conversions)
 
 \item{data}{a data.frame}
 
-\item{write_conversions}{a list of JDBCWriteConversion objects}
+\item{write_conversions}{a list of \code{\link{write_conversion_rule}} objects}
 }
 \description{
 Transform a data frame into a Java reference to a com/github/hoesler/dbj/Table

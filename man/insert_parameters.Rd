@@ -11,7 +11,7 @@ insert_parameters(j_statement, parameter_list, write_conversions)
 
 \item{parameter_list}{a list of parameter values to fill the statement with}
 
-\item{write_conversions}{a list of \code{JDBCWriteConversion} objects}
+\item{write_conversions}{a list of \code{\link{write_conversion_rule}} objects}
 }
 \description{
 Set the values of prepared statement.

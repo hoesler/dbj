@@ -4,10 +4,10 @@
 \alias{convert_to_transfer}
 \title{Convert from client type to transfer type}
 \usage{
-convert_to_transfer(write_conversions, data, data_attributes)
+convert_to_transfer(write_conversion_rules, data, data_attributes)
 }
 \arguments{
-\item{write_conversions}{a list of JDBCWriteConversion objects}
+\item{write_conversion_rules}{a list of \code{\link{write_conversion_rule}} objects}
 
 \item{data}{the data object to convert}
 
