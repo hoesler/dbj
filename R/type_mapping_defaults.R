@@ -80,7 +80,7 @@ default_write_conversions <- list(
   ),
   write_conversion_rule(
     function(data, ...) is.logical(data),
-    function(data, ...) as.numeric(data),
+    function(data, ...) identity(data),
     function(...) "BOOLEAN"
   ),
   write_conversion_rule(
