@@ -3,13 +3,15 @@
 \docType{data}
 \name{JDBC_SQL_TYPES}
 \alias{JDBC_SQL_TYPES}
-\title{A list of named SQL types as defined in the java class java.sql.Types}
+\title{A named list of SQL types as defined in the java class
+\href{https://docs.oracle.com/javase/7/docs/api/java/sql/Types.html}{java.sql.Types}}
 \format{An object of class \code{list} of length 36.}
 \usage{
 JDBC_SQL_TYPES
 }
 \description{
-A list of named SQL types as defined in the java class java.sql.Types
+A named list of SQL types as defined in the java class
+\href{https://docs.oracle.com/javase/7/docs/api/java/sql/Types.html}{java.sql.Types}
 }
 \keyword{datasets}
 

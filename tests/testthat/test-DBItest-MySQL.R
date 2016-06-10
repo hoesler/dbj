@@ -47,18 +47,11 @@ DBItest::test_all(skip = c(
   "quote_identifier",
   "quote_identifier_special",
 
-  # TODO: Driver does not support parameter metadata,
-  # throws java.sql.SQLException: Parameter metadata not available for the given statement
-  "write_table",
-  "read_table",
-  "append_table",
-  "table_visible_in_other_connection",
-  "list_tables",
-  "list_fields",
-  "roundtrip_.+",
-  "rows_affected",
-  "temporary_table",
+  "get_info_result", # rstats-db/DBI#55
+  "roundtrip_numeric_special", # rstats-db/RMySQL#105
 
+  "roundtrip_raw",  # TODO: java.lang.NullPointerException
+  
   NULL
 ))
 

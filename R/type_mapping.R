@@ -78,6 +78,20 @@ write_conversion_rule <- function(condition, conversion, create_type) {
   ), class = "write_conversion_rule")
 }
 
+find_conversion_rule <- function(conversion_rules, data, data_attributes) {
+  for (i in seq_along(conversion_rules)) {
+    conversion_rule <- conversion_rules[[i]]
+    args <- c(list(data = data), as.list(data_attributes))
+    
+    conversion_rule_applicable <- do.call(conversion_rule$condition, args)
+    if (conversion_rule_applicable) {
+      return(conversion_rule)
+    }
+  }
+  stop(sprintf("No conversion rule found in %d rules for data %s and attributes %s",
+    length(conversion_rules), deparse(substitute(data)), deparse(substitute(data_attributes))))
+}
+
 #' Convert from transfer type to client type
 #' 
 #' @param read_conversion_rules a list of \code{\link{read_conversion_rule}} objects
@@ -88,19 +102,10 @@ convert_from_transfer <- function(read_conversion_rules, data, data_attributes) 
   assert_that(is.list(read_conversion_rules))
   assert_that(all(sapply(read_conversion_rules, class) == "read_conversion_rule"))
   
-  for (i in seq_along(read_conversion_rules)) {
-    conversion_rule <- read_conversion_rules[[i]]
-    args <- c(list(data = data), as.list(data_attributes))
-    
-    conversion_rule_applicable <- do.call(conversion_rule$condition, args)
-    if (conversion_rule_applicable) {
-      converted_data <- do.call(conversion_rule$conversion, args)
-      return(converted_data)
-    }
-  }
+  conversion_rule <- find_conversion_rule(read_conversion_rules, data, data_attributes)
 
-  stop(sprintf("No read conversion rule was defined for attributes %s",
-    list(data_attributes))) 
+  args <- c(list(data = data), as.list(data_attributes))
+  do.call(conversion_rule$conversion, args)
 }
 
 #' Convert from client type to transfer type
@@ -113,19 +118,10 @@ convert_to_transfer <- function(write_conversion_rules, data, data_attributes) {
   assert_that(is.list(write_conversion_rules))
   assert_that(all(sapply(write_conversion_rules, class) == "write_conversion_rule"))
   
-  for (i in seq_along(write_conversion_rules)) {
-    conversion_rule <- write_conversion_rules[[i]]
-    args <- c(list(data = data), as.list(data_attributes))
-    
-    conversion_rule_applicable <- do.call(conversion_rule$condition, args)
-    if (conversion_rule_applicable) {
-      converted_data <- do.call(conversion_rule$conversion, args)
-      return(converted_data)
-    }
-  }
+  conversion_rule <- find_conversion_rule(write_conversion_rules, data, data_attributes)
 
-  stop(sprintf("No write conversion rule was defined for attributes %s",
-    list(data_attributes)))
+  args <- c(list(data = data), as.list(data_attributes))
+  do.call(conversion_rule$conversion, args)
 }
 
 setGeneric("toSQLDataType", function(obj, write_conversions) standardGeneric("toSQLDataType"))
@@ -141,15 +137,9 @@ setMethod("toSQLDataType", "AsIs", function(obj, write_conversions) {
 })
 
 setMethod("toSQLDataType", "ANY", function(obj, write_conversions) {
-  for (i in seq_along(write_conversions)) {
-    conversion <- write_conversions[[i]]
-    args <- list(data = obj)
-    
-    if (do.call(conversion$condition, args)) {
-      db_data_type <- do.call(conversion$create_type, args)
-      assert_that(is.character(db_data_type) && length(db_data_type == 1))
-      return(db_data_type)
-    }
-  }
-  stop("No mapping defined for object of type [", paste(class(obj), collapse = ", "), "]")
+  conversion_rule <- find_conversion_rule(write_conversions, obj, list())
+  args <- list(data = obj)   
+  db_data_type <- do.call(conversion_rule$create_type, args)
+  assert_that(is.character(db_data_type) && length(db_data_type == 1))
+  return(db_data_type)
 })

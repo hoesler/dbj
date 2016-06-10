@@ -1,41 +1,52 @@
-#' A list of named SQL types as defined in the java class java.sql.Types
+#' A named list of SQL types as defined in the java class
+#' \href{https://docs.oracle.com/javase/7/docs/api/java/sql/Types.html}{java.sql.Types}
 #' @export
 JDBC_SQL_TYPES <- list(
-  BIT = -7,
-  TINYINT = -6,
-  SMALLINT = 5,
-  INTEGER = 4,
-  BIGINT = -5,
-  FLOAT = 6,
-  REAL = 7,
-  DOUBLE = 8,
-  NUMERIC = 2,
-  DECIMAL = 3,
-  CHAR = 1,
-  VARCHAR = 12,
-  LONGVARCHAR = -1,
-  DATE = 91,
-  TIME = 92,
-  TIMESTAMP = 93,
-  BINARY = -2,
-  VARBINARY = -3,
-  LONGVARBINARY = -4,
-  NULL = 0,
-  OTHER = 1111,
-  JAVA_OBJECT = 2000,
-  DISTINCT = 2001,
-  STRUCT = 2002,
-  ARRAY = 2003,
-  BLOB = 2004,
-  CLOB = 2005,
-  REF = 2006,
-  DATALINK = 70,
-  BOOLEAN = 16,
+  BIT = -7L,
+  TINYINT = -6L,
+  SMALLINT = 5L,
+  INTEGER = 4L,
+  BIGINT = -5L,
+  FLOAT = 6L,
+  REAL = 7L,
+  DOUBLE = 8L,
+  NUMERIC = 2L,
+  DECIMAL = 3L,
+  CHAR = 1L,
+  VARCHAR = 12L,
+  LONGVARCHAR = -1L,
+  DATE = 91L,
+  TIME = 92L,
+  TIMESTAMP = 93L,
+  BINARY = -2L,
+  VARBINARY = -3L,
+  LONGVARBINARY = -4L,
+  NULL = 0L,
+  OTHER = 1111L,
+  JAVA_OBJECT = 2000L,
+  DISTINCT = 2001L,
+  STRUCT = 2002L,
+  ARRAY = 2003L,
+  BLOB = 2004L,
+  CLOB = 2005L,
+  REF = 2006L,
+  DATALINK = 70L,
+  BOOLEAN = 16L,
   # JDBC 4.0
-  ROWID = -8,
-  NCHAR = -15,
-  NVARCHAR = -9,
-  LONGNVARCHAR = -16,
-  NCLOB = 2011,
-  SQLXML = 2009
+  ROWID = -8L,
+  NCHAR = -15L,
+  NVARCHAR = -9L,
+  LONGNVARCHAR = -16L,
+  NCLOB = 2011L,
+  SQLXML = 2009L
 )
+
+as.jdbc_sql_type <- function(x, ...) UseMethod("as.jdbc_sql_type")
+as.jdbc_sql_type.numeric <- function(x, ...) {
+  assert_that(all(x %in% JDBC_SQL_TYPES))
+  x
+}
+as.jdbc_sql_type.character <- function(x, ...) {
+  longest_prefix <- max(names(JDBC_SQL_TYPES)[which(startsWith(x, names(JDBC_SQL_TYPES)))])
+  JDBC_SQL_TYPES[[longest_prefix]]
+}

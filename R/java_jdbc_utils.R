@@ -56,7 +56,7 @@ insert_parameters <- function(j_statement, parameter_list, write_conversions) {
   #assert_that(j_statement %instanceof% "java.sql.PreparedStatement")
   assert_that(is.list(parameter_list))
   if (length(parameter_list) > 0) {
-    j_table <- create_j_table(j_statement, as.data.frame(parameter_list, stringsAsFactors = FALSE), write_conversions)
+    j_table <- create_j_table(as.data.frame(parameter_list, stringsAsFactors = FALSE), write_conversions)
 
     jtry(jcall("com/github/hoesler/dbj/PreparedStatements", "V", "insert",
       .jcast(j_statement, "java/sql/PreparedStatement"), .jcast(j_table, "com/github/hoesler/dbj/Table"), as.integer(0)))
@@ -116,24 +116,15 @@ add_batch <- function(j_statement) {
 
 #' Transform a data frame into a Java reference to a com/github/hoesler/dbj/Table
 #' 
-#' @param j_statement a jobjRef to a java.sql.PreparedStatement
 #' @param data a data.frame
 #' @param write_conversions a list of \code{\link{write_conversion_rule}} objects
 #' @keywords internal
-create_j_table <- function(j_statement, data, write_conversions) {
-  #assert_that(j_statement %instanceof% "java.sql.PreparedStatement")
+create_j_table <- function(data, write_conversions) {
   assert_that(is.data.frame(data))
-
-  j_statement_meta <- jtry(jcall(j_statement, "Ljava/sql/ParameterMetaData;", "getParameterMetaData"))
 
   j_columns <- unlist(lapply(seq_along(data), function(column_index) {
     column_data <- data[,column_index]
-    sql_type <- jtry(jcall(j_statement_meta, "I", "getParameterType", column_index))
-    is_nullable <- jtry(jcall(j_statement_meta, "I", "isNullable", column_index))
-    if (is_nullable == 0 && any(is.na(column_data))) {
-      stop("Column is not nullable but data contains NA")
-    }
-    create_j_colum(column_data, sql_type, is_nullable, write_conversions)
+    create_j_colum(column_data, write_conversions)
   }))
 
   jtry(.jcall("com/github/hoesler/dbj/ArrayListTable", "Lcom/github/hoesler/dbj/ArrayListTable;",
@@ -147,9 +138,11 @@ create_j_table <- function(j_statement, data, write_conversions) {
 #' @param is_nullable is the column nullable? 0 = disallows NULL, 1 = allows NULL, 2 = unknown
 #' @param write_conversions a list of \code{\link{write_conversion_rule}} objects
 #' @keywords internal
-create_j_colum <- function(column_data, sql_type, is_nullable, write_conversions) {
-  converted_column_data <- convert_to_transfer(write_conversions, column_data, list(sql_type = sql_type))
-  
+create_j_colum <- function(column_data, write_conversions) {
+  conversion_rule <- find_conversion_rule(write_conversions, column_data, list())
+  converted_column_data <- do.call(conversion_rule$conversion, list(data = column_data))
+  sql_type <- as.jdbc_sql_type(conversion_rule$create_type(list(data = column_data)))
+
   j_column_classname <- NULL
   j_column_data <- NULL
 
@@ -179,14 +172,8 @@ create_j_colum <- function(column_data, sql_type, is_nullable, write_conversions
 
   assert_that(all(!is.null(c(j_column_classname, j_column_data))))    
   
-  j_column <-
-  if (is_nullable > 0 && any(is.na(column_data))) {
-    jtry(.jcall(j_column_classname, sprintf("L%s;", j_column_classname),
-      "create", sql_type, .jarray(j_column_data), .jarray(is.na(column_data)), check = FALSE))
-  } else {
-    jtry(.jcall(j_column_classname, sprintf("L%s;", j_column_classname),
-      "create", sql_type, .jarray(j_column_data), check = FALSE))
-  }
+  j_column <- jtry(jcall(j_column_classname, sprintf("L%s;", j_column_classname),
+      "create", as.integer(sql_type), .jarray(j_column_data), .jarray(is.na(column_data))))
 
   return(j_column)
 }
@@ -195,7 +182,7 @@ batch_insert <- function(j_statement, data, write_conversions) {
   #assert_that(j_statement %instanceof% "java.sql.PreparedStatement")
   assert_that(is.data.frame(data))
 
-  j_table <- create_j_table(j_statement, data, write_conversions)
+  j_table <- create_j_table(data, write_conversions)
 
   jtry(.jcall("com/github/hoesler/dbj/PreparedStatements", "V", "batchInsert",
     .jcast(j_statement, "java/sql/PreparedStatement"), .jcast(j_table, "com/github/hoesler/dbj/Table"), check = FALSE))

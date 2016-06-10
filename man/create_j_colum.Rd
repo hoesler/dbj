@@ -4,16 +4,16 @@
 \alias{create_j_colum}
 \title{Create a Java Column class for given column_data}
 \usage{
-create_j_colum(column_data, sql_type, is_nullable, write_conversions)
+create_j_colum(column_data, write_conversions)
 }
 \arguments{
 \item{column_data}{the data to insert}
 
+\item{write_conversions}{a list of \code{\link{write_conversion_rule}} objects}
+
 \item{sql_type}{the type of the column}
 
 \item{is_nullable}{is the column nullable? 0 = disallows NULL, 1 = allows NULL, 2 = unknown}
-
-\item{write_conversions}{a list of \code{\link{write_conversion_rule}} objects}
 }
 \description{
 Create a Java Column class for given column_data
