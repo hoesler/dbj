@@ -56,7 +56,7 @@ public final class BooleanColumn extends ForwardingList<Optional<Boolean>> imple
     public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
         final Optional<Boolean> aBoolean = data.get(columnIndex);
         if (!aBoolean.isPresent()) {
-            statement.setNull(statementIndex, sqlType);
+            statement.setObject(statementIndex, null);
         } else {
             statement.setBoolean(statementIndex, aBoolean.get());
         }

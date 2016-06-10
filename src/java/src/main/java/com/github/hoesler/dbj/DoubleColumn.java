@@ -219,7 +219,7 @@ public final class DoubleColumn extends ForwardingList<Optional<Double>> impleme
         public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
             final Optional<Double> aDouble = data.get(columnIndex);
             if (!aDouble.isPresent()) {
-                statement.setNull(statementIndex, sqlType);
+                statement.setObject(statementIndex, null);
             } else {
                 statement.setDouble(statementIndex, aDouble.get());
             }
@@ -232,7 +232,7 @@ public final class DoubleColumn extends ForwardingList<Optional<Double>> impleme
         public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
             final Optional<Double> aDouble = data.get(columnIndex);
             if (!aDouble.isPresent()) {
-                statement.setNull(statementIndex, sqlType);
+                statement.setObject(statementIndex, null);
             } else {
                 statement.setFloat(statementIndex, aDouble.get().floatValue());
             }
@@ -245,7 +245,7 @@ public final class DoubleColumn extends ForwardingList<Optional<Double>> impleme
         public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
             final Optional<Double> aDouble = data.get(columnIndex);
             if (!aDouble.isPresent()) {
-                statement.setNull(statementIndex, sqlType);
+                statement.setObject(statementIndex, null);
             } else {
                 statement.setBigDecimal(statementIndex, BigDecimal.valueOf(aDouble.get()));
             }

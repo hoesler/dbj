@@ -35,7 +35,7 @@ public class NullColumn extends AbstractList<Optional<Void>> implements Column<O
 
     @Override
     public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
-        statement.setNull(statementIndex, 0);
+        statement.setNull(statementIndex, Types.NULL);
     }
 
     public static boolean handles(final int sqlType) {

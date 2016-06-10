@@ -22,11 +22,21 @@ public class PreparedStatementsTest {
                 "CREATE TABLE \"test_table\" (\"a\" DOUBLE, \"b\" VARCHAR(255), \"c\" INTEGER, \"d\" DATE, \"e\" TIMESTAMP)");
 
         final ArrayListTable table = ArrayListTable.create(
-                DoubleColumn.create(Types.DOUBLE, new double[]{-42.0, 0, 42.0, Double.NaN}, new boolean[] {false, false, false, false}),
-                StringColumn.create(Types.VARCHAR, new String[]{"a", "", "cb67%&$'", "NA"}, new boolean[] {false, false, false, false}),
-                IntegerColumn.create(Types.INTEGER, new int[]{-42, 0, 42, Integer.MAX_VALUE}, new boolean[] {false, false, false, false}),
-                LongColumn.create(Types.DATE, new long[]{3447, 4476, -45334, 0}, new boolean[]{false, false, false, false}),
-                LongColumn.create(Types.TIMESTAMP, new long[]{-42, 0, 42, Long.MAX_VALUE}, new boolean[]{false, false, false, false})
+                DoubleColumn.create(Types.DOUBLE,
+                        new double[]{-42.0, 0, 42.0, Double.NaN, 1},
+                        new boolean[]{false, false, false, false, true}),
+                StringColumn.create(Types.VARCHAR,
+                        new String[]{"a", "", "cb67%&$'", "NA", "fds"},
+                        new boolean[]{false, false, false, false, true}),
+                IntegerColumn.create(Types.INTEGER,
+                        new int[]{-42, 0, 42, Integer.MAX_VALUE, 5},
+                        new boolean[]{false, false, false, false, true}),
+                LongColumn.create(Types.DATE,
+                        new long[]{3447, 4476, -45334, 0, 5},
+                        new boolean[]{false, false, false, false, true}),
+                LongColumn.create(Types.TIMESTAMP,
+                        new long[]{-42, 0, 42, Long.MAX_VALUE, 5},
+                        new boolean[]{false, false, false, false, true})
         );
 
         final PreparedStatement preparedStatement =
@@ -38,7 +48,7 @@ public class PreparedStatementsTest {
 
         // then
         final int[] ints = preparedStatement.executeBatch();
-        assertThat(ints.length, is(4));
+        assertThat(ints.length, is(5));
     }
 
     @Test

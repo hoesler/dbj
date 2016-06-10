@@ -5,11 +5,10 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Booleans;
 import com.google.common.primitives.Longs;
 
-import java.sql.*;
 import java.sql.Date;
+import java.sql.*;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -233,7 +232,7 @@ public final class LongColumn extends ForwardingList<Optional<Long>> implements 
         public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
             final Optional<Long> longOptional = data.get(columnIndex);
             if (!longOptional.isPresent()) {
-                statement.setNull(statementIndex, sqlType);
+                statement.setObject(statementIndex, null);
             } else {
                 statement.setLong(statementIndex, longOptional.get());
             }
@@ -246,7 +245,7 @@ public final class LongColumn extends ForwardingList<Optional<Long>> implements 
         public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
             final Optional<Long> longOptional = data.get(columnIndex);
             if (!longOptional.isPresent()) {
-                statement.setNull(statementIndex, sqlType);
+                statement.setObject(statementIndex, null);
             } else {
                 statement.setDate(statementIndex, new Date(longOptional.get()), GMT);
             }
@@ -259,7 +258,7 @@ public final class LongColumn extends ForwardingList<Optional<Long>> implements 
         public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
             final Optional<Long> longOptional = data.get(columnIndex);
             if (!longOptional.isPresent()) {
-                statement.setNull(statementIndex, sqlType);
+                statement.setObject(statementIndex, null);
             } else {
                 statement.setTimestamp(statementIndex, new Timestamp(longOptional.get()));
             }
@@ -272,7 +271,7 @@ public final class LongColumn extends ForwardingList<Optional<Long>> implements 
         public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
             final Optional<Long> longOptional = data.get(columnIndex);
             if (!longOptional.isPresent()) {
-                statement.setNull(statementIndex, sqlType);
+                statement.setObject(statementIndex, null);
             } else {
                 statement.setTime(statementIndex, new Time(longOptional.get()));
             }

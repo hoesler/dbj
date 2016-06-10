@@ -56,7 +56,7 @@ public final class IntegerColumn extends ForwardingList<Optional<Integer>> imple
     public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
         final Optional<Integer> cast = data.get(columnIndex);
         if (!cast.isPresent()) {
-            statement.setNull(statementIndex, sqlType);
+            statement.setObject(statementIndex, null);
         } else {
             statement.setInt(statementIndex, cast.get());
         }

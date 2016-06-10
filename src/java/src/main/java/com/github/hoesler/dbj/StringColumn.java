@@ -207,7 +207,7 @@ public final class StringColumn extends ForwardingList<Optional<String>> impleme
         public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
             final Optional<String> optional = data.get(columnIndex);
             if (!optional.isPresent()) {
-                statement.setNull(statementIndex, sqlType);
+                statement.setObject(statementIndex, null);
             } else {
                 statement.setString(statementIndex, optional.get());
             }
@@ -220,7 +220,7 @@ public final class StringColumn extends ForwardingList<Optional<String>> impleme
         public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
             final Optional<String> optional = data.get(columnIndex);
             if (!optional.isPresent()) {
-                statement.setNull(statementIndex, sqlType);
+                statement.setObject(statementIndex, null);
             } else {
                 statement.setNString(statementIndex, optional.get());
             }

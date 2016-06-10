@@ -56,7 +56,7 @@ public final class BinaryColumn extends ForwardingList<Optional<byte[]>> impleme
     public void updateStatement(final PreparedStatement statement, final int statementIndex, final int columnIndex) throws SQLException {
         final Optional<byte[]> aBoolean = data.get(columnIndex);
         if (!aBoolean.isPresent()) {
-            statement.setNull(statementIndex, sqlType);
+            statement.setObject(statementIndex, null);
         } else {
             statement.setBytes(statementIndex, aBoolean.get());
         }
