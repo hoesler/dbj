@@ -44,5 +44,5 @@ DBItest::test_all(skip = c(
 ))
 
 test_bdj_extras(skip = c(),
-  default_driver_args = list(driverClass = derby_driver_class, classPath = derby_classpath)
+  default_driver_args = list(driver_class = derby_driver_class, classpath = derby_classpath)
 )

@@ -10,10 +10,6 @@ create_j_colum(column_data, write_conversions)
 \item{column_data}{the data to insert}
 
 \item{write_conversions}{a list of \code{\link{write_conversion_rule}} objects}
-
-\item{sql_type}{the type of the column}
-
-\item{is_nullable}{is the column nullable? 0 = disallows NULL, 1 = allows NULL, 2 = unknown}
 }
 \description{
 Create a Java Column class for given column_data

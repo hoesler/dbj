@@ -5,23 +5,25 @@ NULL
 
 #' Create a Java JDBC Driver object
 #' 
-#' @param driverClass a character vector of length one specifying a JDBC driver class (e.g. 'org.h2.Driver')
-#' @param classPath a character vector of length one specifying classpaths separated by \code{\link[=.Platform]{path.sep}}
+#' @param driver_class a character vector of length one specifying a JDBC driver class (e.g. 'org.h2.Driver')
+#' @param classpath a character vector of length one specifying classpaths separated by \code{\link[=.Platform]{path.sep}}
 #'  or a character vector of classpaths which will be added to the \code{\link[=.jaddClassPath]{rJava class loader}}
 #' @export
 #' @keywords internal
-create_jdbc_driver <- function(driverClass, classPath) {
-  assert_that(is.character(driverClass))
-  assert_that(is.character(classPath))
+create_jdbc_driver <- function(driver_class, classpath = NULL) {
+  assert_that(is.character(driver_class))
+  assert_that(is.character(classpath))
   
-  ## expand all paths in the classPath
-  expanded_paths <- path.expand(unlist(strsplit(classPath, .Platform$path.sep)))
-  .jaddClassPath(expanded_paths)
-  
-  tryCatch(.jfindClass(as.character(driverClass)[1]),
-    error = function(e) sprintf("Driver for class '%s' could not be found.", driverClass))
+  if (!is.null(classpath)) {
+    ## expand all paths in the classpath
+    expanded_paths <- path.expand(unlist(strsplit(classpath, .Platform$path.sep)))
+    .jaddClassPath(expanded_paths)
+  }
 
-  j_drv <- .jnew(driverClass)
+  tryCatch(.jfindClass(as.character(driver_class)[1]),
+    error = function(e) sprintf("Driver for class '%s' could not be found.", driver_class))
+
+  j_drv <- .jnew(driver_class)
   verifyNotNull(j_drv)
 
   j_drv
@@ -29,14 +31,13 @@ create_jdbc_driver <- function(driverClass, classPath) {
 
 #' Establish a JDBC Connection
 #' 
-#' @param j_drv the Java driver object
 #' @param url the URL of the form \code{jdbc:subprotocol:subname}
 #' @param user the user to log in
 #' @param password the user's password
 #' @param ... additional connection arguments
 #' @return a jObjRef referencing a java.sql.Connection
 #' @keywords internal
-create_jdbc_connection <- function(j_drv, url, user, password, ...) {
+create_jdbc_connection <- function(url, user, password, ...) {
   j_properties <- jtry(jnew("java/util/Properties"))    
   properties <- c(user = user, password = password, list(...))
   for (key in names(properties)) {
@@ -134,14 +135,14 @@ create_j_table <- function(data, write_conversions) {
 #' Create a Java Column class for given column_data
 #' 
 #' @param column_data the data to insert
-#' @param sql_type the type of the column
-#' @param is_nullable is the column nullable? 0 = disallows NULL, 1 = allows NULL, 2 = unknown
 #' @param write_conversions a list of \code{\link{write_conversion_rule}} objects
 #' @keywords internal
 create_j_colum <- function(column_data, write_conversions) {
   conversion_rule <- find_conversion_rule(write_conversions, column_data, list())
   converted_column_data <- do.call(conversion_rule$conversion, list(data = column_data))
-  sql_type <- as.jdbc_sql_type(conversion_rule$create_type(list(data = column_data)))
+  db_data_type <- do.call(conversion_rule$create_type, list(data = column_data))
+
+  sql_type <- as.jdbc_sql_type(db_data_type)
 
   j_column_classname <- NULL
   j_column_data <- NULL

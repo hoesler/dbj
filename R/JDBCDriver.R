@@ -61,32 +61,36 @@ create_new_dbj_connection <- function(j_con, drv) {
 #' in order to \code{\link[=dbConnect,JDBCDriver-method]{connect}} to databases using the given JDBC driver.
 #' 
 #' @inheritParams create_jdbc_driver
+#' @param dialect The \code{\link{sql_dialect}} to use.
 #' @param read_conversions a list of \code{\link[=read_conversion_rule]{read conversions}}.
 #' @param write_conversions a list of \code{\link[=write_conversion_rule]{write conversions}}.
-#' @param dialect The \code{\link{sql_dialect}} to use.
 #' @param create_new_connection The factory function for JDBCConnection objects.
-#'  Should only be modified by packages extending JDBCDriver and related classes. 
 #' @return A new \code{\linkS4class{JDBCDriver}}
 #' @examples
 #' \dontrun{
 #' drv <- dbj::driver('org.h2.Driver', '~/h2.jar')
 #' con1 <- dbConnect(drv, 'jdbc:h2:mem:')
 #' con2 <- dbConnect(drv, 'jdbc:h2:file:~/foo')
+#' 
+#' # Alternatively load the classpath directly with rJava
+#' # using \code{\link[rJava]{.jinit}} or \code{\link[rJava]{.jpackage}} e.g.:
+#' rJava::.jinit('~/h2.jar')
+#' dbj::driver('org.h2.Driver')
 #' }
 #' @export
-driver <- function(driverClass, classPath = '',
+driver <- function(driver_class, classpath = NULL,              
+                  dialect = guess_dialect(driver_class),
                   read_conversions = default_read_conversions,
                   write_conversions = default_write_conversions,
-                  dialect = guess_dialect(driverClass),
                   create_new_connection = create_new_dbj_connection) {
-  assert_that(is.character(driverClass))
-  assert_that(is.character(classPath))
+  assert_that(is.character(driver_class))
+  assert_that(is.character(classpath))
   assert_that(is.sql_dialect(dialect))
 
-  j_drv = create_jdbc_driver(driverClass, classPath)
+  j_drv = create_jdbc_driver(driver_class, classpath)
 
   JDBCDriver(
-    driverClass = driverClass,
+    driverClass = driver_class,
     j_drv = j_drv,
     read_conversions = read_conversions,
     write_conversions = write_conversions,
@@ -143,7 +147,7 @@ setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
 #' }
 setMethod("dbConnect", signature(drv = "JDBCDriver"),
   function(drv, url, user = '', password = '', ...) {
-    j_con <- create_jdbc_connection(drv@j_drv, url, user, password, ...)
+    j_con <- create_jdbc_connection(url, user, password, ...)
     drv@create_new_connection(j_con, drv)
   }
 )

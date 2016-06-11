@@ -4,26 +4,25 @@
 \alias{driver}
 \title{Factory function for \code{\linkS4class{JDBCDriver}} objects}
 \usage{
-driver(driverClass, classPath = "",
+driver(driver_class, classpath = NULL,
+  dialect = guess_dialect(driver_class),
   read_conversions = default_read_conversions,
   write_conversions = default_write_conversions,
-  dialect = guess_dialect(driverClass),
   create_new_connection = create_new_dbj_connection)
 }
 \arguments{
-\item{driverClass}{a character vector of length one specifying a JDBC driver class (e.g. 'org.h2.Driver')}
+\item{driver_class}{a character vector of length one specifying a JDBC driver class (e.g. 'org.h2.Driver')}
 
-\item{classPath}{a character vector of length one specifying classpaths separated by \code{\link[=.Platform]{path.sep}}
+\item{classpath}{a character vector of length one specifying classpaths separated by \code{\link[=.Platform]{path.sep}}
 or a character vector of classpaths which will be added to the \code{\link[=.jaddClassPath]{rJava class loader}}}
+
+\item{dialect}{The \code{\link{sql_dialect}} to use.}
 
 \item{read_conversions}{a list of \code{\link[=read_conversion_rule]{read conversions}}.}
 
 \item{write_conversions}{a list of \code{\link[=write_conversion_rule]{write conversions}}.}
 
-\item{dialect}{The \code{\link{sql_dialect}} to use.}
-
-\item{create_new_connection}{The factory function for JDBCConnection objects.
-Should only be modified by packages extending JDBCDriver and related classes.}
+\item{create_new_connection}{The factory function for JDBCConnection objects.}
 }
 \value{
 A new \code{\linkS4class{JDBCDriver}}
@@ -37,6 +36,11 @@ in order to \code{\link[=dbConnect,JDBCDriver-method]{connect}} to databases usi
 drv <- dbj::driver('org.h2.Driver', '~/h2.jar')
 con1 <- dbConnect(drv, 'jdbc:h2:mem:')
 con2 <- dbConnect(drv, 'jdbc:h2:file:~/foo')
+
+# Alternatively load the classpath directly with rJava
+# using \\code{\\link[rJava]{.jinit}} or \\code{\\link[rJava]{.jpackage}} e.g.:
+rJava::.jinit('~/h2.jar')
+dbj::driver('org.h2.Driver')
 }
 }
 

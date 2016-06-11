@@ -4,11 +4,9 @@
 \alias{create_jdbc_connection}
 \title{Establish a JDBC Connection}
 \usage{
-create_jdbc_connection(j_drv, url, user, password, ...)
+create_jdbc_connection(url, user, password, ...)
 }
 \arguments{
-\item{j_drv}{the Java driver object}
-
 \item{url}{the URL of the form \code{jdbc:subprotocol:subname}}
 
 \item{user}{the user to log in}

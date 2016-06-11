@@ -24,5 +24,5 @@ DBItest::test_all(skip = c(
 ))
 
 test_bdj_extras(skip = c(),
-	default_driver_args = list(driverClass = h2_driver_class, classPath = h2_classpath)
+	default_driver_args = list(driver_class = h2_driver_class, classpath = h2_classpath)
 )

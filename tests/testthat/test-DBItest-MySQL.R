@@ -61,5 +61,5 @@ test_bdj_extras(skip = c(
 
   NULL
   ),
-  default_driver_args = list(driverClass = mysql_driver_class, classPath = mysql_classpath)
+  default_driver_args = list(driver_class = mysql_driver_class, classpath = mysql_classpath)
 )
