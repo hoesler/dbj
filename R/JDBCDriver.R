@@ -19,9 +19,11 @@ JDBCDriver <- setClass("JDBCDriver",
     write_conversions = "list",
     create_new_connection = "function"))
 
-setMethod("initialize", "JDBCDriver", function(.Object, ...) {
+setMethod("initialize", "JDBCDriver", function(.Object, info = list(), ...) {
     .Object <- callNextMethod()
-    .Object@info <- driver_info()
+    if (nargs > 1 && missing(info)) {
+      .Object@info <- driver_info()
+    }
     .Object
   }
 )
