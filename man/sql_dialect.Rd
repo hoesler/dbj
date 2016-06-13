@@ -3,6 +3,7 @@
 \docType{data}
 \name{sql_dialect}
 \alias{create_table_template}
+\alias{derby_dialect}
 \alias{generic_append_table}
 \alias{generic_clear_table}
 \alias{generic_create_statement_generator}
@@ -11,6 +12,8 @@
 \alias{generic_quote_string}
 \alias{generic_sql}
 \alias{guess_dialect}
+\alias{h2_dialect}
+\alias{mysql_dialect}
 \alias{sql_dialect}
 \title{Define an SQL dialect}
 \format{An object of class \code{sql_dialect} of length 6.}
@@ -40,6 +43,12 @@ sql_dialect(name, sql_create_table = generic_create_table,
   sql_quote_string = generic_quote_string)
 
 generic_sql
+
+h2_dialect
+
+derby_dialect
+
+mysql_dialect
 
 guess_dialect(driver_class)
 }

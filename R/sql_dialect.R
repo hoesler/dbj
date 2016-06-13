@@ -146,6 +146,8 @@ is.sql_dialect <- function(x) inherits(x, "sql_dialect")
 #' @export
 generic_sql <- sql_dialect("generic")
 
+#' @rdname sql_dialect
+#' @export
 h2_dialect <- sql_dialect("H2",
   sql_create_table = create_table_template(
     function(table_name, field_names, field_types, temporary) {
@@ -157,6 +159,8 @@ h2_dialect <- sql_dialect("H2",
   )
 )
 
+#' @rdname sql_dialect
+#' @export
 derby_dialect <- sql_dialect('Derby',
   sql_create_table = create_table_template(
     function(table_name, field_names, field_types, temporary) {
@@ -183,6 +187,8 @@ derby_dialect <- sql_dialect('Derby',
   }
 )
 
+#' @rdname sql_dialect
+#' @export
 mysql_dialect <- sql_dialect('MySQL',
   sql_quote_identifier = quote_identifier_template('`')
 )
