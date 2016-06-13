@@ -5,7 +5,8 @@
 \alias{dbConnect,JDBCDriver-method}
 \title{Connect to a database}
 \usage{
-\S4method{dbConnect}{JDBCDriver}(drv, url, user = "", password = "", ...)
+\S4method{dbConnect}{JDBCDriver}(drv, url, user = "", password = "",
+  sql_dialect = dialect_for_url(url), ...)
 }
 \arguments{
 \item{drv}{An object of class \code{\linkS4class{JDBCDriver}}}
@@ -15,6 +16,8 @@
 \item{user}{the user to log in}
 
 \item{password}{the user's password}
+
+\item{sql_dialect}{an \code{\link{sql_dialect}}}
 
 \item{...}{additional connection arguments}
 }

@@ -4,6 +4,7 @@
 #' @include java_utils.R
 #' @include java_jdbc_utils.R
 #' @include r_utils.R
+#' @include sql_dialect.R
 NULL
 
 #' JDBCConnection class
@@ -14,6 +15,7 @@ NULL
 #' @slot driver A \code{\linkS4class{JDBCDriver}} object.
 #' @slot create_new_query_result The factory function for \code{\linkS4class{JDBCQueryResult}} objects.
 #' @slot create_new_update_result The factory function for \code{\linkS4class{JDBCUpdateResult}} objects.
+#' @slot sql_dialect an \code{\link{sql_dialect}}
 #' 
 #' @export
 JDBCConnection <- setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"),
@@ -23,7 +25,9 @@ JDBCConnection <- setClass("JDBCConnection", contains = c("DBIConnection", "JDBC
     info = "list",
     driver = "JDBCDriver",
     create_new_query_result = "function",
-    create_new_update_result = "function"),
+    create_new_update_result = "function",
+    sql_dialect = "ANY"
+    ),
   validity = function(object) {
     if (is.jnull(object@j_connection)) return("j_connection is null")
     if (is.null(object@driver)) return("driver is null")
@@ -323,7 +327,7 @@ setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "characte
 #' @export
 setMethod("dbSQLDialect", signature(conn = "JDBCConnection"),
   function(conn) {
-    conn@driver@dialect
+    conn@sql_dialect
   }
 )
 

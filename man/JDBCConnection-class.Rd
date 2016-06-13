@@ -84,6 +84,8 @@ and \code{feature.savepoints} (a logical indicating if the database supports sav
 \item{\code{create_new_query_result}}{The factory function for \code{\linkS4class{JDBCQueryResult}} objects.}
 
 \item{\code{create_new_update_result}}{The factory function for \code{\linkS4class{JDBCUpdateResult}} objects.}
+
+\item{\code{sql_dialect}}{an \code{\link{sql_dialect}}}
 }}
 \keyword{internal}
 

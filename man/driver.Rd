@@ -4,14 +4,13 @@
 \alias{driver}
 \title{Factory function for \code{\linkS4class{JDBCDriver}} objects}
 \usage{
-driver(driver_class, classpath = NULL,
-  dialect = guess_dialect(driver_class),
+driver(driver_class = NULL, classpath = NULL, dialect = NULL,
   read_conversions = default_read_conversions,
   write_conversions = default_write_conversions,
   create_new_connection = create_new_dbj_connection)
 }
 \arguments{
-\item{driver_class}{a character vector of length one specifying a JDBC driver class (e.g. 'org.h2.Driver')}
+\item{driver_class}{a character vector specifying the JDBC driver classes (e.g. 'org.h2.Driver')}
 
 \item{classpath}{a character vector of length one specifying classpaths separated by \code{\link[=.Platform]{path.sep}}
 or a character vector of classpaths which will be added to the \code{\link[=.jaddClassPath]{rJava class loader}}}
@@ -32,15 +31,21 @@ Call \code{driver} to create a new \code{\linkS4class{JDBCDriver}}
 in order to \code{\link[=dbConnect,JDBCDriver-method]{connect}} to databases using the given JDBC driver.
 }
 \examples{
-\dontrun{
-drv <- dbj::driver('org.h2.Driver', '~/h2.jar')
-con1 <- dbConnect(drv, 'jdbc:h2:mem:')
-con2 <- dbConnect(drv, 'jdbc:h2:file:~/foo')
+library(DBI)
+library(dbj)
 
-# Alternatively load the classpath directly with rJava
-# using \\code{\\link[rJava]{.jinit}} or \\code{\\link[rJava]{.jpackage}} e.g.:
-rJava::.jinit('~/h2.jar')
-dbj::driver('org.h2.Driver')
-}
+jdbc_register_driver(
+ c('org.h2.Driver', 'org.apache.derby.jdbc.EmbeddedDriver'),
+ resolve(
+   list(
+     module('com.h2database:h2:1.3.176'),
+     module('org.apache.derby:derby:10.12.1.1')
+   ),
+   repositories = list(maven_local, maven_central)
+ )
+)
+
+h2_con <- dbConnect(dbj::driver(), 'jdbc:h2:mem:example_db')
+derby_con <- dbConnect(dbj::driver(), 'jdbc:derby:memory:example_db;create=true')
 }
 

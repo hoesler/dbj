@@ -21,13 +21,13 @@ Description: dbj is an implementation of R's DBI interface using JDBC as a
 License: MIT + file LICENSE
 URL: http://github.com/hoesler/dbj
 Collate:
+    'sql_dialect.R'
     'r_utils.R'
     'java_sql_types.R'
     'type_mapping.R'
     'java_utils.R'
     'java_jdbc_utils.R'
     'JDBCConnection_generics.R'
-    'sql_dialect.R'
     'JDBCObject_generics.R'
     'JDBCObject.R'
     'JDBCDriver.R'

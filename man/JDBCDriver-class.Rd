@@ -44,7 +44,7 @@
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{dbListConnections}: JDBC maintains no list of acitve connections. Returns an empty list.
+\item \code{dbListConnections}: JDBC maintains no list of active connections. Returns an empty list.
 
 \item \code{dbUnloadDriver}: Unloading a \code{JDBCDriver} has no effect. Returns \code{TRUE}.
 

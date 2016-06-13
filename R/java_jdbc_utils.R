@@ -3,25 +3,45 @@
 #' @include type_mapping.R
 NULL
 
-#' Create a Java JDBC Driver object
+jdbc_parse_url <- function(url) {
+  matches <- regmatches(url, regexec("^jdbc:([^:]+):(.+)", url))
+  if (length(matches[[1]]) == 0) {
+    stop("%s is not a valid JDBC URL")
+  } else {
+    return(lapply(matches, function(x) list(subprotocol = x[2], subname = x[3])))
+  }
+}
+
+#' Register a JDBC Driver
 #' 
-#' @param driver_class a character vector of length one specifying a JDBC driver class (e.g. 'org.h2.Driver')
+#' @param driver_class a character vector specifying the JDBC driver classes (e.g. 'org.h2.Driver')
 #' @param classpath a character vector of length one specifying classpaths separated by \code{\link[=.Platform]{path.sep}}
 #'  or a character vector of classpaths which will be added to the \code{\link[=.jaddClassPath]{rJava class loader}}
+#' 
 #' @export
-#' @keywords internal
-create_jdbc_driver <- function(driver_class, classpath = NULL) {
-  assert_that(is.character(driver_class))
-  assert_that(is.character(classpath))
-  
+jdbc_register_driver <- function(driver_class, classpath = NULL) {
   if (!is.null(classpath)) {
     ## expand all paths in the classpath
     expanded_paths <- path.expand(unlist(strsplit(classpath, .Platform$path.sep)))
     .jaddClassPath(expanded_paths)
   }
 
-  tryCatch(.jfindClass(as.character(driver_class)[1]),
-    error = function(e) sprintf("Driver for class '%s' could not be found.", driver_class))
+  for (i in seq_along(driver_class)) {
+    class_name <- driver_class[i]
+    tryCatch(
+      .jfindClass(as.character(class_name)),
+      error = function(e) sprintf("Driver for class '%s' could not be found.", class_name)
+    )
+  }  
+}
+
+#' Create a Java JDBC Driver object
+#' 
+#' @inheritParams jdbc_register_driver
+#' @export
+#' @keywords internal
+create_jdbc_driver <- function(driver_class, classpath = NULL) {
+  jdbc_register_driver(driver_class, classpath)
 
   j_drv <- .jnew(driver_class)
   verifyNotNull(j_drv)

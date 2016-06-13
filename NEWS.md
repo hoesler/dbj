@@ -7,4 +7,6 @@
 	- Support for row names translation
 	- Support for temporary tables
 	- Added conversion rule for difftime to TIME
-	- Added savepoint support to transactions
+- Added savepoint support to transactions
+- SQL dialects must be defined in dbConnect instead of at driver construction
+- JDBC driver classes must should be registered explicity with jdbc_register_driver

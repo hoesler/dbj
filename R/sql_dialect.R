@@ -146,52 +146,76 @@ is.sql_dialect <- function(x) inherits(x, "sql_dialect")
 #' @export
 generic_sql <- sql_dialect("generic")
 
-# maps diver classes to a list of arguments to sql_dialect()
-known_sql_dialects = list(
-  'org.h2.Driver' = list(
-    name = 'H2',
-    sql_create_table = create_table_template(
-      function(table_name, field_names, field_types, temporary) {
+h2_dialect <- sql_dialect("H2",
+  sql_create_table = create_table_template(
+    function(table_name, field_names, field_types, temporary) {
+      paste0(
+        "CREATE ", if (temporary) "LOCAL TEMPORARY ", "TABLE ", table_name, " (\n",
+        "  ", paste(paste0(field_names, " ", field_types), collapse = ",\n  "), "\n)\n"
+      )
+    }
+  )
+)
+
+derby_dialect <- sql_dialect('Derby',
+  sql_create_table = create_table_template(
+    function(table_name, field_names, field_types, temporary) {
+      if (temporary) {
+        paste0("DECLARE GLOBAL TEMPORARY TABLE ", table_name, " (\n",
+          "  ", paste(paste0(field_names, " ", field_types), collapse = ",\n  "), "\n) NOT LOGGED\n"
+        )
+      } else {
         paste0(
-          "CREATE ", if (temporary) "LOCAL TEMPORARY ", "TABLE ", table_name, " (\n",
+          "CREATE TABLE ", table_name, " (\n",
           "  ", paste(paste0(field_names, " ", field_types), collapse = ",\n  "), "\n)\n"
         )
-      })
-  ),
-  'org.apache.derby.jdbc.EmbeddedDriver' = list(
-    name = 'Derby',
-    sql_create_table = create_table_template(
-      function(table_name, field_names, field_types, temporary) {
-        if (temporary) {
-          paste0("DECLARE GLOBAL TEMPORARY TABLE ", table_name, " (\n",
-            "  ", paste(paste0(field_names, " ", field_types), collapse = ",\n  "), "\n) NOT LOGGED\n"
-          )
-        } else {
-          paste0(
-            "CREATE TABLE ", table_name, " (\n",
-            "  ", paste(paste0(field_names, " ", field_types), collapse = ",\n  "), "\n)\n"
-          )
-        }
-      }),
-    sql_append_table = function(con, table, values, row.names = NA, temporary = FALSE, ...) {
-        table <- dbQuoteIdentifier(con, table)
-        values <- sqlRownamesToColumn(values[0, , drop = FALSE], 
-            row.names)
-        fields <- dbQuoteIdentifier(con, names(values))
-        SQL(paste0("INSERT INTO ", if (temporary) "SESSION.", table, "\n", "  (", paste(fields, 
-            collapse = ", "), ")\n", "VALUES\n", paste0("  (", paste0(rep('?', length(fields)),
-            collapse = ", "), ")", collapse = ",\n")))
+      }
     }
   ),
-  'com.mysql.jdbc.Driver' = list(name = 'MySQL', sql_quote_identifier = quote_identifier_template('`'))
+  sql_append_table = function(con, table, values, row.names = NA, temporary = FALSE, ...) {
+    table <- dbQuoteIdentifier(con, table)
+    values <- sqlRownamesToColumn(values[0, , drop = FALSE], 
+        row.names)
+    fields <- dbQuoteIdentifier(con, names(values))
+    SQL(paste0("INSERT INTO ", if (temporary) "SESSION.", table, "\n", "  (", paste(fields, 
+        collapse = ", "), ")\n", "VALUES\n", paste0("  (", paste0(rep('?', length(fields)),
+        collapse = ", "), ")", collapse = ",\n")))
+  }
+)
+
+mysql_dialect <- sql_dialect('MySQL',
+  sql_quote_identifier = quote_identifier_template('`')
+)
+
+known_sql_dialects <- list(
+  'h2' = h2_dialect,
+  'derby' = derby_dialect,
+  'mysql' = mysql_dialect
+)
+
+dialect_for_url <- function(url) {
+  assert_that(is.character(url) && length(url) == 1)
+  subprotocol <- jdbc_parse_url(url)[[1]]$subprotocol
+  if (any(subprotocol %in% names(known_sql_dialects))) {
+    known_sql_dialects[[subprotocol]]
+  } else {
+    generic_sql
+  }
+}
+
+driver_subprotocol_map <- list(
+  'org.h2.Driver' = 'h2',
+  'org.apache.derby.jdbc.EmbeddedDriver' = 'derby',
+  'com.mysql.jdbc.Driver' = 'mysql'
 )
 
 #' @rdname sql_dialect
 #' @export
 guess_dialect <- function(driver_class) {
   dialect <-
-  if (driver_class %in% names(known_sql_dialects)) {
-    do.call(sql_dialect, known_sql_dialects[[driver_class]])
+  if (any(driver_class %in% names(driver_subprotocol_map))) {
+    subprotocol <- driver_subprotocol_map[[driver_class]]
+    known_sql_dialects[[subprotocol]]
   } else {
     generic_sql
   }

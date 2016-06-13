@@ -1,11 +1,13 @@
-h2_driver_class <- 'org.h2.Driver'
-h2_classpath <- resolve(
-	module('com.h2database:h2:1.3.176'),
-  repositories = list(maven_local, maven_central)
+jdbc_register_driver(
+	'org.h2.Driver',
+	resolve(
+		module('com.h2database:h2:1.3.176'),
+	  repositories = list(maven_local, maven_central)
+	)
 )
 
 DBItest::make_context(
-	dbj::driver(h2_driver_class, h2_classpath),
+	dbj::driver(),
 	# DATABASE_TO_UPPER=FALSE is required because of https://github.com/rstats-db/DBItest/issues/64
 	list(url = "jdbc:h2:mem:dbi-test;DATABASE_TO_UPPER=FALSE", user = 'sa'),
 	tweaks = DBItest::tweaks(constructor_name = "driver"),
@@ -24,5 +26,5 @@ DBItest::test_all(skip = c(
 ))
 
 test_bdj_extras(skip = c(),
-	default_driver_args = list(driver_class = h2_driver_class, classpath = h2_classpath)
+	default_driver_args = list()
 )

@@ -14,19 +14,14 @@ NULL
 JDBCDriver <- setClass("JDBCDriver",
   contains = c("DBIDriver", "JDBCObject"),
   slots = c(
-    driverClass = "character",
-    j_drv = "jobjRef",
     info = "list",
     read_conversions = "list",
     write_conversions = "list",
-    dialect = "ANY",
     create_new_connection = "function"))
 
-setMethod("initialize", "JDBCDriver", function(.Object, j_drv, dialect, driverClass, ...) {
+setMethod("initialize", "JDBCDriver", function(.Object, ...) {
     .Object <- callNextMethod()
-    if (!missing(j_drv)) {
-      .Object@info <- driver_info(j_drv, dialect, driverClass)
-    }
+    .Object@info <- driver_info()
     .Object
   }
 )
@@ -34,25 +29,25 @@ setMethod("initialize", "JDBCDriver", function(.Object, j_drv, dialect, driverCl
 #' Legacy JDBCDriver constructor.
 #' 
 #' This function is present for \code{RJDBC} compatibility. Use \code{\link{driver}} instead. 
-#' @param driverClass the java class name of the JDBC driver to use
-#' @param classPath a string of paths seperated by the \code{path.sep} variable in \code{\link{.Platform}}
+#' @param driverClass the Java class name of the JDBC driver to use
+#' @param classPath a string of paths separated by the \code{path.sep} variable in \code{\link{.Platform}}
 #'                  which should get added to the classpath (see \link[rJava]{.jaddClassPath})
 #' @param ... Additional arguments passed to driver()
 #' @rdname JDBCDriver-class-legacy
 #' @export
 #' @keywords internal
-JDBC <- function(driverClass = '', classPath = '', ...) {  
-  driver(driverClass, classPath, ...)
+JDBC <- function(driverClass = '', classPath = '', ...) {
+  driver(driver_class = driverClass, classpath = classPath, ...)
 }
 
-create_new_dbj_query_result <- function(j_result_set, conn, statement)
-  JDBCQueryResult(j_result_set = j_result_set, connection = conn, statement = statement)
-create_new_dbj_update_result <- function(update_count, conn, statement)
-  JDBCUpdateResult(update_count = update_count, connection = conn, statement = statement)
-create_new_dbj_connection <- function(j_con, drv) {
+create_new_dbj_query_result <- function(j_result_set, conn, statement, ...)
+  JDBCQueryResult(j_result_set = j_result_set, connection = conn, statement = statement, ...)
+create_new_dbj_update_result <- function(update_count, conn, statement, ...)
+  JDBCUpdateResult(update_count = update_count, connection = conn, statement = statement, ...)
+create_new_dbj_connection <- function(j_con, drv, ...) {
   JDBCConnection(j_connection = j_con, driver = drv,
     create_new_query_result = create_new_dbj_query_result,
-    create_new_update_result = create_new_dbj_update_result)
+    create_new_update_result = create_new_dbj_update_result, ...)
 }
 
 #' Factory function for \code{\linkS4class{JDBCDriver}} objects
@@ -60,38 +55,48 @@ create_new_dbj_connection <- function(j_con, drv) {
 #' Call \code{driver} to create a new \code{\linkS4class{JDBCDriver}}
 #' in order to \code{\link[=dbConnect,JDBCDriver-method]{connect}} to databases using the given JDBC driver.
 #' 
-#' @inheritParams create_jdbc_driver
+#' @inheritParams jdbc_register_driver
 #' @param dialect The \code{\link{sql_dialect}} to use.
 #' @param read_conversions a list of \code{\link[=read_conversion_rule]{read conversions}}.
 #' @param write_conversions a list of \code{\link[=write_conversion_rule]{write conversions}}.
 #' @param create_new_connection The factory function for JDBCConnection objects.
 #' @return A new \code{\linkS4class{JDBCDriver}}
 #' @examples
-#' \dontrun{
-#' drv <- dbj::driver('org.h2.Driver', '~/h2.jar')
-#' con1 <- dbConnect(drv, 'jdbc:h2:mem:')
-#' con2 <- dbConnect(drv, 'jdbc:h2:file:~/foo')
+#' library(DBI)
+#' library(dbj)
 #' 
-#' # Alternatively load the classpath directly with rJava
-#' # using \code{\link[rJava]{.jinit}} or \code{\link[rJava]{.jpackage}} e.g.:
-#' rJava::.jinit('~/h2.jar')
-#' dbj::driver('org.h2.Driver')
-#' }
+#' jdbc_register_driver(
+#'  c('org.h2.Driver', 'org.apache.derby.jdbc.EmbeddedDriver'),
+#'  resolve(
+#'    list(
+#'      module('com.h2database:h2:1.3.176'),
+#'      module('org.apache.derby:derby:10.12.1.1')
+#'    ),
+#'    repositories = list(maven_local, maven_central)
+#'  )
+#' )
+#' 
+#' h2_con <- dbConnect(dbj::driver(), 'jdbc:h2:mem:example_db')
+#' derby_con <- dbConnect(dbj::driver(), 'jdbc:derby:memory:example_db;create=true')
 #' @export
-driver <- function(driver_class, classpath = NULL,              
-                  dialect = guess_dialect(driver_class),
+driver <- function(driver_class = NULL, classpath = NULL,              
+                  dialect = NULL,
                   read_conversions = default_read_conversions,
                   write_conversions = default_write_conversions,
                   create_new_connection = create_new_dbj_connection) {
-  assert_that(is.character(driver_class))
-  assert_that(is.character(classpath))
-  assert_that(is.sql_dialect(dialect))
+  assert_that(is.null(driver_class) || is.character(driver_class))
+  assert_that(is.null(classpath) || is.character(classpath))
+  assert_that(is.null(dialect) || is.sql_dialect(dialect))
 
-  j_drv = create_jdbc_driver(driver_class, classpath)
+  if (!missing(driver_class)) {
+    jdbc_register_driver(driver_class, classpath)
+  }
+  
+  if (!missing(dialect)) {
+    warning("Defining dialects in the driver class is deprecated. Define in dbConnect instead.")
+  }
 
   JDBCDriver(
-    driverClass = driver_class,
-    j_drv = j_drv,
     read_conversions = read_conversions,
     write_conversions = write_conversions,
     dialect = dialect,
@@ -99,20 +104,15 @@ driver <- function(driver_class, classpath = NULL,
   )
 }
 
-driver_info <- function(j_drv, dialect, driverClass) {
+driver_info <- function() {
   list(
     driver.version = utils::packageVersion("dbj"),
-    client.version = paste(
-      jdbc_driver_major_version(j_drv),
-      jdbc_driver_minor_version(j_drv),
-      sep = "."),
+    client.version = "1.2.4", # TODO: Resolve version at runtime
     max.connections = NA, # TODO: Is there a way to get this information from JDBC?
-    driver.class = driverClass,
-    sql.dialect = dialect$name  
   )
 }
 
-#' @describeIn JDBCDriver JDBC maintains no list of acitve connections. Returns an empty list.
+#' @describeIn JDBCDriver JDBC maintains no list of active connections. Returns an empty list.
 #' @param drv An object of class \code{\linkS4class{JDBCDriver}}
 #' @param ... Ignored.
 #' @family connection functions
@@ -138,6 +138,7 @@ setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
 #'
 #' @param drv An object of class \code{\linkS4class{JDBCDriver}}
 #' @inheritParams create_jdbc_connection
+#' @param sql_dialect an \code{\link{sql_dialect}}
 #' @family connection functions
 #' @export
 #' @examples
@@ -146,9 +147,9 @@ setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
 #' con <- dbConnect(drv, 'jdbc:h2:mem:', 'sa', 'sa')
 #' }
 setMethod("dbConnect", signature(drv = "JDBCDriver"),
-  function(drv, url, user = '', password = '', ...) {
+  function(drv, url, user = '', password = '', sql_dialect = dialect_for_url(url), ...) {
     j_con <- create_jdbc_connection(url, user, password, ...)
-    drv@create_new_connection(j_con, drv)
+    drv@create_new_connection(j_con, drv, sql_dialect = sql_dialect)
   }
 )
 
@@ -192,7 +193,4 @@ setMethod("dbIsValid", signature(dbObj = "JDBCDriver"),
 #' @export
 setMethod("show", "JDBCDriver", function(object) {
   cat("<JDBCDriver>\n")
-  if (dbIsValid(object)) {
-    cat("  Driver Class: ", object@driverClass, "\n", sep = "")
-  }
 })
