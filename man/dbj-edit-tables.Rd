@@ -13,7 +13,7 @@
 
 \S4method{dbWriteTable}{JDBCConnection,character,data.frame}(conn, name, value,
   create = TRUE, append = FALSE, truncate = FALSE, temporary = FALSE,
-  row.names = NA, sql.types = NULL, ...)
+  row.names = NA, ...)
 
 \S4method{dbTruncateTable}{JDBCConnection,character}(conn, name, ...)
 }
@@ -45,10 +45,6 @@
   default name.
 
   For backward compatibility, \code{NULL} is equivalent to \code{FALSE}.}
-
-\item{sql.types}{A character vector of named SQL field types where
-the names are the names of new table's columns. If NULL, types will be inferred
-with \code{\link[DBI]{dbDataType}}).}
 }
 \description{
 Read data from a table, write a data frame to a table or delete the content of a table.

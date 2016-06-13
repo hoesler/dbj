@@ -248,17 +248,13 @@ setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
 #' @param append a logical specifying whether to append to an existing table. Its default is FALSE
 #' @param truncate a logical specifying whether to truncate an existing table before appending. Its default is FALSE
 #' @param temporary \code{TRUE} if the table should be temporary
-#' @param sql.types A character vector of named SQL field types where
-#'   the names are the names of new table's columns. If NULL, types will be inferred
-#'   with \code{\link[DBI]{dbDataType}}).
 #' @inheritParams DBI::rownames
 #' 
 #' @rdname dbj-edit-tables
 #' @aliases dbWriteTable,JDBCConnection,character-data.frame-method
 #' @export
 setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "data.frame"),
-  function(conn, name, value, create = TRUE, append = FALSE, truncate = FALSE, temporary = FALSE, row.names = NA,
-    sql.types = NULL, ...) { 
+  function(conn, name, value, create = TRUE, append = FALSE, truncate = FALSE, temporary = FALSE, row.names = NA, ...) { 
     assert_that(ncol(value) > 0)
     assert_that(!is.null(names(value)))
     assert_that(!any(is.na(names(value))))
@@ -279,8 +275,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     on.exit(dbRollback(conn, "dbWriteTable"))
     
     if (!table_exists && create) {
-      fields <- if (!is.null(sql.types)) sql.types else value
-      sql <- with(dbSQLDialect(conn), sql_create_table(conn, name, fields, temporary = temporary, row.names = row.names))
+      sql <- with(dbSQLDialect(conn), sql_create_table(conn, name, value, temporary = temporary, row.names = row.names))
       table_was_created <- dbSendUpdate(conn, sql)
       if (!table_was_created) {
         stop("Table could not be created")
