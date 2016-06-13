@@ -1,6 +1,6 @@
 #' Define an SQL dialect
 #' 
-#' SQL dialects are used to configure a dbj \code{\link{driver}}
+#' SQL dialects are used to configure a dbj \code{\link[=dbConnect,JDBCDriver-method]{connection}}
 #' 
 #' @param name The name of the dialect
 #' @param sql_create_table A function which generates an SQL statement for creating a table

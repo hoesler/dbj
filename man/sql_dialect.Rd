@@ -99,7 +99,7 @@ guess_dialect(driver_class)
 A new structure with class \code{sql_dialect}.
 }
 \description{
-SQL dialects are used to configure a dbj \code{\link{driver}}
+SQL dialects are used to configure a dbj \code{\link[=dbConnect,JDBCDriver-method]{connection}}
 
 A generator function for a generic CREATE TABLE statment
 }
