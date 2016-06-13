@@ -27,8 +27,7 @@ Connect to a database using a
 }
 \examples{
 \dontrun{
-drv <- dbj::driver('org.h2.Driver', '~/h2.jar')
-con <- dbConnect(drv, 'jdbc:h2:mem:', 'sa', 'sa')
+con <- dbConnect(dbj::driver(), 'jdbc:h2:mem:', 'sa', 'sa')
 }
 }
 \seealso{

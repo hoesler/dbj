@@ -99,7 +99,6 @@ driver <- function(driver_class = NULL, classpath = NULL,
   JDBCDriver(
     read_conversions = read_conversions,
     write_conversions = write_conversions,
-    dialect = dialect,
     create_new_connection = create_new_connection
   )
 }
@@ -108,7 +107,7 @@ driver_info <- function() {
   list(
     driver.version = utils::packageVersion("dbj"),
     client.version = "1.2.4", # TODO: Resolve version at runtime
-    max.connections = NA, # TODO: Is there a way to get this information from JDBC?
+    max.connections = NA # TODO: Is there a way to get this information from JDBC?
   )
 }
 
@@ -143,8 +142,7 @@ setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
 #' @export
 #' @examples
 #' \dontrun{
-#' drv <- dbj::driver('org.h2.Driver', '~/h2.jar')
-#' con <- dbConnect(drv, 'jdbc:h2:mem:', 'sa', 'sa')
+#' con <- dbConnect(dbj::driver(), 'jdbc:h2:mem:', 'sa', 'sa')
 #' }
 setMethod("dbConnect", signature(drv = "JDBCDriver"),
   function(drv, url, user = '', password = '', sql_dialect = dialect_for_url(url), ...) {
