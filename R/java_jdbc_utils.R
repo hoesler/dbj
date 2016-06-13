@@ -30,7 +30,7 @@ jdbc_register_driver <- function(driver_class, classpath = NULL) {
     class_name <- driver_class[i]
     tryCatch(
       .jfindClass(as.character(class_name)),
-      error = function(e) sprintf("Driver for class '%s' could not be found.", class_name)
+      error = function(e) stop(sprintf("Driver class '%s' could not be found: %s", class_name, as.character(e)))
     )
   }  
 }
