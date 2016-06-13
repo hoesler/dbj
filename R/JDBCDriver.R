@@ -104,9 +104,12 @@ driver <- function(driver_class = NULL, classpath = NULL,
 }
 
 driver_info <- function() {
+  classpath <- paste(rJava::.jclassPath(), collapse = ";")
+  dbj_jar_version <- regmatches(classpath, regexec(".*/dbj-(\\d+\\.\\d+\\.\\d+)\\.jar", classpath))[[1]][2]
+
   list(
     driver.version = utils::packageVersion("dbj"),
-    client.version = "1.2.4", # TODO: Resolve version at runtime
+    client.version = dbj_jar_version,
     max.connections = NA # TODO: Is there a way to get this information from JDBC?
   )
 }
