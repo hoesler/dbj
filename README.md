@@ -15,62 +15,49 @@ The source compilation requires that you have [maven](https://maven.apache.org/)
 
 ## Usage
 ```R
-# Connect to an H2 database
-classpath <- '~/h2-1.3.176.jar' # Use a local jar ...
-classpath <- resolve(module('com.h2database:h2:1.3.176'), list(maven_local, maven_central)) # ... or fetch from a maven repository.
-drv <- dbj::driver('org.h2.Driver', classpath)
-con <- dbConnect(drv, 'jdbc:h2:mem:', user = '', password = '')
+library(DBI)
+library(dbj)
+
+# Initially, register the JDBC drivers you need
+jdbc_register_driver(
+ 'org.h2.Driver',
+ resolve(
+   module('com.h2database:h2:1.3.176'),
+   repositories = list(maven_local, maven_central) )
+)
+
+con <- dbConnect(dbj::driver(), 'jdbc:h2:mem:')
+dbWriteTable(con, "iris", iris)
+
+# dbj supports prepared statements
+sql <- paste0(
+  "SELECT * FROM ", dbQuoteIdentifier(con, "iris"),
+  " WHERE ", dbQuoteIdentifier(con, "Species"), " = ?"
+)
+dbGetQuery(con, sql, parameters = list("setosa"))
 ```
 
 ## Status
-dbj is under active development and tested agains different database drivers using [DBItest](https://github.com/rstats-db/DBItest):
+dbj is under active development and tested agains different JDBC drivers using [DBItest](https://github.com/rstats-db/DBItest):
 
 - [H2](tests/testthat/test-DBItest-H2.R) (Fully functional)
-- [Apache Derby](tests/testthat/test-DBItest-Derby.R) (Functional with minor issues)
-- [MySQL Connector/J](tests/testthat/test-DBItest-MySQL.R) (Currently unsupported, because the driver does not support parameter metadata)
+- [Apache Derby](tests/testthat/test-DBItest-Derby.R) (minor issues)
+- [MySQL Connector/J](tests/testthat/test-DBItest-MySQL.R) (minor issues)
 - more to come...
 
 ##	Type mapping
-Type mapping in dbj has four data type units: The R working type, The R transfer type, the Java transfer type and the SQL storage Type. The working type is the type of a data.frame column you work with on the front end. For data transfer, these data types must be converted into an R transfer type, which is associated with one of the Java transfer types. Both transfer types are used to send data from R to Java and vice versa. Due to rJava and performance reasons this must be one of the Java raw types (boolean, byte, int, long, float, double) or String.
+The default type mapping between R and SQL is (roughly) as follows:
 
-The way the data transfer is implemented, it is required that all data that should be transferred must be convertible to one of these transfer types.
+R classes         | SQL types
+------------------|-----------------
+logical           | BIT, BOOLEAN
+numeric           | FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL, BIGINT
+integer           | TINYINT, SMALLINT, INTEGER, NULL
+character, factor | CHAR, VARCHAR, LONGVARCHAR, NCHAR, NVARCHAR, LONGNVARCHAR
+Date              | DATE
+difftime          | TIME
+POSIXct           | TIMESTAMP
+list(raw)         | BINARY, BLOB
 
-The default mapping is defined as follows:
-
-##### Transfer unit
-R Transfer Type | Java Transfer Type | SQL Types
-----------------|--------------------|----------------------------------------------------------
-logical         | boolean            | BIT, BOOLEAN
-numeric         | long               | BIGINT, DATE, TIMESTAMP, TIME
-numeric         | double             | FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL
-integer         | int                | TINYINT, SMALLINT, INTEGER
-character       | String             | CHAR, VARCHAR, LONGVARCHAR, NCHAR, NVARCHAR, LONGNVARCHAR
-list(raw)       | byte[][]           | BINARY, BLOB
-
-##### JDBC -> R
-SQL Types                                                 | R Type     | Transfer unit conversion
-----------------------------------------------------------|------------|--------------------------------------------------------------------
-BIT, BOOLEAN                                              | logical    | identity
-FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL, BIGINT             | numeric    | identity
-TINYINT, SMALLINT, INTEGER                                | integer    | identity
-DATE                                                      | Date       | as.Date(x / 1000 / 60 / 60 / 24, origin = "1970-01-01", tz = "GMT")
-TIME                                                      | difftime   | as.difftime(data / 1000, units = "secs")
-TIMESTAMP                                                 | POSIXct    | as.POSIXct(x / 1000, origin = "1970-01-01", tz = "GMT")
-CHAR, VARCHAR, LONGVARCHAR, NCHAR, NVARCHAR, LONGNVARCHAR | character  | identity
-BINARY, BLOB                                              | list(raw)  | lapply(x, as.raw)
-
-##### R -> JDBC
-R Working Type | Colum created as | Transfer unit conversion
----------------|------------------|------------------------------------
-logical        | BOOLEAN          | identity
-numeric        | DOUBLE PRECISION | identity
-integer        | INTEGER          | identity
-factor         | VARCHAR(255)     | as.character
-character      | VARCHAR(255)     | identity
-Date           | DATE             | as.numeric(x) * 24 * 60 * 60 * 1000
-difftime       | TIME             | as.numeric(data, units = "secs") * 1000
-POSIXct        | TIMESTAMP        | as.numeric(x) * 1000
-list(raw)      | BLOB             | lapply(x, as.raw)
-
-## History
+## Acknowledgements
 dbj is a rewrite of Simon Urbanek's [RJDBC](https://github.com/s-u/dbj) packge. Development started with only minor code modifications to meet the requirements of the [devtools](https://github.com/hadley/devtools) package development tools and the design guidelines for good R packages (See [R packages](http://r-pkgs.had.co.nz/) by Hadley Wickham). In the end, the code diverged too far to merge it back into RJDBC.
