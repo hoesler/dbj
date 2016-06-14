@@ -11,57 +11,57 @@ default_read_conversions <- list(
   read_conversion_rule(
     function(jdbc.type, ...) with(JDBC_SQL_TYPES,
       jdbc.type == get("NULL")),
-    function(...) "integer",
-    function(data, ...) identity(data)
+    function(data, ...) identity(data),
+    function(...) "integer"
   ),
   read_conversion_rule(
     function(jdbc.type, ...) with(JDBC_SQL_TYPES,
       jdbc.type %in% c(TINYINT, SMALLINT, INTEGER)),
-    function(...) "integer",
-    function(data, ...) identity(data)
+    function(data, ...) identity(data),
+    function(...) "integer"
   ),
   read_conversion_rule(
     function(jdbc.type, ...) with(JDBC_SQL_TYPES,
       jdbc.type %in% c(FLOAT, REAL, DOUBLE, NUMERIC, DECIMAL, BIGINT)),
-    function(...) "numeric",
-    function(data, ...) identity(data)
+    function(data, ...) identity(data),
+    function(...) "numeric"
   ),
   read_conversion_rule(
     function(jdbc.type, ...) with(JDBC_SQL_TYPES,
       jdbc.type %in% c(BIT, BOOLEAN)),
-    function(...) "logical",
-    function(data, ...) identity(data)
+    function(data, ...) identity(data),
+    function(...) "logical"
   ),
   read_conversion_rule(
     function(jdbc.type, ...) with(JDBC_SQL_TYPES,
       jdbc.type %in% c(CHAR, VARCHAR, LONGVARCHAR, NCHAR, NVARCHAR, LONGNVARCHAR)),
-    function(...) "character",
-    function(data, ...) identity(data)
+    function(data, ...) identity(data),
+    function(...) "character"
   ),
   read_conversion_rule(
     function(jdbc.type, ...) with(JDBC_SQL_TYPES,
       jdbc.type == TIME),
-    function(...) "difftime",
-    function(data, ...) as.difftime(data / 1000, units = "secs")
+    function(data, ...) as.difftime(data / 1000, units = "secs"),
+    function(...) "difftime"
   ),
   read_conversion_rule(
     function(jdbc.type, ...) with(JDBC_SQL_TYPES,
       jdbc.type == DATE),
-    function(...) "Date",
     # data is point in time that is time milliseconds after January 1, 1970 00:00:00 GMT
-    function(data, ...) structure(as.integer(data / 1000 / 60 / 60 / 24), class = "Date")
+    function(data, ...) structure(as.integer(data / 1000 / 60 / 60 / 24), class = "Date"),
+    function(...) "Date"
   ),
   read_conversion_rule(
     function(jdbc.type, ...) with(JDBC_SQL_TYPES,
       jdbc.type == TIMESTAMP),
-    function(...) "POSIXct",
-    function(data, ...) as.POSIXct(data / 1000, origin = "1970-01-01", tz = "GMT")
+    function(data, ...) as.POSIXct(data / 1000, origin = "1970-01-01", tz = "GMT"),
+    function(...) "POSIXct"
   ),
   read_conversion_rule(
     function(jdbc.type, ...) with(JDBC_SQL_TYPES,
       jdbc.type %in% c(BINARY, BLOB)),
-    function(...) "list",
-    function(data, ...) { lapply(data, function(field) { if (all(is.na(field))) NA else as.raw(field) }) }
+    function(data, ...) { lapply(data, function(field) { if (all(is.na(field))) NA else as.raw(field) }) },
+    function(...) "list"
   )
 )
 

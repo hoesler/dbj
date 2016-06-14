@@ -54,3 +54,13 @@ requireOption <- function(x) {
 as_classpath <- function(paths) {
   paste0(paths, collapse = .Platform$path.sep)
 }
+
+is.raw_list <- function(x) {
+  all(vapply(x, function(x) { is.raw(x) || is.na(x) }, logical(1)))
+}
+
+is.difftime <- function(x) is(x, "difftime")
+
+is.Date <- function(x) is(x, "Date")
+
+is.POSIXct <- function(x) is(x, "POSIXct")

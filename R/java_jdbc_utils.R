@@ -160,7 +160,7 @@ create_j_table <- function(data, write_conversions) {
 create_j_colum <- function(column_data, write_conversions) {
   conversion_rule <- find_conversion_rule(write_conversions, column_data, list())
   converted_column_data <- do.call(conversion_rule$conversion, list(data = column_data))
-  db_data_type <- do.call(conversion_rule$create_type, list(data = column_data))
+  db_data_type <- do.call(conversion_rule$target_type, list(data = column_data))
 
   sql_type <- as.jdbc_sql_type(db_data_type)
 

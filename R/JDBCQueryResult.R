@@ -172,7 +172,7 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
         }
         read_conversions[sapply(read_conversions, function (x) {
           x$condition(jdbc.type = jdbc.type)
-        })][[1]]$r_class()
+        })][[1]]$target_type()
       }, "")))
     }
 

@@ -60,8 +60,8 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
   	    read_conversion_rule(
           function(jdbc.type, ...) with(JDBC_SQL_TYPES,
             jdbc.type == DOUBLE),
-          function(...) "numeric",
-          function(data, ...) data + 1
+          function(data, ...) data + 1,
+          function(...) "numeric"
         )
   	  ), default_read_conversions)
 
@@ -99,8 +99,8 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
   	    read_conversion_rule(
           function(jdbc.type, ...) with(JDBC_SQL_TYPES,
             jdbc.type == DOUBLE),
-          function(...) "Duration",
-          function(data, ...) duration(data)
+          function(data, ...) duration(data),
+          function(...) "Duration"
         )
   	  ), default_read_conversions)
 
