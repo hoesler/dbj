@@ -21,7 +21,7 @@ JDBCDriver <- setClass("JDBCDriver",
 
 setMethod("initialize", "JDBCDriver", function(.Object, info = list(), ...) {
     .Object <- callNextMethod()
-    if (nargs > 1 && missing(info)) {
+    if (nargs() > 1 && missing(info)) {
       .Object@info <- driver_info()
     }
     .Object
