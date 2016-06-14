@@ -112,7 +112,7 @@ driver_info <- function() {
   list(
     driver.version = utils::packageVersion("dbj"),
     client.version = dbj_jar_version,
-    max.connections = NA # TODO: Is there a way to get this information from JDBC?
+    max.connections = NA # is a connection property (DatabaseMetaData.getMaxConnections())
   )
 }
 
