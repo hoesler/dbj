@@ -38,11 +38,12 @@ dbGetQuery(con, sql, parameters = list("setosa"))
 ```
 
 ## Status
+No version has been releaded yet.
 dbj is under active development and tested agains different JDBC drivers using [DBItest](https://github.com/rstats-db/DBItest):
 
-- [H2](tests/testthat/test-DBItest-H2.R) (Fully functional)
-- [Apache Derby](tests/testthat/test-DBItest-Derby.R) (minor issues)
-- [MySQL Connector/J](tests/testthat/test-DBItest-MySQL.R) (minor issues)
+- [H2](tests/testthat/test-DBItest-H2.R)
+- [Apache Derby](tests/testthat/test-DBItest-Derby.R)
+- [MySQL Connector/J](tests/testthat/test-DBItest-MySQL.R)
 - more to come...
 
 ##	Type mapping
