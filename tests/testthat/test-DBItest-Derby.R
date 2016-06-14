@@ -16,11 +16,10 @@ DBItest::test_all(skip = c(
 
   # Derby specific
 
-  "quote_string", # TODO: What is causing an error here?
-
   "temporary_table", # TODO: temporary tables must be accessed in the SESSSION schema (http://db.apache.org/derby/docs/10.2/ref/rrefdeclaretemptable.html)
 
   # Not an error: Syntax not supported (WHERE clause is mandatory in SELECT expressions) 
+  "quote_string",
   "trivial_query",
   "clear_result_return",
   "command_query",
