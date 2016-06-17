@@ -1,13 +1,13 @@
 #' @include JDBCObject.R
 #' @include java_utils.R
-#' @include java_jdbc_utils.R
+#' @include jdbc.R
 #' @include type_mapping.R
 #' @include sql_dialect.R
 NULL
 
 #' JDBCDriver class
 #'
-#' \code{JDBCDriver} objects are usually created by 
+#' \code{JDBCDriver} objects are usually created by
 #' \code{\link[dbj]{driver}}.
 #' @keywords internal
 #' @export
@@ -29,8 +29,8 @@ setMethod("initialize", "JDBCDriver", function(.Object, info = list(), ...) {
 )
 
 #' Legacy JDBCDriver constructor.
-#' 
-#' This function is present for \code{RJDBC} compatibility. Use \code{\link{driver}} instead. 
+#'
+#' This function is present for \code{RJDBC} compatibility. Use \code{\link{driver}} instead.
 #' @param driverClass the Java class name of the JDBC driver to use
 #' @param classPath a string of paths separated by the \code{path.sep} variable in \code{\link{.Platform}}
 #'                  which should get added to the classpath (see \link[rJava]{.jaddClassPath})
@@ -53,10 +53,10 @@ create_new_dbj_connection <- function(j_con, drv, ...) {
 }
 
 #' Factory function for \code{\linkS4class{JDBCDriver}} objects
-#' 
+#'
 #' Call \code{driver} to create a new \code{\linkS4class{JDBCDriver}}
 #' in order to \code{\link[=dbConnect,JDBCDriver-method]{connect}} to databases using the given JDBC driver.
-#' 
+#'
 #' @inheritParams jdbc_register_driver
 #' @param dialect The \code{\link{sql_dialect}} to use.
 #' @param read_conversions a list of \code{\link[=read_conversion_rule]{read conversions}}.
@@ -66,7 +66,7 @@ create_new_dbj_connection <- function(j_con, drv, ...) {
 #' @examples
 #' library(DBI)
 #' library(dbj)
-#' 
+#'
 #' jdbc_register_driver(
 #'  c('org.h2.Driver', 'org.apache.derby.jdbc.EmbeddedDriver'),
 #'  resolve(
@@ -77,11 +77,11 @@ create_new_dbj_connection <- function(j_con, drv, ...) {
 #'    repositories = list(maven_local, maven_central)
 #'  )
 #' )
-#' 
+#'
 #' h2_con <- dbConnect(dbj::driver(), 'jdbc:h2:mem:example_db')
 #' derby_con <- dbConnect(dbj::driver(), 'jdbc:derby:memory:example_db;create=true')
 #' @export
-driver <- function(driver_class = NULL, classpath = NULL,              
+driver <- function(driver_class = NULL, classpath = NULL,
                   dialect = NULL,
                   read_conversions = default_read_conversions,
                   write_conversions = default_write_conversions,
@@ -93,7 +93,7 @@ driver <- function(driver_class = NULL, classpath = NULL,
   if (!missing(driver_class)) {
     jdbc_register_driver(driver_class, classpath)
   }
-  
+
   if (!missing(dialect)) {
     warning("Defining dialects in the driver class is deprecated. Define in dbConnect instead.")
   }
@@ -136,12 +136,12 @@ setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
 )
 
 #' Connect to a database
-#' 
+#'
 #' Connect to a database using a
 #' \href{https://docs.oracle.com/javase/tutorial/jdbc/basics/connecting.html#db_connection_url}{JDBC URL}.
 #'
 #' @param drv An object of class \code{\linkS4class{JDBCDriver}}
-#' @inheritParams create_jdbc_connection
+#' @inheritParams jdbc_connect
 #' @param sql_dialect an \code{\link{sql_dialect}}
 #' @family connection functions
 #' @export
@@ -151,7 +151,7 @@ setMethod("dbUnloadDriver", signature(drv = "JDBCDriver"),
 #' }
 setMethod("dbConnect", signature(drv = "JDBCDriver"),
   function(drv, url, user = '', password = '', sql_dialect = dialect_for_url(url), ...) {
-    j_con <- create_jdbc_connection(url, user, password, ...)
+    j_con <- jdbc_connect(url, user, password, ...)
     drv@create_new_connection(j_con, drv, sql_dialect = sql_dialect)
   }
 )

@@ -43,8 +43,8 @@
 \arguments{
 \item{res, dbObj}{an \code{\linkS4class{JDBCQueryResult}} object.}
 
-\item{n}{optional maximum number of records to retrieve per fetch. Use \code{-1} to 
-retrieve all pending records; use \code{0} for to fetch the default 
+\item{n}{optional maximum number of records to retrieve per fetch. Use \code{-1} to
+retrieve all pending records; use \code{0} for to fetch the default
 number of rows as defined in \code{\link{JDBC}}}
 
 \item{fetch_size}{a hint to the number of rows that should be fetched from the database in a single block.

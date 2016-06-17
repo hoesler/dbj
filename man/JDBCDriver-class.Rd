@@ -39,7 +39,7 @@
 \item{object}{An object of class \code{\linkS4class{JDBCDriver}}}
 }
 \description{
-\code{JDBCDriver} objects are usually created by 
+\code{JDBCDriver} objects are usually created by
 \code{\link[dbj]{driver}}.
 }
 \section{Methods (by generic)}{

@@ -26,7 +26,7 @@ Collate:
     'java_sql_types.R'
     'type_mapping.R'
     'java_utils.R'
-    'java_jdbc_utils.R'
+    'jdbc.R'
     'JDBCConnection_generics.R'
     'JDBCObject_generics.R'
     'JDBCObject.R'
@@ -40,6 +40,5 @@ Collate:
     'dbj.R'
     'java_dependencies.R'
     'java_dependencies_maven.R'
-    'java_resultpull.R'
     'type_mapping_defaults.R'
 RoxygenNote: 5.0.1

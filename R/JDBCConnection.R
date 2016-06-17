@@ -2,13 +2,13 @@
 #' @include JDBCDriver.R
 #' @include JDBCConnection_generics.R
 #' @include java_utils.R
-#' @include java_jdbc_utils.R
+#' @include jdbc.R
 #' @include r_utils.R
 #' @include sql_dialect.R
 NULL
 
 #' JDBCConnection class
-#' 
+#'
 #' @slot state An environment for mutable states
 #' @slot j_connection A \code{jobjRef} holding a java.sql.Connection.
 #' @slot info The connection info list.
@@ -16,7 +16,7 @@ NULL
 #' @slot create_new_query_result The factory function for \code{\linkS4class{JDBCQueryResult}} objects.
 #' @slot create_new_update_result The factory function for \code{\linkS4class{JDBCUpdateResult}} objects.
 #' @slot sql_dialect an \code{\link{sql_dialect}}
-#' 
+#'
 #' @export
 JDBCConnection <- setClass("JDBCConnection", contains = c("DBIConnection", "JDBCObject"),
   slots = c(
@@ -46,7 +46,7 @@ setMethod("initialize", "JDBCConnection", function(.Object, j_connection, ...) {
 )
 
 #' Create a JDBC connection.
-#' 
+#'
 #' Create a connection to the same URL and with the same user as this connection uses.
 #' @param drv a \code{\linkS4class{JDBCConnection}} object
 #' @param password the password for the connection
@@ -76,18 +76,18 @@ setMethod("dbCallProc", signature(conn = "JDBCConnection"),
     assert_that(length(name) == 1)
     assert_that(is(parameters, "list"))
 
-    j_prepared_statement <- prepare_call(conn, sprintf("{call %s(%s)}",
+    j_prepared_statement <- jdbc_prepare_call(conn, sprintf("{call %s(%s)}",
       dbQuoteIdentifier(conn, name),
       paste0(rep('?', length(parameters)), collapse = ", ")
     ))
-    insert_parameters(j_prepared_statement, parameters, dbGetDriver(conn)@write_conversions)
-    execute_update(j_prepared_statement)
+    jdbc_set_statement_parameters(j_prepared_statement, parameters, dbGetDriver(conn)@write_conversions)
+    jdbc_execute_update(j_prepared_statement)
     invisible(TRUE)
   }
 )
 
 #' Disconnect (close) a connection
-#' 
+#'
 #' @param conn A \code{\linkS4class{JDBCConnection}} object, as produced by
 #'   \code{\link{dbConnect}}.
 #' @param ... Other parameters passed on to methods.
@@ -125,11 +125,11 @@ setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "charact
   function(conn, statement, parameters = list()) {
     assert_that(is.list(parameters))
     statement <- as.character(statement)[1L]
-    
-    j_statement <- create_prepared_statement(conn, statement)
-    insert_parameters(j_statement, parameters, dbGetDriver(conn)@write_conversions)
-    hasResult <- execute_query(j_statement)
-    
+
+    j_statement <- jdbc_create_prepared_statement(conn, statement)
+    jdbc_set_statement_parameters(j_statement, parameters, dbGetDriver(conn)@write_conversions)
+    hasResult <- jdbc_execute_query(j_statement)
+
     if (hasResult) {
       j_result_set <- jdbc_get_result_set(j_statement)
       conn@create_new_query_result(j_result_set, conn, statement)
@@ -137,11 +137,11 @@ setMethod("dbSendQuery", signature(conn = "JDBCConnection", statement = "charact
       update_count <- jdbc_get_update_count(j_statement)
       conn@create_new_update_result(update_count, conn, statement)
     }
-    
+
   }
 )
 
-fetch_all <- function(j_result_set, connection, statement = "", close = TRUE) {  
+fetch_all <- function(j_result_set, connection, statement = "", close = TRUE) {
   res <- connection@create_new_query_result(j_result_set, connection, statement)
   if (close) {
     on.exit(dbClearResult(res))
@@ -150,7 +150,7 @@ fetch_all <- function(j_result_set, connection, statement = "", close = TRUE) {
 }
 
 #' dbj table handling
-#' 
+#'
 #' @inheritParams dbDisconnect,JDBCConnection-method
 #' @param pattern the pattern to filter tables or fields
 #' @name dbj-table
@@ -171,7 +171,7 @@ setMethod("dbListTables", signature(conn = "JDBCConnection"),
 setMethod("dbGetTables", signature(conn = "JDBCConnection"),
   function(conn, pattern = "%", ...) {
     j_database_meta <- jdbc_get_database_meta(conn@j_connection)
-    j_result_set <- jdbc_dbmeta_get_tables(j_database_meta, pattern) 
+    j_result_set <- jdbc_dbmeta_get_tables(j_database_meta, pattern)
     fetch_all(j_result_set, conn)
   }
 )
@@ -219,14 +219,14 @@ setMethod("dbGetFields", signature(conn = "JDBCConnection"),
 )
 
 #' Modify data in a database table
-#' 
+#'
 #' Read data from a table, write a data frame to a table or delete the content of a table.
-#' 
+#'
 #' These methods use \code{\link{sql_dialect}} functions to generate SQL statments.
-#' 
+#'
 #' @inheritParams dbDisconnect,JDBCConnection-method
 #' @param name character vector of length 1 specifying the name of a table in the database
-#' 
+#'
 #' @name dbj-edit-tables
 #' @aliases dbReadTable,JDBCConnection,character-method
 #' @family JDBCConnection methods
@@ -249,18 +249,18 @@ setMethod("dbReadTable", signature(conn = "JDBCConnection", name = "character"),
 #' @param truncate a logical specifying whether to truncate an existing table before appending. Its default is FALSE
 #' @param temporary \code{TRUE} if the table should be temporary
 #' @inheritParams DBI::rownames
-#' 
+#'
 #' @rdname dbj-edit-tables
 #' @aliases dbWriteTable,JDBCConnection,character-data.frame-method
 #' @export
 setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character", value = "data.frame"),
-  function(conn, name, value, create = TRUE, append = FALSE, truncate = FALSE, temporary = FALSE, row.names = NA, ...) { 
+  function(conn, name, value, create = TRUE, append = FALSE, truncate = FALSE, temporary = FALSE, row.names = NA, ...) {
     assert_that(ncol(value) > 0)
     assert_that(!is.null(names(value)))
     assert_that(!any(is.na(names(value))))
     assert_that(is(create, "logical"))
-    assert_that(is(append, "logical"))   
-    
+    assert_that(is(append, "logical"))
+
     table_exists <- dbExistsTable(conn, name)
 
     if (table_exists && !append) {
@@ -269,11 +269,11 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
 
     if (!table_exists && !create) {
       stop("Table `", name, "' does not exist and create is FALSE")
-    }      
-    
+    }
+
     dbBegin(conn, "dbWriteTable")
     on.exit(dbRollback(conn, "dbWriteTable"))
-    
+
     if (!table_exists && create) {
       sql <- with(dbSQLDialect(conn), sql_create_table(conn, name, value, temporary = temporary, row.names = row.names))
       table_was_created <- dbSendUpdate(conn, sql)
@@ -289,7 +289,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
         stop(sprintf("Table %s could not be truncated", name))
       }
     }
-    
+
     if (nrow(value) > 0) {
       value <- sqlRownamesToColumn(value, row.names = row.names)
       sql <- with(dbSQLDialect(conn), sql_append_table(conn, name, value, row.names = row.names, temporary = temporary))
@@ -302,7 +302,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
     on.exit(NULL)
     dbCommit(conn, "dbWriteTable")
 
-    invisible(TRUE)           
+    invisible(TRUE)
   }
 )
 
@@ -312,7 +312,7 @@ setMethod("dbWriteTable", signature(conn = "JDBCConnection", name = "character",
 setMethod("dbTruncateTable", signature(conn = "JDBCConnection", name = "character"),
   function(conn, name, ...) {
     sql <- with(dbSQLDialect(conn), sql_clear_table(conn, name, ...))
-    dbSendUpdate(conn, sql)      
+    dbSendUpdate(conn, sql)
   }
 )
 
@@ -396,9 +396,9 @@ setMethod("show", "JDBCConnection", function(object) {
 })
 
 #' SQL quoting.
-#' 
+#'
 #' These functions use the driver's \code{sql_dialect} environment to quote strings and idetifiers.
-#' 
+#'
 #' @inheritParams dbDisconnect,JDBCConnection-method
 #' @param x A character vector to quote.
 #' @family SQL functions
@@ -413,7 +413,7 @@ setMethod("dbQuoteIdentifier", signature(conn = "JDBCConnection", x = "character
     with(dbSQLDialect(conn), sql_quote_identifier(conn, x, ...))
   }
 )
- 
+
 #' @rdname dbj-sql-quote
 #' @aliases dbQuoteString,JDBCConnection,character-method
 #' @export
@@ -424,10 +424,10 @@ setMethod("dbQuoteString", signature(conn = "JDBCConnection", x = "character"),
 )
 
 #' Generate SQL statements
-#' 
+#'
 #' These functions use the driver's \code{sql_dialect} environment
 #' to generate SQL statments for creating tables and inserting data.
-#' 
+#'
 #' @inheritParams DBI::sqlCreateTable
 #' @family SQL functions
 #' @family JDBCConnection methods

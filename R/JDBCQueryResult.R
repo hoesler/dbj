@@ -3,17 +3,17 @@
 NULL
 
 #' JDBCQueryResult class
-#' 
+#'
 #' @param res,dbObj an \code{\linkS4class{JDBCQueryResult}} object.
-#' @param n optional maximum number of records to retrieve per fetch. Use \code{-1} to 
-#'    retrieve all pending records; use \code{0} for to fetch the default 
+#' @param n optional maximum number of records to retrieve per fetch. Use \code{-1} to
+#'    retrieve all pending records; use \code{0} for to fetch the default
 #'    number of rows as defined in \code{\link{JDBC}}
 #' @param fetch_size a hint to the number of rows that should be fetched from the database in a single block.
 #'    See \url{http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#setFetchSize(int)}.
 #' @param what a character vector indicating which info to return.
 #'   Expected is a subset of \code{c("name", "field.type", "data.type", "label", "nullable")}.
 #' @param ... Ignored. Needed for compatibility with generic.
-#' 
+#'
 #' @family result classes
 #' @export
 JDBCQueryResult <- setClass("JDBCQueryResult",
@@ -29,17 +29,17 @@ JDBCQueryResult <- setClass("JDBCQueryResult",
 
 setMethod("initialize", "JDBCQueryResult", function(.Object, j_result_set, connection, ...) {
   .Object <- callNextMethod()
-  
+
   if (nargs() > 1) {
     assert_that(j_result_set %instanceof% "java.sql.ResultSet")
     assert_that(is(connection, "JDBCConnection"))
 
-    .Object@j_result_set_meta <- get_meta_data(j_result_set)
+    .Object@j_result_set_meta <- jdbc_resultset_meta(j_result_set)
     if (is.jnull(.Object@j_result_set_meta)) stop("j_result_set_meta is null")
-    
-    .Object@j_result_pull <- create_resultpull(j_result_set)
+
+    .Object@j_result_pull <- jdbc_create_resultpull(j_result_set)
     if (is.jnull(.Object@j_result_pull)) stop("j_result_pull is null")
-    
+
     .Object@state$row_count <- 0
     .Object@state$completed <- FALSE
   }
@@ -54,13 +54,13 @@ setMethod("initialize", "JDBCQueryResult", function(.Object, j_result_set, conne
 #' @export
 setMethod("dbFetch", signature(res = "JDBCQueryResult", n = "numeric"),
   function(res, n = -1, fetch_size = 0, ..., row.names = NA) {
-    assert_that(is.numeric(fetch_size))    
+    assert_that(is.numeric(fetch_size))
 
     cols <- jdbc_rsmeta_column_count(res@j_result_set_meta)
     if (cols < 1L) {
       return(NULL)
     }
-       
+
     column_info <- dbColumnInfo(res, c("label", "nullable", "jdbc.type"))
 
     infinite_pull <- (n == -1)
@@ -72,12 +72,12 @@ setMethod("dbFetch", signature(res = "JDBCQueryResult", n = "numeric"),
     }
 
     chunks <- list()
-    repeat {    
-      fetched <- resultpull_fetch(
+    repeat {
+      fetched <- jdbc_resultpull_fetch(
         res@j_result_pull, stride, column_info,
-        dbGetDriver(res)@read_conversions, fetch_size) 
-      
-      chunks <- c(chunks, list(fetched))  
+        dbGetDriver(res)@read_conversions, fetch_size)
+
+      chunks <- c(chunks, list(fetched))
 
       if (nrow(fetched) < stride) {
         res@state$completed <- TRUE
@@ -111,9 +111,9 @@ setMethod("dbClearResult", signature(res = "JDBCQueryResult"),
     if (!closed) {
       j_statement <- jdbc_result_set_get_statement(res@j_result_set)
       if (!is.jnull(j_statement)) {
-        close_statement(j_statement)
+        jdbc_close_statement(j_statement)
       } else {
-        close_result_set(res@j_result_set)
+        jdbc_close_results(res@j_result_set)
       }
     } else {
       warning("Result has already been closed")
@@ -138,9 +138,9 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
     if (length(what) == 0) {
       return(data.frame())
     }
-    
+
     column_count <- jdbc_rsmeta_column_count(res@j_result_set_meta)
-    
+
     column_info <- list()
 
     if ("name" %in% what) { # TODO: return lables as names?
@@ -181,14 +181,14 @@ setMethod("dbColumnInfo", signature(res = "JDBCQueryResult"),
         jdbc_rsmeta_column_label(res@j_result_set_meta, i)
       }, "")))
     }
-    
+
     if ("nullable" %in% what) {
       column_info <- c(column_info, list(nullable = vapply(seq(column_count), function(i) {
         jdbc_rsmeta_column_nullable(res@j_result_set_meta, i)
       }, 0L)))
     }
 
-    as.data.frame(column_info, row.names = seq(column_count), stringsAsFactors = FALSE)   
+    as.data.frame(column_info, row.names = seq(column_count), stringsAsFactors = FALSE)
   }
 )
 
@@ -258,7 +258,7 @@ checkValid <- function(res) {
 }
 
 #' List fields in specified table.
-#' 
+#'
 #' @param conn an \code{\linkS4class{JDBCQueryResult}} object.
 #' @param  name Ignored. Needed for compatiblity with generic.
 #' @param  ... Ignored. Needed for compatiblity with generic.

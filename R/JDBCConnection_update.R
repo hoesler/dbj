@@ -1,16 +1,16 @@
 #' @include JDBCConnection.R
 #' @include JDBCConnection_generics.R
 #' @include java_utils.R
-#' @include java_jdbc_utils.R
+#' @include jdbc.R
 NULL
 
 #' @describeIn dbSendUpdate Send update query without parameters
 #' @export
 setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "character", parameters = "missing"),
   function(conn, statement, parameters) {
-    j_statement <- create_prepared_statement(conn, statement)
-    on.exit(close_statement(j_statement))
-    execute_update(j_statement)
+    j_statement <- jdbc_create_prepared_statement(conn, statement)
+    on.exit(jdbc_close_statement(j_statement))
+    jdbc_execute_update(j_statement)
     invisible(TRUE)
   }
 )
@@ -38,12 +38,12 @@ setMethod("dbSendUpdate",  signature(conn = "JDBCConnection", statement = "chara
 
     sapply(partition(parameters, partition_size), function(subset) {
       # Create a new statement for each batch. Reusing a single statement messes up ParameterMetaData (on H2).
-      j_statement <- create_prepared_statement(conn, statement)
+      j_statement <- jdbc_create_prepared_statement(conn, statement)
       tryCatch({
-        batch_insert(j_statement, subset, conversions)
-        execute_batch(j_statement)},
-      finally = close_statement(j_statement))   
-    })    
+        jdbc_batch_update(j_statement, subset, conversions)
+      },
+      finally = jdbc_close_statement(j_statement))
+    })
 
     invisible(TRUE)
   }
