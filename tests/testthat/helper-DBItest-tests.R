@@ -1,10 +1,11 @@
 test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_driver_args = list()) {
   attach(getNamespace("DBItest"), warn.conflicts = FALSE)
-  
+  on.exit(detach(getNamespace("DBItest")))
+
   test_suite <- "bdj specific"
-  
+
   tests <- list(
-	
+
   	# ajusted version of constructor test in DBItest::test_driver
   	constructor = function() {
       pkg_name <- package_name(ctx)
@@ -54,7 +55,7 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
     },
 
     test_custom_conversion1 = function() {
-    	
+
       # given
   	  read_conversions <- c(list(
   	    read_conversion_rule(
@@ -76,7 +77,7 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
   	  # when
   	  drv <- do.call(dbj::driver, modifyList(default_driver_args,
         list(read_conversions = read_conversions, write_conversions = write_conversions)))
-  	  
+
   	  # then
   	  con <- do.call(dbConnect, c(list(drv), ctx$connect_args))
   	  on.exit(dbDisconnect(con))
@@ -115,7 +116,7 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
   	  # when
   	  drv <- do.call(dbj::driver, modifyList(default_driver_args,
         list(read_conversions = read_conversions, write_conversions = write_conversions)))
-  	  
+
   	  # then
   	  con <- do.call(dbConnect, c(list(drv), ctx$connect_args))
   	  on.exit(dbDisconnect(con))
@@ -132,6 +133,4 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
   )
 
   run_tests(tests, skip, test_suite, ctx$name)
-
-  detach(getNamespace("DBItest"))
 }
