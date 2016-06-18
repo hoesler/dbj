@@ -2,9 +2,9 @@
 NULL
 
 #' Resolve Java dependencies with maven
-#' 
+#'
 #' Define maven repositories to \link{resolve} \link[=module]{modules}.
-#' 
+#'
 #' @param url,path The location of the repository.
 #' @param local_mirror A local maven repository to which remotely fetched modules can be installed.
 #' @param install Should the fetched artifact be installed to the local repository?
@@ -18,13 +18,19 @@ maven_url <- function(repository, group_id, artifact_id, version, suffix = ".jar
     gsub("\\.", "/", group_id), artifact_id, version, artifact_id, version, suffix)
 }
 
-maven_install <- function(group_id, artifact_id, version, repositories) {
-  errno <- system(sprintf(
-    '%s org.apache.maven.plugins:maven-dependency-plugin:2.10:get -DremoteRepositories=%s -Dartifact=%s',
-    Sys.getenv("MAVEN_EXEC", "mvn"), repositories, paste0(c(group_id, artifact_id, version), collapse = ":")
-  ))
+maven_install <- function(group_id, artifact_id, version, repositories, transitive = TRUE) {
+  error_code <- system2(
+    command = Sys.getenv("MAVEN_EXEC", "mvn"),
+    args = c(
+      'org.apache.maven.plugins:maven-dependency-plugin:2.10:get',
+      paste0('-DremoteRepositories=', paste(repositories, sep = ",")),
+      paste0('-Dartifact=', paste0(c(group_id, artifact_id, version), collapse = ":")),
+      paste0('-Dtransitive=', as.character(transitive))
+    ),
+    stdout = FALSE
+  )
 
-  return(errno == 0)
+  stopifnot(error_code == 0)
 }
 
 #' @export
@@ -53,13 +59,13 @@ maven_central <- maven_remote_repository("http://repo1.maven.org/maven2", local_
 
 #' @export
 #' @rdname maven_repository
-fetch_module.maven_remote_repository <- function(repository, module, ...) {
+fetch_module.maven_remote_repository <- function(repository, module, transitive = TRUE, ...) {
   if (repository$install) {
-    success <- maven_install(module$group, module$name, module$version, repository$url)
-    
+    success <- maven_install(module$group, module$name, module$version, repository$url, transitive)
+
     path <-
     if (success) {
-      fetch_module(repository$local_mirror, module)
+      fetch_module(repository$local_mirror, module, transitive)
     } else {
       NULL
     }
@@ -70,13 +76,47 @@ fetch_module.maven_remote_repository <- function(repository, module, ...) {
   }
 }
 
+maven_dependencies <- function(pom) {
+  outfile <- tempfile()
+  on.exit({ if (file.exists(outfile)) file.remove(outfile) })
+
+  error_code <- system2(
+    command = Sys.getenv("MAVEN_EXEC", "mvn"),
+    args = c(
+      paste('-f', pom),
+      'dependency:list',
+      '-Dmdep.outputScope=FALSE',
+      '-DincludeScope=runtime',
+      paste0('-DoutputFile=', outfile)
+    ),
+    stdout = FALSE
+  )
+
+  stopifnot(error_code == 0)
+
+  output <- readLines(outfile)
+  matches <- regmatches(output, regexec("\\s+(.+):(.+):(.+):(.+)", output))
+
+  unique(unlist(Map(function(x) paste0(x[2], ":", x[3], ":", x[5]), Filter(length, matches))))
+}
+
 #' @export
 #' @rdname maven_repository
-fetch_module.maven_local_repository <- function(repository, module, ...) {
-  path <- maven_url(repository$path, module$group, module$name, module$version)
-  if (file.exists(path)) {
-    path
-  } else {
-    NULL
+fetch_module.maven_local_repository <- function(repository, module, transitive = TRUE, ...) {
+
+  modules <- list(module)
+  if (transitive) {
+    pom <- maven_url(repository$path, module$group, module$name, module$version, '.pom')
+    deps <- maven_dependencies(pom)
+    modules <- c(modules, unname(lapply(deps, dbj::module)))
   }
+
+  sapply(modules, function(x) {
+    path <- maven_url(repository$path, x$group, x$name, x$version)
+    if (file.exists(path)) {
+      path
+    } else {
+      NULL
+    }
+  })
 }

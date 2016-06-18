@@ -5,12 +5,14 @@
 \alias{repository}
 \title{Fetch a module from a repository}
 \usage{
-fetch_module(repository, module, ...)
+fetch_module(repository, module, transitive, ...)
 }
 \arguments{
 \item{repository}{The repository to search in.}
 
 \item{module}{The module to resolve.}
+
+\item{transitive}{A logical indicating if transitive dependencies should be fetched as well}
 
 \item{...}{Additional arguments passed to methods.}
 }

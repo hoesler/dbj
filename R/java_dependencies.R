@@ -1,9 +1,9 @@
 #' Define Java dependencies as a module
-#' 
+#'
 #' The \code{module} function creates a definition object of a Java dependency,
 #' which can be \code{\link[=resolve]{resolved}} from a \code{\link{repository}}
 #' and used to create a classpath argument to \code{\link{driver}}.
-#' 
+#'
 #' @param x A module definition
 #' @return a list with class \code{"module"}
 #' @family java dependency functions
@@ -26,29 +26,32 @@ module.character <- function(x) {
 #' @describeIn module Constructs a module from a named list with elements \code{group}, \code{name} and \code{version}.
 #' @export
 module.list <- function(x) {
+  x <- as.environment(x)
   structure(
     list(
       group = as.character(get("group", x)),
       name = as.character(get("name", x)),
-      version = as.character(get("version", x))
+      version = as.character(get("version", x)),
+      ext = as.character(get0("ext", x, ifnotfound = "jar"))
     ), class = "module")
 }
 
 #' Fetch a module from a repository
-#' 
+#'
 #' Classes which support \code{fetch_module} should locate the given \code{module} and make it locally available.
-#' 
+#'
 #' @param repository The repository to search in.
 #' @param module The module to resolve.
+#' @param transitive A logical indicating if transitive dependencies should be fetched as well
 #' @param ... Additional arguments passed to methods.
 #' @return The path to the local version of the jar file or NULL if the module is not in the repository.
 #' @aliases repository
 #' @family java dependency functions
 #' @export
-fetch_module <- function(repository, module, ...) UseMethod("fetch_module")
+fetch_module <- function(repository, module, transitive, ...) UseMethod("fetch_module")
 
 #' Resolve objects to file paths
-#' 
+#'
 #' @param what The definition to resolve.
 #' @param ... Additional arguments passed to methods.
 #' @family java dependency functions
@@ -60,11 +63,12 @@ resolve <- function(what, ...) UseMethod("resolve")
 #' @describeIn resolve Tries to resolve the module \code{what} in one of the given \code{repositories}
 #'  using \code{\link{fetch_module}}.
 #' @param repositories A list of \code{\link[=repository]{repositories}} to search in.
+#' @inheritParams fetch_module
 #' @export
-resolve.module <- function(what, repositories, ...) {
+resolve.module <- function(what, repositories, transitive = TRUE, ...) {
   path <- NULL
   for (repository in repositories) {
-    path <- fetch_module(repository, what, ...)
+    path <- fetch_module(repository, what, transitive, ...)
 
     if (!is.null(path)) {
       message(sprintf("Found module %s in repository %s",

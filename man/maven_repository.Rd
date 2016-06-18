@@ -21,9 +21,11 @@ maven_local
 
 maven_central
 
-\method{fetch_module}{maven_remote_repository}(repository, module, ...)
+\method{fetch_module}{maven_remote_repository}(repository, module,
+  transitive = TRUE, ...)
 
-\method{fetch_module}{maven_local_repository}(repository, module, ...)
+\method{fetch_module}{maven_local_repository}(repository, module,
+  transitive = TRUE, ...)
 }
 \arguments{
 \item{url, path}{The location of the repository.}
@@ -35,6 +37,8 @@ maven_central
 \item{repository}{The repository to search in.}
 
 \item{module}{The module to resolve.}
+
+\item{transitive}{A logical indicating if transitive dependencies should be fetched as well}
 
 \item{...}{Additional arguments passed to methods.}
 }
