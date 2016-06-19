@@ -2,7 +2,7 @@
 dbj_skips_global <- c(
   "package_name",                         # Not an error: too restrictive
   "constructor_strict", "constructor",    # Not an error: too restrictive
-  "stress_load.*",                        # Not an error: substitute in make_context does not substitute   
+  "stress_load.*",                        # Not an error: substitute in make_context does not substitute
   "stale_result_warning",                 # TODO: Currently I have no simple solution how to keep track of results
   "data_time($|_.+)",                     # TODO: why should time be returned as character?
   "data_timestamp_utc($|_.+)",            # TODO: If we store timestamp as SQL TIMESTAMP we have to discard timezone information.
@@ -17,7 +17,7 @@ dbj_skips_global <- c(
   "data_logical_int",                     # not an error, full support for boolean data type
   "data_logical_int_null_.*",             # not an error, full support for boolean data type
   "roundtrip_logical_int",                # not an error, full support for boolean data type
-  
+
   "quote_identifier_not_vectorized",      # not an error rstats-db/DBI#24
 
   "column_info",                          # DBI tells me to return name, field.type, and data.type not "name" and "type"

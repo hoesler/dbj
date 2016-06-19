@@ -14,17 +14,15 @@ DBItest::make_context(
   name = "H2"
 )
 
-DBItest::test_all(skip = c(
-	# Driver independent
-	dbj_skips_global,
+dbj_integration_test(
+	skip = c(
+		dbj_skips_global,
 
-	# H2 specific
-	"data_date($|_.+)",									# Not an error: date() function is undefined in H2.
-	"data_timestamp_parens($|_.+)", 		# Not an error: datetime() is an unsupported function in H2
-	"data_raw($|_.+)",									# Not an error: SELECT cast(1 as BLOB) is invalid sytax in H2	
-	NULL
-))
+		# H2 specific
+		"data_date($|_.+)",									# Not an error: date() function is undefined in H2.
+		"data_timestamp_parens($|_.+)", 		# Not an error: datetime() is an unsupported function in H2
+		"data_raw($|_.+)",									# Not an error: SELECT cast(1 as BLOB) is invalid sytax in H2
 
-test_bdj_extras(skip = c(),
-	default_driver_args = list()
+		NULL
+	)
 )

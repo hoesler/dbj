@@ -134,3 +134,11 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
 
   run_tests(tests, skip, test_suite, ctx$name)
 }
+
+dbj_integration_test <- function(skip = NULL, ctx = DBItest::get_default_context()) {
+  DBItest::test_connection(skip = skip, ctx = ctx)
+  DBItest::test_result(skip = skip, ctx = ctx)
+  DBItest::test_sql(skip = skip, ctx = ctx)
+  DBItest::test_meta(skip = skip, ctx = ctx)
+  test_bdj_extras(skip = skip, ctx = ctx)
+}
