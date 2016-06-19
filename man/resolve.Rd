@@ -9,7 +9,7 @@
 \usage{
 resolve(what, ...)
 
-\method{resolve}{module}(what, repositories, transitive = TRUE, ...)
+\method{resolve}{module}(what, repositories, ...)
 
 \method{resolve}{character}(what, ...)
 
@@ -21,8 +21,6 @@ resolve(what, ...)
 \item{...}{Additional arguments passed to methods.}
 
 \item{repositories}{A list of \code{\link[=repository]{repositories}} to search in.}
-
-\item{transitive}{A logical indicating if transitive dependencies should be fetched as well}
 }
 \description{
 Resolve objects to file paths

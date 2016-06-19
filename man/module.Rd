@@ -6,14 +6,18 @@
 \alias{module.list}
 \title{Define Java dependencies as a module}
 \usage{
-module(x)
+module(x, ...)
 
-\method{module}{character}(x)
+\method{module}{character}(x, transitive = TRUE, ...)
 
-\method{module}{list}(x)
+\method{module}{list}(x, transitive = TRUE, ...)
 }
 \arguments{
 \item{x}{A module definition}
+
+\item{...}{Additional arguments passed to methods.}
+
+\item{transitive}{A logical indicating if transitive dependencies should be fetched as well}
 }
 \value{
 a list with class \code{"module"}
@@ -31,6 +35,7 @@ and used to create a classpath argument to \code{\link{driver}}.
 }}
 \examples{
 module('com.h2database:h2:1.3.176')
+module('com.h2database:h2:1.3.176', transitive = FALSE)
 module(list(group = 'com.h2database', name = 'h2', version = '1.3.176'))
 }
 \seealso{

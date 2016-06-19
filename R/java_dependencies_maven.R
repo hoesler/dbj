@@ -59,13 +59,13 @@ maven_central <- maven_remote_repository("http://repo1.maven.org/maven2", local_
 
 #' @export
 #' @rdname maven_repository
-fetch_module.maven_remote_repository <- function(repository, module, transitive = TRUE, ...) {
+fetch_module.maven_remote_repository <- function(repository, module, ...) {
   if (repository$install) {
-    success <- maven_install(module$group, module$name, module$version, repository$url, transitive)
+    success <- maven_install(module$group, module$name, module$version, repository$url, transitive = module$transitive)
 
     path <-
     if (success) {
-      fetch_module(repository$local_mirror, module, transitive)
+      fetch_module(repository$local_mirror, module)
     } else {
       NULL
     }
@@ -102,10 +102,10 @@ maven_dependencies <- function(pom) {
 
 #' @export
 #' @rdname maven_repository
-fetch_module.maven_local_repository <- function(repository, module, transitive = TRUE, ...) {
+fetch_module.maven_local_repository <- function(repository, module, ...) {
 
   modules <- list(module)
-  if (transitive) {
+  if (module$transitive) {
     pom <- maven_url(repository$path, module$group, module$name, module$version, '.pom')
     deps <- maven_dependencies(pom)
     modules <- c(modules, unname(lapply(deps, dbj::module)))

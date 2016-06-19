@@ -5,34 +5,38 @@
 #' and used to create a classpath argument to \code{\link{driver}}.
 #'
 #' @param x A module definition
+#' @param transitive A logical indicating if transitive dependencies should be fetched as well
+#' @param ... Additional arguments passed to methods.
 #' @return a list with class \code{"module"}
 #' @family java dependency functions
 #' @export
 #' @examples
 #' module('com.h2database:h2:1.3.176')
+#' module('com.h2database:h2:1.3.176', transitive = FALSE)
 #' module(list(group = 'com.h2database', name = 'h2', version = '1.3.176'))
-module <- function(x) UseMethod("module")
+module <- function(x, ...) UseMethod("module")
 
 #' @describeIn module Constructs a module from a string in the form 'group:name:version'.
 #' @export
-module.character <- function(x) {
+module.character <- function(x, transitive = TRUE, ...) {
   match <- regmatches(x, regexec("(.+):(.+):(.+)", x))[[1]]
   stopifnot(length(match) == 4)
   module_parts <- as.list(match[2:4])
   names(module_parts) <- c("group", "name", "version")
-  module.list(module_parts)
+  module.list(module_parts, transitive = transitive)
 }
 
 #' @describeIn module Constructs a module from a named list with elements \code{group}, \code{name} and \code{version}.
 #' @export
-module.list <- function(x) {
+module.list <- function(x, transitive = TRUE, ...) {
   x <- as.environment(x)
   structure(
     list(
       group = as.character(get("group", x)),
       name = as.character(get("name", x)),
       version = as.character(get("version", x)),
-      ext = as.character(get0("ext", x, ifnotfound = "jar"))
+      ext = as.character(get0("ext", x, ifnotfound = "jar")),
+      transitive = transitive
     ), class = "module")
 }
 
@@ -42,13 +46,12 @@ module.list <- function(x) {
 #'
 #' @param repository The repository to search in.
 #' @param module The module to resolve.
-#' @param transitive A logical indicating if transitive dependencies should be fetched as well
 #' @param ... Additional arguments passed to methods.
 #' @return The path to the local version of the jar file or NULL if the module is not in the repository.
 #' @aliases repository
 #' @family java dependency functions
 #' @export
-fetch_module <- function(repository, module, transitive, ...) UseMethod("fetch_module")
+fetch_module <- function(repository, module, ...) UseMethod("fetch_module")
 
 #' Resolve objects to file paths
 #'
@@ -65,10 +68,10 @@ resolve <- function(what, ...) UseMethod("resolve")
 #' @param repositories A list of \code{\link[=repository]{repositories}} to search in.
 #' @inheritParams fetch_module
 #' @export
-resolve.module <- function(what, repositories, transitive = TRUE, ...) {
+resolve.module <- function(what, repositories, ...) {
   path <- NULL
   for (repository in repositories) {
-    path <- fetch_module(repository, what, transitive, ...)
+    path <- fetch_module(repository, what, ...)
 
     if (!is.null(path)) {
       message(sprintf("Found module %s in repository %s",
