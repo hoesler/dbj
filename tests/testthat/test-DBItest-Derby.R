@@ -1,11 +1,14 @@
-derby_driver_class <- 'org.apache.derby.jdbc.EmbeddedDriver'
-derby_classpath <- resolve(
-  module('org.apache.derby:derby:10.12.1.1'),
-  repositories = list(maven_local, maven_central)
+jdbc_register_driver(
+  'org.apache.derby.jdbc.EmbeddedDriver',
+  resolve(
+    module('org.apache.derby:derby:10.12.1.1'),
+    repositories = list(maven_local, maven_central)
+  )
 )
 
 DBItest::make_context(
-  dbj::driver(derby_driver_class, derby_classpath), list(url = "jdbc:derby:memory:dbi-test;create=true", user = 'sa'),
+  dbj::driver(),
+  list(url = "jdbc:derby:memory:dbi-test;create=true", user = 'sa'),
   tweaks = DBItest::tweaks(constructor_name = "driver"),
   name = "Derby"
 )
@@ -42,6 +45,5 @@ DBItest::test_all(skip = c(
   NULL
 ))
 
-test_bdj_extras(skip = c(),
-  default_driver_args = list(driver_class = derby_driver_class, classpath = derby_classpath)
+test_bdj_extras(skip = c()
 )

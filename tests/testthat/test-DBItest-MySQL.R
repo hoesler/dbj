@@ -1,13 +1,15 @@
-mysql_driver_class <- 'com.mysql.jdbc.Driver'
-mysql_classpath <- resolve(
-  module('mysql:mysql-connector-java:5.1.38'),
-  repositories = list(maven_local, maven_central)
+jdbc_register_driver(
+  'com.mysql.jdbc.Driver',
+  resolve(
+    module('mysql:mysql-connector-java:5.1.38'),
+    repositories = list(maven_local, maven_central)
+  )
 )
 
 DBItest::make_context(
   # DBItest isn't quoting identifiers with dbQuoteIdentifier().
   # So we have to use experimantal feature DATABASE_TO_UPPER=FALSE instead.
-  dbj::driver(mysql_driver_class, mysql_classpath),
+  dbj::driver(),
   list(url = "jdbc:mysql://localhost/dbi_test?useSSL=false&generateSimpleParameterMetadata=true", user = 'dbi_test', password = 'dbi_test'),
   tweaks = DBItest::tweaks(constructor_name = "driver"),
   name = "MySQL"
@@ -60,6 +62,5 @@ test_bdj_extras(skip = c(
   "test_custom_conversion.*",
 
   NULL
-  ),
-  default_driver_args = list(driver_class = mysql_driver_class, classpath = mysql_classpath)
+  )
 )

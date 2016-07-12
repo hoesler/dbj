@@ -1,4 +1,4 @@
-test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_driver_args = list()) {
+test_bdj_extras <- function(skip = NULL, ctx = get_default_context()) {
   attach(getNamespace("DBItest"), warn.conflicts = FALSE)
   
   test_suite <- "bdj specific"
@@ -6,7 +6,7 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
   tests <- list(
 	
   	# ajusted version of constructor test in DBItest::test_driver
-  	constructor = function() {
+  	constructor = function(ctx) {
       pkg_name <- package_name(ctx)
 
       constructor_name <- ctx$tweaks$constructor_name %||%
@@ -21,7 +21,7 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
       #expect_that(constructor, all_args_have_default_values())
     },
 
-  	test_truncate = function() {
+  	test_truncate = function(ctx) {
       with_connection({
         on.exit(expect_error(dbRemoveTable(con, "iris"), NA),
                 add = TRUE)
@@ -37,7 +37,7 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
       })
     },
 
-    test_truncate_delete = function() {
+    test_truncate_delete = function(ctx) {
       with_connection({
         on.exit(expect_error(dbRemoveTable(con, "iris"), NA),
                 add = TRUE)
@@ -53,7 +53,7 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
       })
     },
 
-    test_custom_conversion1 = function() {
+    test_custom_conversion1 = function(ctx) {
     	
       # given
   	  read_conversions <- c(list(
@@ -74,8 +74,8 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
   	  ), default_write_conversions)
 
   	  # when
-  	  drv <- do.call(dbj::driver, modifyList(default_driver_args,
-        list(read_conversions = read_conversions, write_conversions = write_conversions)))
+  	  drv <- do.call(dbj::driver,
+        list(read_conversions = read_conversions, write_conversions = write_conversions))
   	  
   	  # then
   	  con <- do.call(dbConnect, c(list(drv), ctx$connect_args))
@@ -91,7 +91,7 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
   	  expect_identical(iris_read$Sepal.Length, iris$Sepal.Length + 2)
   	},
 
-    test_custom_conversion2 = function() {
+    test_custom_conversion2 = function(ctx) {
 
       # given
   	  library(lubridate)
@@ -113,8 +113,8 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
   	  ), default_write_conversions)
 
   	  # when
-  	  drv <- do.call(dbj::driver, modifyList(default_driver_args,
-        list(read_conversions = read_conversions, write_conversions = write_conversions)))
+  	  drv <- do.call(dbj::driver,
+        list(read_conversions = read_conversions, write_conversions = write_conversions))
   	  
   	  # then
   	  con <- do.call(dbConnect, c(list(drv), ctx$connect_args))
@@ -131,7 +131,7 @@ test_bdj_extras <- function(skip = NULL, ctx = get_default_context(), default_dr
   	}
   )
 
-  run_tests(tests, skip, test_suite, ctx$name)
+  run_tests(ctx, tests, skip, test_suite)
 
   detach(getNamespace("DBItest"))
 }
