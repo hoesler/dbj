@@ -36,6 +36,7 @@ services:
   - mysql
 
 build_script:
+  - travis-tool.sh install_r stringr # manually install lubridate dependency stringr (workaround for https://github.com/hadley/devtools/issues/1246)
   - travis-tool.sh install_deps
 
 before_test:
